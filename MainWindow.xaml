@@ -23,8 +23,14 @@
             </MenuItem>
         </Menu>
         <ToolBar Height="26" VerticalAlignment="Top" Grid.Row="1" >
-            <Button Command="ApplicationCommands.Open" Width="23" Height="23" Padding="0">
-                <Image Source="/Resources/OpenFile.png" Width="16" Height="16" Stretch="Uniform" />
+            <Button Command="ApplicationCommands.Open">
+                <Image Source="/Resources/OpenFile.png" Width="16" Height="16" />
+            </Button>
+            <Button Click="ButtonZoomOut_Click">
+                <Image Source="/Resources/ZoomOut.png" Width="16" Height="16" />
+            </Button>
+            <Button Click="ButtonZoomIn_Click">
+                <Image Source="/Resources/ZoomIn.png" Width="16" Height="16" />
             </Button>
         </ToolBar>
         <!-- ScrollViewer ensures image fits and can be scrolled if large -->

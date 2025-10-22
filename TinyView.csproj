@@ -12,6 +12,8 @@
 
   <ItemGroup>
     <None Remove="Resources\OpenFile.png" />
+    <None Remove="Resources\ZoomIn.png" />
+    <None Remove="Resources\ZoomOut.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +22,8 @@
 
   <ItemGroup>
     <Resource Include="Resources\OpenFile.png" />
+    <Resource Include="Resources\ZoomIn.png" />
+    <Resource Include="Resources\ZoomOut.png" />
   </ItemGroup>
 
 </Project>
