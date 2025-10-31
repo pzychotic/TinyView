@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace TinyView.ViewModels
@@ -22,9 +23,16 @@ namespace TinyView.ViewModels
 
         public void LoadImage(string path)
         {
-            var (raw, bmp) = MagickImageLoader.LoadImage(path);
-            RawData = raw;
-            ImageSource = bmp;
+            try
+            {
+                var (raw, bmp) = MagickImageLoader.LoadImage(path);
+                RawData = raw;
+                ImageSource = bmp;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading image: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
