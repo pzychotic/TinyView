@@ -37,7 +37,7 @@ namespace TinyView
 
             ushort min = rawData.Cast<ushort>().Min();
             ushort max = rawData.Cast<ushort>().Max();
-            float scale = 255f / (max - min);
+            float scale = min == max ? 1f : 255f / (max - min);
 
             for (int y = 0; y < height; ++y)
             {
