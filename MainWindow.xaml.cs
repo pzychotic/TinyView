@@ -84,5 +84,17 @@ namespace TinyView
             PreviewImage.LayoutTransform = new ScaleTransform(_scaleFactor, _scaleFactor);
             LabelZoom.Text = string.Format("Zoom: {0}%", _scaleFactor * 100.0);
         }
+
+        private void Image_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files.Length == 0)
+                    return;
+                // only support one file right now
+                _viewModel.LoadImage(files[0]);
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿<Window x:Class="TinyView.MainWindow"
+<Window x:Class="TinyView.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:TinyView"
@@ -13,7 +13,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Menu Height="23" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="0">
+        <Menu HorizontalAlignment="Stretch" Grid.Row="0">
             <MenuItem Header="_File">
                 <MenuItem Command="ApplicationCommands.Open">
                     <MenuItem.Icon>
@@ -34,7 +34,8 @@
             </Button>
         </ToolBar>
         <!-- ScrollViewer ensures image fits and can be scrolled if large -->
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="2">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="2"
+                      AllowDrop="True" Drop="Image_Drop">
             <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor"
                    Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}" />
         </ScrollViewer>
