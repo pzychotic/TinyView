@@ -1,4 +1,5 @@
-﻿using System.Windows;
+using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using TinyView.ViewModels;
@@ -33,6 +34,7 @@ namespace TinyView
             if (dialog.ShowDialog() == true)
             {
                 _viewModel.LoadImage(dialog.FileName);
+                Title = $"TinyView - {Path.GetFileName(dialog.FileName)}";
             }
         }
 
@@ -94,6 +96,7 @@ namespace TinyView
                     return;
                 // only support one file right now
                 _viewModel.LoadImage(files[0]);
+                Title = $"TinyView - {Path.GetFileName(files[0])}";
             }
         }
     }
