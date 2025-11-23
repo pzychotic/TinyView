@@ -34,7 +34,7 @@ namespace TinyView
             if (dialog.ShowDialog() == true)
             {
                 _viewModel.LoadImage(dialog.FileName);
-                Title = $"TinyView - {Path.GetFileName(dialog.FileName)}";
+                Title = $"TinyView - {_viewModel.Filename}";
             }
         }
 
@@ -62,7 +62,7 @@ namespace TinyView
                 return;
             }
 
-            ushort value = vm.RawData[x, y];
+            string? value = vm.RawData.GetValueString(x, y);
             LabelValue.Text = $"Pos: {x},{y} - Value: {value}";
         }
 
@@ -96,7 +96,7 @@ namespace TinyView
                     return;
                 // only support one file right now
                 _viewModel.LoadImage(files[0]);
-                Title = $"TinyView - {Path.GetFileName(files[0])}";
+                Title = $"TinyView - {_viewModel.Filename}";
             }
         }
     }

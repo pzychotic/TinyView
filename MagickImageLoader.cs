@@ -7,7 +7,7 @@ namespace TinyView
 {
     public class MagickImageLoader
     {
-        public static (ushort[,] rawData, WriteableBitmap bitmap) LoadImage(string path)
+        public static (IRawImageDataProvider, WriteableBitmap) LoadImage(string path)
         {
             using var image = new MagickImage(path);
 
@@ -18,7 +18,7 @@ namespace TinyView
             int height = (int)image.Height;
 
             // extract raw 16-bit data
-            ushort[,] rawData = new ushort[width, height];
+            var pixelData = new ushort[width, height];
 
             using (var pixels = image.GetPixels())
             {
@@ -27,23 +27,25 @@ namespace TinyView
                     for (int x = 0; x < width; ++x)
                     {
                         ushort value = pixels.GetPixel(x, y).GetChannel(0);
-                        rawData[x, y] = value;
+                        pixelData[x, y] = value;
                     }
                 }
             }
 
+            var rawData = new RawImageData<ushort>(width, height, pixelData);
+
             // convert to 8-bit grayscale for display
             byte[] pixels8 = new byte[width * height];
 
-            ushort min = rawData.Cast<ushort>().Min();
-            ushort max = rawData.Cast<ushort>().Max();
+            ushort min = pixelData.Cast<ushort>().Min();
+            ushort max = pixelData.Cast<ushort>().Max();
             float scale = min == max ? 1f : 255f / (max - min);
 
             for (int y = 0; y < height; ++y)
             {
                 for (int x = 0; x < width; ++x)
                 {
-                    float norm = (rawData[x, y] - min) * scale;
+                    float norm = (pixelData[x, y] - min) * scale;
                     byte scaled = (byte)Math.Clamp(norm, 0, 255);
                     pixels8[y * width + x] = scaled;
                 }
