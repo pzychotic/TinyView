@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -28,9 +28,19 @@ namespace TinyView.ViewModels
         {
             try
             {
-                var (raw, bmp) = MagickImageLoader.LoadImage(path);
-                RawData = raw;
-                ImageSource = bmp;
+                string ext = Path.GetExtension(path).ToLower();
+                if (ext == ".png")
+                {
+                    (RawData, ImageSource) = MagickImageLoader.LoadImage(path);
+                }
+                else if (ext == ".dds")
+                {
+                    (RawData, ImageSource) = PfimImageLoader.LoadImage(path);
+                }
+                else
+                {
+                    throw new NotSupportedException($"Unsupported image format: {ext}");
+                }
 
                 Filename = Path.GetFileName(path);
             }
