@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -28,7 +28,7 @@ namespace TinyView
         {
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = "PNG Files (*.png)|*.png|All Files (*.*)|*.*"
+                Filter = "Image Files (*.dds;*.png)|*.dds;*.png|PNG Files (*.png)|*.png|DDS Files (*.dds)|*.dds|All Files (*.*)|*.*"
             };
 
             if (dialog.ShowDialog() == true)
