@@ -36,11 +36,7 @@ namespace TinyView
                 _viewModel.LoadImage(dialog.FileName);
                 Title = $"TinyView - {_viewModel.Filename}";
 
-                // apply currently selected palette
-                if (ComboBoxColorPalette.SelectedItem is ColorPalettes.PaletteEntry entry)
-                {
-                    _viewModel.ApplyPalette(entry.Palette);
-                }
+                ApplyCurrentPalette();
             }
         }
 
@@ -104,15 +100,16 @@ namespace TinyView
                 _viewModel.LoadImage(files[0]);
                 Title = $"TinyView - {_viewModel.Filename}";
 
-                // apply currently selected palette
-                if (ComboBoxColorPalette.SelectedItem is ColorPalettes.PaletteEntry entry)
-                {
-                    _viewModel.ApplyPalette(entry.Palette);
-                }
+                ApplyCurrentPalette();
             }
         }
 
         private void ComboBoxColorPalette_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ApplyCurrentPalette();
+        }
+
+        private void ApplyCurrentPalette()
         {
             if (ComboBoxColorPalette.SelectedItem is ColorPalettes.PaletteEntry entry)
             {
