@@ -11,3 +11,6 @@ Visual Studio 2022
 ## Dependencies
 - [Magick.Net](https://github.com/dlemstra/Magick.NET) for PNG file loading
 - [Pfim](https://github.com/nickbabcock/Pfim) for DDS file loading
+
+## References
+- ColorMaps created from [viridisLite](https://github.com/sjmgarnier/viridisLite)
