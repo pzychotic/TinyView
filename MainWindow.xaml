@@ -8,6 +8,17 @@
         <CommandBinding Command="ApplicationCommands.Open" Executed="FileOpen_Executed" />
     </Window.CommandBindings>
 
+    <!-- Keyboard shortcuts -->
+    <Window.InputBindings>
+        <!-- Ctrl + '+' (main keyboard and numpad) -->
+        <KeyBinding Command="{Binding ZoomInCommand}" Key="OemPlus" Modifiers="Control" />
+        <KeyBinding Command="{Binding ZoomInCommand}" Key="Add" Modifiers="Control" />
+
+        <!-- Ctrl + '-' (main keyboard and numpad) -->
+        <KeyBinding Command="{Binding ZoomOutCommand}" Key="OemMinus" Modifiers="Control" />
+        <KeyBinding Command="{Binding ZoomOutCommand}" Key="Subtract" Modifiers="Control" />
+    </Window.InputBindings>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
