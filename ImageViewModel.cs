@@ -52,13 +52,30 @@ namespace TinyView.ViewModels
             set { if (value == _valueText) return; _valueText = value; OnPropertyChanged(); }
         }
 
+        public ICommand OpenCommand { get; }
         public ICommand ZoomInCommand { get; }
         public ICommand ZoomOutCommand { get; }
 
+        public event EventHandler? ImageLoaded;
+
         public ImageViewModel()
         {
+            OpenCommand = new RelayCommand(_ => ExecuteOpen());
             ZoomInCommand = new RelayCommand(_ => ScaleFactor *= 2.0);
             ZoomOutCommand = new RelayCommand(_ => ScaleFactor /= 2.0);
+        }
+
+        private void ExecuteOpen()
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Image Files (*.dds;*.png)|*.dds;*.png|PNG Files (*.png)|*.png|DDS Files (*.dds)|*.dds|All Files (*.*)|*.*"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                LoadImage(dialog.FileName);
+            }
         }
 
         public void LoadImage(string path)
@@ -81,6 +98,9 @@ namespace TinyView.ViewModels
 
                 Filename = Path.GetFileName(path);
                 OnPropertyChanged(nameof(FormatText));
+
+                // notify listeners that an image was loaded
+                ImageLoaded?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

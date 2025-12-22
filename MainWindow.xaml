@@ -4,17 +4,18 @@
         xmlns:local="clr-namespace:TinyView"
         Title="TinyView" Height="600" Width="800">
 
-    <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Open" Executed="FileOpen_Executed" />
-    </Window.CommandBindings>
+    <!-- Removed ApplicationCommands.Open CommandBinding; using ViewModel OpenCommand instead -->
 
     <!-- Keyboard shortcuts -->
     <Window.InputBindings>
-        <!-- Ctrl + '+' (main keyboard and numpad) -->
+        <!-- Ctrl + 'O' for Open -->
+        <KeyBinding Command="{Binding OpenCommand}" Key="O" Modifiers="Control" />
+
+        <!-- Ctrl + '+' for Zoom in (main keyboard and numpad) -->
         <KeyBinding Command="{Binding ZoomInCommand}" Key="OemPlus" Modifiers="Control" />
         <KeyBinding Command="{Binding ZoomInCommand}" Key="Add" Modifiers="Control" />
 
-        <!-- Ctrl + '-' (main keyboard and numpad) -->
+        <!-- Ctrl + '-' for Zoom out (main keyboard and numpad) -->
         <KeyBinding Command="{Binding ZoomOutCommand}" Key="OemMinus" Modifiers="Control" />
         <KeyBinding Command="{Binding ZoomOutCommand}" Key="Subtract" Modifiers="Control" />
     </Window.InputBindings>
@@ -29,7 +30,7 @@
 
         <Menu HorizontalAlignment="Stretch" Grid.Row="0">
             <MenuItem Header="_File">
-                <MenuItem Command="ApplicationCommands.Open">
+                <MenuItem Header="_Open" Command="{Binding OpenCommand}">
                     <MenuItem.Icon>
                         <Image Source="/Resources/OpenFile.png"/>
                     </MenuItem.Icon>
@@ -38,7 +39,7 @@
         </Menu>
 
         <ToolBar Height="26" VerticalAlignment="Top" Grid.Row="1" >
-            <Button Command="ApplicationCommands.Open">
+            <Button Command="{Binding OpenCommand}">
                 <Image Source="/Resources/OpenFile.png" Width="16" Height="16" />
             </Button>
             <Separator />

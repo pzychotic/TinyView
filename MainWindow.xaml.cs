@@ -18,25 +18,17 @@ namespace TinyView
 
             DataContext = _viewModel;
 
+            _viewModel.ImageLoaded += ViewModel_ImageLoaded;
+
             // subscribe to mouse events on the Image control
             PreviewImage.MouseMove += PreviewImage_MouseMove;
             PreviewImage.MouseLeave += PreviewImage_MouseLeave;
         }
 
-        private void FileOpen_Executed(object sender, RoutedEventArgs e)
+        private void ViewModel_ImageLoaded(object? sender, System.EventArgs e)
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Filter = "Image Files (*.dds;*.png)|*.dds;*.png|PNG Files (*.png)|*.png|DDS Files (*.dds)|*.dds|All Files (*.*)|*.*"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                _viewModel.LoadImage(dialog.FileName);
-                Title = $"TinyView - {_viewModel.Filename}";
-
-                ApplyCurrentPalette();
-            }
+            Title = $"TinyView - {_viewModel.Filename}";
+            ApplyCurrentPalette();
         }
 
         private void PreviewImage_MouseMove(object? sender, MouseEventArgs e)
@@ -78,11 +70,9 @@ namespace TinyView
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 if (files.Length == 0)
                     return;
+
                 // only support one file right now
                 _viewModel.LoadImage(files[0]);
-                Title = $"TinyView - {_viewModel.Filename}";
-
-                ApplyCurrentPalette();
             }
         }
 
