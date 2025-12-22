@@ -48,7 +48,9 @@
         <!-- ScrollViewer ensures image fits and can be scrolled if large -->
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="2"
                       AllowDrop="True" Drop="Image_Drop">
-            <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor"
+            <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"
+                   SnapsToDevicePixels="True" UseLayoutRounding="True"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
                    Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}" />
         </ScrollViewer>
 
