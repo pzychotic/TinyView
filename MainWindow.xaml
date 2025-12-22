@@ -3,9 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:TinyView"
         Title="TinyView" Height="600" Width="800">
+
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Open" Executed="FileOpen_Executed" />
     </Window.CommandBindings>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -13,6 +15,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+
         <Menu HorizontalAlignment="Stretch" Grid.Row="0">
             <MenuItem Header="_File">
                 <MenuItem Command="ApplicationCommands.Open">
@@ -22,23 +25,33 @@
                 </MenuItem>
             </MenuItem>
         </Menu>
+
         <ToolBar Height="26" VerticalAlignment="Top" Grid.Row="1" >
             <Button Command="ApplicationCommands.Open">
                 <Image Source="/Resources/OpenFile.png" Width="16" Height="16" />
             </Button>
+            <Separator />
             <Button Click="ButtonZoomOut_Click">
                 <Image Source="/Resources/ZoomOut.png" Width="16" Height="16" />
             </Button>
             <Button Click="ButtonZoomIn_Click">
                 <Image Source="/Resources/ZoomIn.png" Width="16" Height="16" />
             </Button>
+            <Separator />
+            <ComboBox x:Name="ComboBoxColorPalette" Width="80"
+                      DisplayMemberPath="Name"
+                      ItemsSource="{Binding Source={x:Static local:ColorPalettes.Palettes}}"
+                      SelectionChanged="ComboBoxColorPalette_SelectionChanged"
+                      SelectedIndex="0" />
         </ToolBar>
+
         <!-- ScrollViewer ensures image fits and can be scrolled if large -->
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="2"
                       AllowDrop="True" Drop="Image_Drop">
             <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor"
                    Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}" />
         </ScrollViewer>
+
         <StatusBar Height="26" VerticalAlignment="Top" Margin="0,0,0,0" VerticalContentAlignment="Center" Grid.Row="3">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>

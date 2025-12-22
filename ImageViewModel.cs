@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace TinyView.ViewModels
@@ -48,6 +49,16 @@ namespace TinyView.ViewModels
             {
                 MessageBox.Show($"Error loading image:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        public void ApplyPalette(BitmapPalette palette)
+        {
+            if (RawData == null)
+                return;
+
+            var bitmap = new WriteableBitmap(RawData.Width, RawData.Height, 96, 96, PixelFormats.Indexed8, palette);
+            bitmap.WritePixels(new Int32Rect(0, 0, RawData.Width, RawData.Height), RawData.IndexedData, RawData.Width, 0);
+            ImageSource = bitmap;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

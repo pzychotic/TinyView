@@ -6,6 +6,9 @@ namespace TinyView
 {
     public interface IRawImageDataProvider
     {
+        int Width { get; }
+        int Height { get; }
+        byte[] IndexedData { get; }
         string? GetValueString(int x, int y);
     }
 
@@ -47,8 +50,8 @@ namespace TinyView
             }
         }
 
-        public readonly int Width;
-        public readonly int Height;
+        public int Width { get; }
+        public int Height { get; }
 
         private readonly float Min;
         private readonly float Max;

@@ -1,8 +1,8 @@
-﻿using System.IO;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using TinyView.ViewModels;
+using System.Windows.Controls;
 
 namespace TinyView
 {
@@ -35,6 +35,12 @@ namespace TinyView
             {
                 _viewModel.LoadImage(dialog.FileName);
                 Title = $"TinyView - {_viewModel.Filename}";
+
+                // apply currently selected palette
+                if (ComboBoxColorPalette.SelectedItem is ColorPalettes.PaletteEntry entry)
+                {
+                    _viewModel.ApplyPalette(entry.Palette);
+                }
             }
         }
 
@@ -97,6 +103,20 @@ namespace TinyView
                 // only support one file right now
                 _viewModel.LoadImage(files[0]);
                 Title = $"TinyView - {_viewModel.Filename}";
+
+                // apply currently selected palette
+                if (ComboBoxColorPalette.SelectedItem is ColorPalettes.PaletteEntry entry)
+                {
+                    _viewModel.ApplyPalette(entry.Palette);
+                }
+            }
+        }
+
+        private void ComboBoxColorPalette_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboBoxColorPalette.SelectedItem is ColorPalettes.PaletteEntry entry)
+            {
+                _viewModel.ApplyPalette(entry.Palette);
             }
         }
     }
