@@ -92,11 +92,11 @@
             </StatusBarItem>
             <Separator Grid.Column="2" />
             <StatusBarItem Grid.Column="3">
-                <TextBlock x:Name="LabelZoom" Text="{Binding ZoomText}" />
+                <TextBlock Text="{Binding ZoomText}" />
             </StatusBarItem>
             <Separator Grid.Column="4" />
             <StatusBarItem Grid.Column="5">
-                <TextBlock x:Name="LabelFormat" Text="Format: undefined" />
+                <TextBlock Text="{Binding FormatText}" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

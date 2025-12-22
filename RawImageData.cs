@@ -9,6 +9,7 @@ namespace TinyView
         int Width { get; }
         int Height { get; }
         byte[] IndexedData { get; }
+        string? DataFormat { get; }
         string? GetValueString(int x, int y);
     }
 
@@ -19,7 +20,9 @@ namespace TinyView
     /// <typeparam name="T">The type of the pixel data stored as the raw image data.</typeparam>
     public class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
     {
-        public RawImageData(int width, int height, T[,] data)
+        private readonly string _dataFormat;
+
+        public RawImageData(int width, int height, T[,] data, string dataFormat)
         {
             Width = width;
             Height = height;
@@ -29,6 +32,8 @@ namespace TinyView
 
             _rawData = data;
             IndexedData = new byte[Width * Height];
+
+            _dataFormat = dataFormat;
 
             GenerateIndexedData();
         }
@@ -53,17 +58,20 @@ namespace TinyView
         public int Width { get; }
         public int Height { get; }
 
-        private readonly float Min;
-        private readonly float Max;
 
         public byte[] IndexedData { get; }
 
-        private T[,] _rawData;
+        public string? DataFormat => _dataFormat;
 
         public string? GetValueString(int x, int y)
         {
             Debug.Assert(x >= 0 && x < Width && y >= 0 && y < Height);
             return _rawData[x, y].ToString();
         }
+
+        private T[,] _rawData;
+
+        private readonly float Min;
+        private readonly float Max;
     }
 }

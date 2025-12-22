@@ -21,7 +21,7 @@ namespace TinyView.ViewModels
         public IRawImageDataProvider? RawData
         {
             get => _rawData;
-            set { _rawData = value; OnPropertyChanged(); }
+            set { _rawData = value; OnPropertyChanged(); OnPropertyChanged(nameof(FormatText)); }
         }
 
         public string? Filename;
@@ -41,6 +41,8 @@ namespace TinyView.ViewModels
         }
 
         public string ZoomText => $"Zoom: {ScaleFactor * 100.0}%";
+
+        public string FormatText => RawData?.DataFormat ?? "Format: undefined";
 
         public ICommand ZoomInCommand { get; }
         public ICommand ZoomOutCommand { get; }
@@ -70,6 +72,7 @@ namespace TinyView.ViewModels
                 }
 
                 Filename = Path.GetFileName(path);
+                OnPropertyChanged(nameof(FormatText));
             }
             catch (Exception ex)
             {

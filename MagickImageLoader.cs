@@ -32,7 +32,8 @@ namespace TinyView
                 }
             }
 
-            return new RawImageData<ushort>(width, height, pixelData);
+            string format = "Gray16 (ushort)";
+            return new RawImageData<ushort>(width, height, pixelData, format);
         }
     }
 }

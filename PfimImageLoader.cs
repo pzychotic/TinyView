@@ -31,7 +31,8 @@ namespace TinyView
                 }
             }
 
-            return new RawImageData<float>(width, height, pixelData);
+            string format = isHalf ? "R16F (half)" : "R32F (float)";
+            return new RawImageData<float>(width, height, pixelData, format);
         }
     }
 }
