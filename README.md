@@ -7,6 +7,9 @@ The value range between min and max from the image will be scaled to 0-255 range
 
 ## Build
 Visual Studio 2022
+- .Net Desktop development workload
+- .Net 8.0 Runtime
+- .Net SDK
 
 ## Dependencies
 - [Magick.Net](https://github.com/dlemstra/Magick.NET) for PNG file loading
