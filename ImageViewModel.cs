@@ -44,6 +44,14 @@ namespace TinyView.ViewModels
 
         public string FormatText => RawData?.DataFormat ?? "Format: undefined";
 
+        // Status text shown in the status bar (pixel position and value)
+        private string _valueText = "Pos: 0,0 - Value: undefined";
+        public string ValueText
+        {
+            get => _valueText;
+            set { if (value == _valueText) return; _valueText = value; OnPropertyChanged(); }
+        }
+
         public ICommand ZoomInCommand { get; }
         public ICommand ZoomOutCommand { get; }
 

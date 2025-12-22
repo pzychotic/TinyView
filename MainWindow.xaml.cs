@@ -59,17 +59,19 @@ namespace TinyView
 
             if (x < 0 || x >= bmp.PixelWidth || y < 0 || y >= bmp.PixelHeight)
             {
-                LabelValue.Text = "Pos: 0,0 - Value: undefined";
+                vm.ValueText = "Pos: 0,0 - Value: undefined";
                 return;
             }
 
             string? value = vm.RawData.GetValueString(x, y);
-            LabelValue.Text = $"Pos: {x},{y} - Value: {value}";
+            vm.ValueText = $"Pos: {x},{y} - Value: {value}";
         }
 
         private void PreviewImage_MouseLeave(object? sender, MouseEventArgs e)
         {
-            LabelValue.Text = "Pos: 0,0 - Value: undefined";
+            var vm = DataContext as ImageViewModel;
+            if (vm != null)
+                vm.ValueText = "Pos: 0,0 - Value: undefined";
         }
 
         private void Image_Drop(object sender, DragEventArgs e)
