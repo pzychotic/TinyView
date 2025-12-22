@@ -7,7 +7,7 @@ namespace TinyView
 {
     public class MagickImageLoader
     {
-        public static (IRawImageDataProvider, WriteableBitmap) LoadImage(string path)
+        public static IRawImageDataProvider LoadImage(string path)
         {
             using var image = new MagickImage(path);
 
@@ -32,13 +32,7 @@ namespace TinyView
                 }
             }
 
-            var rawData = new RawImageData<ushort>(width, height, pixelData);
-
-            // create a WPF bitmap
-            var bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Indexed8, BitmapPalettes.Gray256);
-            bitmap.WritePixels(new Int32Rect(0, 0, width, height), rawData.IndexedData, width, 0);
-
-            return (rawData, bitmap);
+            return new RawImageData<ushort>(width, height, pixelData);
         }
     }
 }

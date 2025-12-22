@@ -32,11 +32,11 @@ namespace TinyView.ViewModels
                 string ext = Path.GetExtension(path).ToLower();
                 if (ext == ".png")
                 {
-                    (RawData, ImageSource) = MagickImageLoader.LoadImage(path);
+                    RawData = MagickImageLoader.LoadImage(path);
                 }
                 else if (ext == ".dds")
                 {
-                    (RawData, ImageSource) = PfimImageLoader.LoadImage(path);
+                    RawData = PfimImageLoader.LoadImage(path);
                 }
                 else
                 {
