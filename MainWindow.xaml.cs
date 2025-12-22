@@ -1,8 +1,7 @@
 ﻿using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using TinyView.ViewModels;
 using System.Windows.Controls;
+using System.Windows.Input;
+using TinyView.ViewModels;
 
 namespace TinyView
 {
@@ -71,22 +70,6 @@ namespace TinyView
         private void PreviewImage_MouseLeave(object? sender, MouseEventArgs e)
         {
             LabelValue.Text = "Pos: 0,0 - Value: undefined";
-        }
-
-        private double _scaleFactor = 1.0;
-
-        private void ButtonZoomOut_Click(object sender, RoutedEventArgs e)
-        {
-            _scaleFactor /= 2.0;
-            PreviewImage.LayoutTransform = new ScaleTransform(_scaleFactor, _scaleFactor);
-            LabelZoom.Text = string.Format("Zoom: {0}%", _scaleFactor * 100.0);
-        }
-
-        private void ButtonZoomIn_Click(object sender, RoutedEventArgs e)
-        {
-            _scaleFactor *= 2.0;
-            PreviewImage.LayoutTransform = new ScaleTransform(_scaleFactor, _scaleFactor);
-            LabelZoom.Text = string.Format("Zoom: {0}%", _scaleFactor * 100.0);
         }
 
         private void Image_Drop(object sender, DragEventArgs e)

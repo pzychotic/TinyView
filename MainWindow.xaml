@@ -31,10 +31,10 @@
                 <Image Source="/Resources/OpenFile.png" Width="16" Height="16" />
             </Button>
             <Separator />
-            <Button Click="ButtonZoomOut_Click">
+            <Button Command="{Binding ZoomOutCommand}">
                 <Image Source="/Resources/ZoomOut.png" Width="16" Height="16" />
             </Button>
-            <Button Click="ButtonZoomIn_Click">
+            <Button Command="{Binding ZoomInCommand}">
                 <Image Source="/Resources/ZoomIn.png" Width="16" Height="16" />
             </Button>
             <Separator />
@@ -51,7 +51,11 @@
             <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"
                    SnapsToDevicePixels="True" UseLayoutRounding="True"
                    RenderOptions.BitmapScalingMode="NearestNeighbor"
-                   Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}" />
+                   Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}">
+                <Image.LayoutTransform>
+                    <ScaleTransform ScaleX="{Binding ScaleFactor}" ScaleY="{Binding ScaleFactor}" />
+                </Image.LayoutTransform>
+            </Image>
         </ScrollViewer>
 
         <StatusBar Height="26" VerticalAlignment="Top" Margin="0,0,0,0" VerticalContentAlignment="Center" Grid.Row="3">
@@ -77,7 +81,7 @@
             </StatusBarItem>
             <Separator Grid.Column="2" />
             <StatusBarItem Grid.Column="3">
-                <TextBlock x:Name="LabelZoom" Text="Zoom: 100%" />
+                <TextBlock x:Name="LabelZoom" Text="{Binding ZoomText}" />
             </StatusBarItem>
             <Separator Grid.Column="4" />
             <StatusBarItem Grid.Column="5">

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -24,6 +25,31 @@ namespace TinyView.ViewModels
         }
 
         public string? Filename;
+
+        // Zoom handling
+        private double _scaleFactor = 1.0;
+        public double ScaleFactor
+        {
+            get => _scaleFactor;
+            set
+            {
+                if (value == _scaleFactor) return;
+                _scaleFactor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ZoomText));
+            }
+        }
+
+        public string ZoomText => $"Zoom: {ScaleFactor * 100.0}%";
+
+        public ICommand ZoomInCommand { get; }
+        public ICommand ZoomOutCommand { get; }
+
+        public ImageViewModel()
+        {
+            ZoomInCommand = new RelayCommand(_ => ScaleFactor *= 2.0);
+            ZoomOutCommand = new RelayCommand(_ => ScaleFactor /= 2.0);
+        }
 
         public void LoadImage(string path)
         {
