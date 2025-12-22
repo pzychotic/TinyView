@@ -41,12 +41,11 @@ namespace TinyView
 
         private void PreviewImage_MouseMove(object? sender, MouseEventArgs e)
         {
-            var vm = DataContext as ImageViewModel;
-            if (vm?.ImageSource == null || vm?.RawData == null)
+            if (_viewModel.ImageSource == null || _viewModel.RawData == null)
                 return;
 
             var pos = e.GetPosition(PreviewImage);
-            var bmp = vm.ImageSource;
+            var bmp = _viewModel.ImageSource;
 
             double displayWidth = PreviewImage.ActualWidth;
             double displayHeight = PreviewImage.ActualHeight;
@@ -59,19 +58,17 @@ namespace TinyView
 
             if (x < 0 || x >= bmp.PixelWidth || y < 0 || y >= bmp.PixelHeight)
             {
-                vm.ValueText = "Pos: 0,0 - Value: undefined";
+                _viewModel.ValueText = "Pos: 0,0 - Value: undefined";
                 return;
             }
 
-            string? value = vm.RawData.GetValueString(x, y);
-            vm.ValueText = $"Pos: {x},{y} - Value: {value}";
+            string? value = _viewModel.RawData.GetValueString(x, y);
+            _viewModel.ValueText = $"Pos: {x},{y} - Value: {value}";
         }
 
         private void PreviewImage_MouseLeave(object? sender, MouseEventArgs e)
         {
-            var vm = DataContext as ImageViewModel;
-            if (vm != null)
-                vm.ValueText = "Pos: 0,0 - Value: undefined";
+            _viewModel.ValueText = "Pos: 0,0 - Value: undefined";
         }
 
         private void Image_Drop(object sender, DragEventArgs e)
