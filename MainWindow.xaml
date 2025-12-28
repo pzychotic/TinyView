@@ -94,6 +94,8 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                     </Grid>
                 </ItemsPanelTemplate>
@@ -110,6 +112,10 @@
             </StatusBarItem>
             <Separator Grid.Column="4" />
             <StatusBarItem Grid.Column="5">
+                <TextBlock Text="{Binding ImageSizeText}" />
+            </StatusBarItem>
+            <Separator Grid.Column="6" />
+            <StatusBarItem Grid.Column="7">
                 <TextBlock Text="{Binding FormatText}" />
             </StatusBarItem>
         </StatusBar>

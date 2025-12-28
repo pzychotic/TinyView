@@ -21,7 +21,13 @@ namespace TinyView.ViewModels
         public IRawImageDataProvider? RawData
         {
             get => _rawData;
-            set { _rawData = value; OnPropertyChanged(); OnPropertyChanged(nameof(FormatText)); }
+            set
+            {
+                _rawData = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(FormatText));
+                OnPropertyChanged(nameof(ImageSizeText));
+            }
         }
 
         public string? Filename;
@@ -39,8 +45,6 @@ namespace TinyView.ViewModels
             }
         }
 
-        public string FormatText => RawData?.DataFormat ?? "Format: undefined";
-
         // Status text shown in the status bar (pixel position and value)
         private string _valueText = "Pos: 0,0 - Value: undefined";
         public string ValueText
@@ -48,6 +52,9 @@ namespace TinyView.ViewModels
             get => _valueText;
             set { if (value == _valueText) return; _valueText = value; OnPropertyChanged(); }
         }
+
+        public string ImageSizeText => RawData != null ? $"Size: {RawData.Width}x{RawData.Height}" : "Size: 0x0";
+        public string FormatText => RawData?.DataFormat ?? "Format: undefined";
 
         public ICommand OpenCommand { get; }
         public ICommand ZoomInCommand { get; }
@@ -94,7 +101,6 @@ namespace TinyView.ViewModels
                 }
 
                 Filename = Path.GetFileName(path);
-                OnPropertyChanged(nameof(FormatText));
 
                 // notify listeners that an image was loaded
                 ImageLoaded?.Invoke(this, EventArgs.Empty);
