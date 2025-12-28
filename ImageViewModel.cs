@@ -27,20 +27,17 @@ namespace TinyView.ViewModels
         public string? Filename;
 
         // Zoom handling
-        private double _scaleFactor = 1.0;
-        public double ScaleFactor
+        private double _zoomFactor = 1.0;
+        public double ZoomFactor
         {
-            get => _scaleFactor;
+            get => _zoomFactor;
             set
             {
-                if (value == _scaleFactor) return;
-                _scaleFactor = value;
+                if (value == _zoomFactor) return;
+                _zoomFactor = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(ZoomText));
             }
         }
-
-        public string ZoomText => $"Zoom: {ScaleFactor * 100.0}%";
 
         public string FormatText => RawData?.DataFormat ?? "Format: undefined";
 
@@ -61,8 +58,8 @@ namespace TinyView.ViewModels
         public ImageViewModel()
         {
             OpenCommand = new RelayCommand(_ => ExecuteOpen());
-            ZoomInCommand = new RelayCommand(_ => ScaleFactor *= 2.0);
-            ZoomOutCommand = new RelayCommand(_ => ScaleFactor /= 2.0);
+            ZoomInCommand = new RelayCommand(_ => ZoomFactor *= 2.0);
+            ZoomOutCommand = new RelayCommand(_ => ZoomFactor /= 2.0);
         }
 
         private void ExecuteOpen()

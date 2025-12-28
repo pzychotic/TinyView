@@ -78,7 +78,7 @@
                    RenderOptions.BitmapScalingMode="NearestNeighbor"
                    Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}">
                 <Image.LayoutTransform>
-                    <ScaleTransform ScaleX="{Binding ScaleFactor}" ScaleY="{Binding ScaleFactor}" />
+                    <ScaleTransform ScaleX="{Binding ZoomFactor}" ScaleY="{Binding ZoomFactor}" />
                 </Image.LayoutTransform>
             </Image>
         </ScrollViewer>
@@ -106,7 +106,7 @@
             </StatusBarItem>
             <Separator Grid.Column="2" />
             <StatusBarItem Grid.Column="3">
-                <TextBlock Text="{Binding ZoomText}" />
+                <TextBlock Text="{Binding ZoomFactor, StringFormat='Zoom: {0:P0}'}" />
             </StatusBarItem>
             <Separator Grid.Column="4" />
             <StatusBarItem Grid.Column="5">
