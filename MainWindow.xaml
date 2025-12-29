@@ -18,6 +18,9 @@
         <!-- Ctrl + '-' for Zoom out (main keyboard and numpad) -->
         <KeyBinding Command="{Binding ZoomOutCommand}" Key="OemMinus" Modifiers="Control" />
         <KeyBinding Command="{Binding ZoomOutCommand}" Key="Subtract" Modifiers="Control" />
+
+        <!-- Ctrl + '*' for Zoom reset (numpad) -->
+        <KeyBinding Command="{Binding ZoomResetCommand}" Key="Multiply" Modifiers="Control" />
     </Window.InputBindings>
 
     <Grid>
@@ -48,6 +51,11 @@
                         <Image Source="/Resources/ZoomOut.png" />
                     </MenuItem.Icon>
                 </MenuItem>
+                <MenuItem Header="Zoom _Reset" Command="{Binding ZoomResetCommand}" InputGestureText="Ctrl+*">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/ZoomReset.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
         </Menu>
 
@@ -56,11 +64,14 @@
                 <Image Source="/Resources/OpenFile.png" Width="16" Height="16" />
             </Button>
             <Separator />
+            <Button Command="{Binding ZoomInCommand}">
+                <Image Source="/Resources/ZoomIn.png" Width="16" Height="16" />
+            </Button>
             <Button Command="{Binding ZoomOutCommand}">
                 <Image Source="/Resources/ZoomOut.png" Width="16" Height="16" />
             </Button>
-            <Button Command="{Binding ZoomInCommand}">
-                <Image Source="/Resources/ZoomIn.png" Width="16" Height="16" />
+            <Button Command="{Binding ZoomResetCommand}">
+                <Image Source="/Resources/ZoomReset.png" Width="16" Height="16" />
             </Button>
             <Separator />
             <ComboBox x:Name="ComboBoxColorPalette" Width="80"

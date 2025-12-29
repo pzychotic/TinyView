@@ -59,6 +59,7 @@ namespace TinyView.ViewModels
         public ICommand OpenCommand { get; }
         public ICommand ZoomInCommand { get; }
         public ICommand ZoomOutCommand { get; }
+        public ICommand ZoomResetCommand { get; }
 
         public event EventHandler? ImageLoaded;
 
@@ -67,6 +68,7 @@ namespace TinyView.ViewModels
             OpenCommand = new RelayCommand(_ => ExecuteOpen());
             ZoomInCommand = new RelayCommand(_ => ZoomFactor *= 2.0);
             ZoomOutCommand = new RelayCommand(_ => ZoomFactor /= 2.0);
+            ZoomResetCommand = new RelayCommand(_ => ZoomFactor = 1.0);
         }
 
         private void ExecuteOpen()
