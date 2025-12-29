@@ -60,17 +60,17 @@
         </Menu>
 
         <ToolBar Height="26" VerticalAlignment="Top" Grid.Row="1" >
-            <Button Command="{Binding OpenCommand}">
+            <Button Command="{Binding OpenCommand}" ToolTip="Open File (Ctrl+O)">
                 <Image Source="/Resources/OpenFile.png" Width="16" Height="16" />
             </Button>
             <Separator />
-            <Button Command="{Binding ZoomInCommand}">
+            <Button Command="{Binding ZoomInCommand}" ToolTip="Zoom In (Ctrl++)">
                 <Image Source="/Resources/ZoomIn.png" Width="16" Height="16" />
             </Button>
-            <Button Command="{Binding ZoomOutCommand}">
+            <Button Command="{Binding ZoomOutCommand}" ToolTip="Zoom Out (Ctrl+-)">
                 <Image Source="/Resources/ZoomOut.png" Width="16" Height="16" />
             </Button>
-            <Button Command="{Binding ZoomResetCommand}">
+            <Button Command="{Binding ZoomResetCommand}" ToolTip="Reset Zoom (Ctrl+*)">
                 <Image Source="/Resources/ZoomReset.png" Width="16" Height="16" />
             </Button>
             <Separator />
@@ -78,7 +78,8 @@
                       DisplayMemberPath="Name"
                       ItemsSource="{Binding Source={x:Static local:ColorPalettes.Palettes}}"
                       SelectionChanged="ComboBoxColorPalette_SelectionChanged"
-                      SelectedIndex="0" />
+                      SelectedIndex="0"
+                      ToolTip="Select color palette for visualization" />
         </ToolBar>
 
         <!-- ScrollViewer ensures image fits and can be scrolled if large -->
