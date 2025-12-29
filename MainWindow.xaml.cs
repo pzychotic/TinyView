@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using TinyView.ViewModels;
@@ -23,6 +23,9 @@ namespace TinyView
             // subscribe to mouse events on the Image control
             PreviewImage.MouseMove += PreviewImage_MouseMove;
             PreviewImage.MouseLeave += PreviewImage_MouseLeave;
+
+            // handle Ctrl + MouseWheel for zooming
+            PreviewMouseWheel += MainWindow_PreviewMouseWheel;
         }
 
         private void ViewModel_ImageLoaded(object? sender, System.EventArgs e)
@@ -86,6 +89,36 @@ namespace TinyView
             if (ComboBoxColorPalette.SelectedItem is ColorPalettes.PaletteEntry entry)
             {
                 _viewModel.ApplyPalette(entry.Palette);
+            }
+        }
+
+        // accumulator to handle sub-notch (high-resolution) wheel deltas
+        private double _wheelDeltaAccum = 0.0;
+
+        // Ctrl + MouseWheel handler: zoom in/out by a small factor per wheel notch
+        private void MainWindow_PreviewMouseWheel(object? sender, MouseWheelEventArgs e)
+        {
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                const double zoomStep = 1.1; // 10% per notch
+                const int wheelDeltaPerNotch = 120; // Win32 WHEEL_DELTA
+
+                // accumulate delta to support high-resolution mice that send sub-notch values
+                _wheelDeltaAccum += e.Delta;
+
+                int wholeNotches = (int)(_wheelDeltaAccum / wheelDeltaPerNotch);
+                if (wholeNotches != 0)
+                {
+                    if (wholeNotches > 0)
+                        _viewModel.ZoomFactor *= Math.Pow(zoomStep, wholeNotches);
+                    else
+                        _viewModel.ZoomFactor /= Math.Pow(zoomStep, -wholeNotches);
+
+                    // consume the notches we handled
+                    _wheelDeltaAccum -= wholeNotches * wheelDeltaPerNotch;
+                }
+
+                e.Handled = true;
             }
         }
     }
