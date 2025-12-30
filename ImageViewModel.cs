@@ -46,15 +46,15 @@ namespace TinyView.ViewModels
         }
 
         // Status text shown in the status bar (pixel position and value)
-        private string _valueText = "Pos: 0,0 - Value: undefined";
+        private string _valueText = "0,0: undefined";
         public string ValueText
         {
             get => _valueText;
             set { if (value == _valueText) return; _valueText = value; OnPropertyChanged(); }
         }
 
-        public string ImageSizeText => RawData != null ? $"Size: {RawData.Width}x{RawData.Height}" : "Size: 0x0";
-        public string FormatText => RawData?.DataFormat ?? "Format: undefined";
+        public string ImageSizeText => RawData != null ? $"{RawData.Width}x{RawData.Height}" : "0x0";
+        public string FormatText => RawData?.DataFormat ?? "undefined";
 
         public ICommand OpenCommand { get; }
         public ICommand ZoomInCommand { get; }

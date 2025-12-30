@@ -53,17 +53,17 @@ namespace TinyView
 
             if (x < 0 || x >= bmp.PixelWidth || y < 0 || y >= bmp.PixelHeight)
             {
-                _viewModel.ValueText = "Pos: 0,0 - Value: undefined";
+                _viewModel.ValueText = "0,0: undefined";
                 return;
             }
 
             string? value = _viewModel.RawData.GetValueString(x, y);
-            _viewModel.ValueText = $"Pos: {x},{y} - Value: {value}";
+            _viewModel.ValueText = $"{x},{y}: {value}";
         }
 
         private void PreviewImage_MouseLeave(object? sender, MouseEventArgs e)
         {
-            _viewModel.ValueText = "Pos: 0,0 - Value: undefined";
+            _viewModel.ValueText = "0,0: undefined";
         }
 
         private void Image_Drop(object sender, DragEventArgs e)
