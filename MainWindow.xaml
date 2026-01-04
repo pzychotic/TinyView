@@ -95,57 +95,53 @@
             </Image>
         </ScrollViewer>
 
-        <StatusBar Height="26" VerticalAlignment="Top" Margin="0,0,0,0" VerticalContentAlignment="Center" Grid.Row="3">
+        <StatusBar Grid.Row="3" Height="26">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto"/>    <!-- left -->
+                            <ColumnDefinition Width="*" />      <!-- center -->
+                            <ColumnDefinition Width="Auto"/>    <!-- right -->
                         </Grid.ColumnDefinitions>
                     </Grid>
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
-            <StatusBarItem Grid.Column="0">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+            <!-- left -->
+            <StatusBarItem Grid.Column="0" VerticalContentAlignment="Center">
+                <StackPanel Orientation="Horizontal" ToolTip="Pixel position and raw value">
                     <Image Source="/Resources/Cursor.png" Width="16" Height="16" Margin="0,0,4,0" />
-                    <TextBlock Text="{Binding ValueText, FallbackValue='0,0: undefined'}"
-                               VerticalAlignment="Center"
-                               ToolTip="Pixel position and raw value" />
+                    <TextBlock Text="{Binding ValueText, FallbackValue='0,0: undefined'}" />
                 </StackPanel>
             </StatusBarItem>
+
+            <!-- center (empty filler) -->
             <StatusBarItem Grid.Column="1">
                 <TextBlock />
             </StatusBarItem>
-            <Separator Grid.Column="2" />
-            <StatusBarItem Grid.Column="3">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image Source="/Resources/Zoom.png" Width="16" Height="16" Margin="0,0,4,0" />
-                    <TextBlock Text="{Binding ZoomFactor, StringFormat='{}{0:0.##%}', FallbackValue='100%'}"
-                               VerticalAlignment="Center"
-                               ToolTip="Current zoom factor" />
+
+            <!-- right -->
+            <StatusBarItem Grid.Column="2" VerticalContentAlignment="Center">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal" ToolTip="Current zoom factor">
+                        <Image Source="/Resources/Zoom.png" Width="16" Height="16" Margin="0,0,4,0" />
+                        <TextBlock Text="{Binding ZoomFactor, StringFormat='{}{0:0.##%}', FallbackValue='100%'}" />
+                    </StackPanel>
+
+                    <Border Width="1" Height="16" Margin="4,0"
+                            Background="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+
+                    <StackPanel Orientation="Horizontal" ToolTip="Image size">
+                        <Image Source="/Resources/ImageSize.png" Width="16" Height="16" Margin="0,0,4,0" />
+                        <TextBlock Text="{Binding ImageSizeText, FallbackValue='0x0'}" />
+                    </StackPanel>
+
+                    <Border Width="1" Height="16" Margin="4,0"
+                            Background="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+
+                    <TextBlock Text="{Binding FormatText, FallbackValue='undefined'}" ToolTip="Image format" />
                 </StackPanel>
-            </StatusBarItem>
-            <Separator Grid.Column="4" />
-            <StatusBarItem Grid.Column="5">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image Source="/Resources/ImageSize.png" Width="16" Height="16" Margin="0,0,4,0" />
-                    <TextBlock Text="{Binding ImageSizeText, FallbackValue='0x0'}"
-                               VerticalAlignment="Center"
-                               ToolTip="Image size" />
-                </StackPanel>
-            </StatusBarItem>
-            <Separator Grid.Column="6" />
-            <StatusBarItem Grid.Column="7">
-                <TextBlock Text="{Binding FormatText, FallbackValue='undefined'}"
-                           VerticalAlignment="Center"
-                           ToolTip="Image format" />
             </StatusBarItem>
         </StatusBar>
     </Grid>
