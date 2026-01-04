@@ -140,7 +140,15 @@
                     <Border Width="1" Height="16" Margin="4,0"
                             Background="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" />
 
-                    <TextBlock Text="{Binding FormatText, FallbackValue='undefined'}" ToolTip="Image format" />
+                    <StackPanel Orientation="Horizontal" ToolTip="Image value range (min..max)">
+                        <Image Source="/Resources/ImageMinMax.png" Width="16" Height="16" Margin="0,0,4,0" />
+                        <TextBlock Text="{Binding ImageMinMaxText, FallbackValue='0..0'}" />
+                    </StackPanel>
+
+                    <Border Width="1" Height="16" Margin="4,0"
+                            Background="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+
+                    <TextBlock Text="{Binding ImageFormatText, FallbackValue='undefined'}" ToolTip="Image format" />
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>

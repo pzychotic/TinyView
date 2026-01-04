@@ -25,8 +25,9 @@ namespace TinyView.ViewModels
             {
                 _rawData = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(FormatText));
                 OnPropertyChanged(nameof(ImageSizeText));
+                OnPropertyChanged(nameof(ImageMinMaxText));
+                OnPropertyChanged(nameof(ImageFormatText));
             }
         }
 
@@ -54,7 +55,8 @@ namespace TinyView.ViewModels
         }
 
         public string ImageSizeText => RawData != null ? $"{RawData.Width}x{RawData.Height}" : "0x0";
-        public string FormatText => RawData?.DataFormat ?? "undefined";
+        public string ImageMinMaxText => RawData != null ? $"{RawData.Min:0.##}..{RawData.Max:0.##}" : "0..0";
+        public string ImageFormatText => RawData?.DataFormat ?? "undefined";
 
         public ICommand OpenCommand { get; }
         public ICommand ZoomInCommand { get; }

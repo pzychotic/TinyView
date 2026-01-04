@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <None Remove="Resources\Cursor.png" />
+    <None Remove="Resources\ImageMinMax.png" />
     <None Remove="Resources\ImageSize.png" />
     <None Remove="Resources\OpenFile.png" />
     <None Remove="Resources\Zoom.png" />
@@ -28,6 +29,7 @@
 
   <ItemGroup>
     <Resource Include="Resources\Cursor.png" />
+    <Resource Include="Resources\ImageMinMax.png" />
     <Resource Include="Resources\ImageSize.png" />
     <Resource Include="Resources\OpenFile.png" />
     <Resource Include="Resources\Zoom.png" />

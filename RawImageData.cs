@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace TinyView
 {
@@ -8,6 +7,8 @@ namespace TinyView
     {
         int Width { get; }
         int Height { get; }
+        float Min { get; }
+        float Max { get; }
         byte[] IndexedData { get; }
         string? DataFormat { get; }
         string? GetValueString(int x, int y);
@@ -58,6 +59,8 @@ namespace TinyView
         public int Width { get; }
         public int Height { get; }
 
+        public float Min { get; }
+        public float Max { get; }
 
         public byte[] IndexedData { get; }
 
@@ -70,8 +73,5 @@ namespace TinyView
         }
 
         private T[,] _rawData;
-
-        private readonly float Min;
-        private readonly float Max;
     }
 }
