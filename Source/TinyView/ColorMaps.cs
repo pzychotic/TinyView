@@ -2,7 +2,7 @@
 
 namespace TinyView
 {
-    static class ColorMaps
+    public static class ColorMaps
     {
         public static readonly byte[,] Mako =
         {
