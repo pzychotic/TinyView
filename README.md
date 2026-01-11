@@ -7,7 +7,11 @@ A specialized viewer for 16+32bit single channel images.
 - PNG: 16-bit grayscale
 - DDS: R16F, R32F
 
-The value range between min and max from the image will be scaled to 0-255 range for screen display while the mouse over will display the raw value in the status bar.
+The pixel value range between min and max from the image will be scaled to 0-255 range for screen display. This allows to visualize data encoded in images (e.g. heightmaps) that usually can't be displayed by normal image viewers.
+Additional to the grayscale display, different color maps are available that also work for common types of color blindness.
+The mouse over will display the raw pixel value under the cursor in the status bar.
+
+![Screenshots](Docs/Screenshots.png)
 
 ## Build
 ### From the command line
