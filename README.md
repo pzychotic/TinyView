@@ -1,4 +1,8 @@
 # TinyView
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/pzychotic/TinyView/actions/workflows/ci.yml/badge.svg)](https://github.com/pzychotic/TinyView/actions/workflows/ci.yml)
+
 A specialized viewer for 16+32bit single channel images.
 - PNG: 16-bit grayscale
 - DDS: R16F, R32F
