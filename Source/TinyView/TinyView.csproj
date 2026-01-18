@@ -10,6 +10,7 @@
     <StartupObject>TinyView.App</StartupObject>
     <SignAssembly>False</SignAssembly>
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
