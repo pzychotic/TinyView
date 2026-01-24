@@ -70,12 +70,8 @@ namespace TinyView
 
         private void Image_Drop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0)
             {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files.Length == 0)
-                    return;
-
                 // only support one file right now
                 _viewModel.LoadImage(files[0]);
             }
