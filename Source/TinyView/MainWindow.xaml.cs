@@ -30,7 +30,6 @@ namespace TinyView
 
         private void ViewModel_ImageLoaded(object? sender, System.EventArgs e)
         {
-            Title = $"TinyView - {_viewModel.Filename}";
             ApplyCurrentPalette();
         }
 

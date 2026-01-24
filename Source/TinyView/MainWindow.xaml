@@ -3,9 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:TinyView"
         SnapsToDevicePixels="True" UseLayoutRounding="True"
-        Title="TinyView" Height="600" Width="800">
-
-    <!-- Removed ApplicationCommands.Open CommandBinding; using ViewModel OpenCommand instead -->
+        Title="{Binding WindowTitle, FallbackValue='TinyView'}"
+        Height="600" Width="800">
 
     <!-- Keyboard shortcuts -->
     <Window.InputBindings>

@@ -31,7 +31,9 @@ namespace TinyView.ViewModels
             }
         }
 
-        public string? Filename;
+        public string WindowTitle => Filename.Length > 0 ? $"TinyView - {Filename}" : "TinyView";
+
+        private string Filename = string.Empty;
 
         // Zoom handling
         private double _zoomFactor = 1.0;
@@ -105,6 +107,8 @@ namespace TinyView.ViewModels
                 }
 
                 Filename = Path.GetFileName(path);
+
+                OnPropertyChanged(nameof(WindowTitle));
 
                 // notify listeners that an image was loaded
                 ImageLoaded?.Invoke(this, EventArgs.Empty);
