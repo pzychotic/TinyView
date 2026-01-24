@@ -61,10 +61,8 @@ namespace TinyView
             _viewModel.ValueText = $"{x},{y}: {value}";
         }
 
-        private void PreviewImage_MouseLeave(object? sender, MouseEventArgs e)
-        {
+        private void PreviewImage_MouseLeave(object? sender, MouseEventArgs e) =>
             _viewModel.ValueText = "0,0: undefined";
-        }
 
         private void Image_Drop(object sender, DragEventArgs e)
         {
@@ -98,28 +96,24 @@ namespace TinyView
         // Ctrl + MouseWheel handler: zoom in/out by a small factor per wheel notch
         private void MainWindow_PreviewMouseWheel(object? sender, MouseWheelEventArgs e)
         {
-            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+                return;
+
+            const double zoomStep = 1.1; // 10% per notch
+            const int wheelDeltaPerNotch = 120; // Win32 WHEEL_DELTA
+
+            // accumulate delta to support high-resolution mice that send sub-notch values
+            _wheelDeltaAccum += e.Delta;
+
+            int wholeNotches = (int)(_wheelDeltaAccum / wheelDeltaPerNotch);
+            if (wholeNotches != 0)
             {
-                const double zoomStep = 1.1; // 10% per notch
-                const int wheelDeltaPerNotch = 120; // Win32 WHEEL_DELTA
-
-                // accumulate delta to support high-resolution mice that send sub-notch values
-                _wheelDeltaAccum += e.Delta;
-
-                int wholeNotches = (int)(_wheelDeltaAccum / wheelDeltaPerNotch);
-                if (wholeNotches != 0)
-                {
-                    if (wholeNotches > 0)
-                        _viewModel.ZoomFactor *= Math.Pow(zoomStep, wholeNotches);
-                    else
-                        _viewModel.ZoomFactor /= Math.Pow(zoomStep, -wholeNotches);
-
-                    // consume the notches we handled
-                    _wheelDeltaAccum -= wholeNotches * wheelDeltaPerNotch;
-                }
-
-                e.Handled = true;
+                _viewModel.ZoomFactor *= Math.Pow(zoomStep, wholeNotches);
+                // consume the notches we handled
+                _wheelDeltaAccum -= wholeNotches * wheelDeltaPerNotch;
             }
+
+            e.Handled = true;
         }
     }
 }
