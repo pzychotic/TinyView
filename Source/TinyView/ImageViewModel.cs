@@ -65,8 +65,6 @@ namespace TinyView.ViewModels
         public ICommand ZoomOutCommand { get; }
         public ICommand ZoomResetCommand { get; }
 
-        public event EventHandler? ImageLoaded;
-
         public ImageViewModel()
         {
             OpenCommand = new RelayCommand(_ => ExecuteOpen());
@@ -109,9 +107,6 @@ namespace TinyView.ViewModels
                 Filename = Path.GetFileName(path);
 
                 OnPropertyChanged(nameof(WindowTitle));
-
-                // notify listeners that an image was loaded
-                ImageLoaded?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

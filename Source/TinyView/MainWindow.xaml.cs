@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,7 +19,7 @@ namespace TinyView
 
             DataContext = _viewModel;
 
-            _viewModel.ImageLoaded += ViewModel_ImageLoaded;
+            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
 
             // subscribe to mouse events on the Image control
             PreviewImage.MouseMove += PreviewImage_MouseMove;
@@ -28,9 +29,13 @@ namespace TinyView
             PreviewMouseWheel += MainWindow_PreviewMouseWheel;
         }
 
-        private void ViewModel_ImageLoaded(object? sender, System.EventArgs e)
+        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            ApplyCurrentPalette();
+            if (e?.PropertyName == nameof(ImageViewModel.RawData))
+            {
+                // ensure we're on UI thread
+                Dispatcher.Invoke(ApplyCurrentPalette);
+            }
         }
 
         private void PreviewImage_MouseMove(object? sender, MouseEventArgs e)
