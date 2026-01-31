@@ -85,7 +85,7 @@
 
         <!-- ScrollViewer ensures image fits and can be scrolled if large -->
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="2"
-                      AllowDrop="True" Drop="Image_Drop"
+                      behaviors:DropBehavior.DropCommand="{Binding DropCommand}"
                       behaviors:ScrollViewerPanBehavior.EnablePan="True">
             <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
                    RenderOptions.BitmapScalingMode="NearestNeighbor"

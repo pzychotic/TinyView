@@ -64,6 +64,7 @@ namespace TinyView.ViewModels
         public ICommand ZoomInCommand { get; }
         public ICommand ZoomOutCommand { get; }
         public ICommand ZoomResetCommand { get; }
+        public ICommand DropCommand { get; }
 
         public ImageViewModel()
         {
@@ -71,6 +72,14 @@ namespace TinyView.ViewModels
             ZoomInCommand = new RelayCommand(_ => ZoomFactor *= 2.0);
             ZoomOutCommand = new RelayCommand(_ => ZoomFactor /= 2.0);
             ZoomResetCommand = new RelayCommand(_ => ZoomFactor = 1.0);
+            DropCommand = new RelayCommand(param =>
+            {
+                if (param is string[] files && files.Length > 0)
+                {
+                    // only support one file right now
+                    LoadImage(files[0]);
+                }
+            });
         }
 
         private void ExecuteOpen()

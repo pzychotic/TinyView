@@ -68,15 +68,6 @@ namespace TinyView
         private void PreviewImage_MouseLeave(object? sender, MouseEventArgs e) =>
             _viewModel.ValueText = "0,0: undefined";
 
-        private void Image_Drop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0)
-            {
-                // only support one file right now
-                _viewModel.LoadImage(files[0]);
-            }
-        }
-
         private void ComboBoxColorPalette_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ApplyCurrentPalette();
