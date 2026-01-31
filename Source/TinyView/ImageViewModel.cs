@@ -70,24 +70,24 @@ namespace TinyView.ViewModels
 
         public ImageViewModel()
         {
-            OpenCommand = new RelayCommand(_ => ExecuteOpen());
+            OpenCommand = new RelayCommand<object?>(_ => ExecuteOpen());
 
-            ZoomInCommand = new RelayCommand(_ => ZoomFactor *= 2.0);
-            ZoomOutCommand = new RelayCommand(_ => ZoomFactor /= 2.0);
-            ZoomResetCommand = new RelayCommand(_ => ZoomFactor = 1.0);
+            ZoomInCommand = new RelayCommand<object?>(_ => ZoomFactor *= 2.0);
+            ZoomOutCommand = new RelayCommand<object?>(_ => ZoomFactor /= 2.0);
+            ZoomResetCommand = new RelayCommand<object?>(_ => ZoomFactor = 1.0);
 
-            DropCommand = new RelayCommand(param =>
+            DropCommand = new RelayCommand<string[]>(files =>
             {
-                if (param is string[] files && files.Length > 0)
+                if (files != null && files.Length > 0)
                 {
                     // only support one file right now
                     LoadImage(files[0]);
                 }
             });
 
-            HoverCommand = new RelayCommand(param =>
+            HoverCommand = new RelayCommand<PixelPosition>(p =>
             {
-                if (param is PixelPosition p && RawData != null)
+                if (RawData != null)
                 {
                     int x = p.X;
                     int y = p.Y;
@@ -102,7 +102,7 @@ namespace TinyView.ViewModels
                 }
             });
 
-            LeaveHoverCommand = new RelayCommand(_ => { ValueText = "0,0: undefined"; });
+            LeaveHoverCommand = new RelayCommand<object?>(_ => { ValueText = "0,0: undefined"; });
         }
 
         private void ExecuteOpen()
