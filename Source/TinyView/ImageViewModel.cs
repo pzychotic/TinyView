@@ -60,6 +60,20 @@ namespace TinyView.ViewModels
         public string ImageMinMaxText => RawData != null ? $"{RawData.Min:0.##}..{RawData.Max:0.##}" : "0..0";
         public string ImageFormatText => RawData?.DataFormat ?? "undefined";
 
+        // Selected color palette from the UI (nullable because initially none may be selected)
+        private ColorPalettes.PaletteEntry _selectedPalette;
+        public ColorPalettes.PaletteEntry SelectedPalette
+        {
+            get => _selectedPalette;
+            set
+            {
+                if (Equals(value, _selectedPalette)) return;
+                _selectedPalette = value;
+                OnPropertyChanged();
+                ApplyPalette(_selectedPalette.Palette);
+            }
+        }
+
         public ICommand OpenCommand { get; }
         public ICommand ZoomInCommand { get; }
         public ICommand ZoomOutCommand { get; }
@@ -103,6 +117,12 @@ namespace TinyView.ViewModels
             });
 
             LeaveHoverCommand = new RelayCommand<object?>(_ => { ValueText = "0,0: undefined"; });
+
+            // set initial palette to first available entry
+            if (ColorPalettes.Palettes.Count > 0)
+            {
+                SelectedPalette = ColorPalettes.Palettes[0];
+            }
         }
 
         private void ExecuteOpen()

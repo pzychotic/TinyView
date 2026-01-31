@@ -78,8 +78,7 @@
             <ComboBox x:Name="ComboBoxColorPalette" Width="80"
                       DisplayMemberPath="Name"
                       ItemsSource="{Binding Source={x:Static local:ColorPalettes.Palettes}}"
-                      SelectionChanged="ComboBoxColorPalette_SelectionChanged"
-                      SelectedIndex="0"
+                      SelectedItem="{Binding SelectedPalette, Mode=TwoWay}"
                       ToolTip="Select color palette for visualization" />
         </ToolBar>
 

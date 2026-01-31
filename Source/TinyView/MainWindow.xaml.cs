@@ -34,17 +34,10 @@ namespace TinyView
             }
         }
 
-        private void ComboBoxColorPalette_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ApplyCurrentPalette();
-        }
-
+        // Selection is now bound to the view-model via SelectedPalette; keep helper for compatibility
         private void ApplyCurrentPalette()
         {
-            if (ComboBoxColorPalette.SelectedItem is ColorPalettes.PaletteEntry entry)
-            {
-                _viewModel.ApplyPalette(entry.Palette);
-            }
+            _viewModel.ApplyPalette(_viewModel.SelectedPalette.Palette);
         }
 
         // accumulator to handle sub-notch (high-resolution) wheel deltas

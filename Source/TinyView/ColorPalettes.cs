@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows;
 
 namespace TinyView
 {
-    static class ColorPalettes
+    public static class ColorPalettes
     {
         public readonly record struct PaletteEntry(string Name, BitmapPalette Palette);
 
