@@ -1,9 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 using TinyView.ViewModels;
 
 namespace TinyView
@@ -29,12 +27,6 @@ namespace TinyView
 
             // handle Ctrl + MouseWheel for zooming
             PreviewMouseWheel += MainWindow_PreviewMouseWheel;
-
-            // subscribe to panning events on the ScrollViewer and Image
-            ImageScrollViewer.PreviewMouseLeftButtonDown += ImageScrollViewer_PreviewMouseLeftButtonDown;
-            ImageScrollViewer.PreviewMouseLeftButtonUp += ImageScrollViewer_PreviewMouseLeftButtonUp;
-            ImageScrollViewer.PreviewMouseMove += ImageScrollViewer_PreviewMouseMove;
-            ImageScrollViewer.LostMouseCapture += ImageScrollViewer_LostMouseCapture;
         }
 
         private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -120,87 +112,6 @@ namespace TinyView
                 // consume the notches we handled
                 _wheelDeltaAccum -= wholeNotches * wheelDeltaPerNotch;
             }
-
-            e.Handled = true;
-        }
-
-        // panning state
-        private bool _isPanning = false;
-        private Point _panStartPoint; // screen coords when pan started
-        private Point _panStartOffset; // horizontal and vertical offset when pan started
-
-        private static bool IsOverScrollbar(DependencyObject? dep)
-        {
-            while (dep != null)
-            {
-                if (dep is ScrollBar || dep is Thumb || dep is RepeatButton)
-                    return true;
-
-                dep = VisualTreeHelper.GetParent(dep);
-            }
-
-            return false;
-        }
-
-        private void ImageScrollViewer_PreviewMouseLeftButtonDown(object? sender, MouseButtonEventArgs e)
-        {
-            // if the click was on a scrollbar (or its parts) allow the scrollbar to handle it
-            if (e.OriginalSource is DependencyObject dep && IsOverScrollbar(dep))
-                return;
-
-            if (ImageScrollViewer.IsMouseOver)
-            {
-                _isPanning = true;
-                _panStartPoint = e.GetPosition(this);
-                _panStartOffset = new Point(ImageScrollViewer.HorizontalOffset, ImageScrollViewer.VerticalOffset);
-                // capture mouse so we continue to receive events while dragging
-                ImageScrollViewer.CaptureMouse();
-                // show hand cursor while panning
-                ImageScrollViewer.Cursor = Cursors.Hand;
-                e.Handled = true;
-            }
-        }
-
-        private void ImageScrollViewer_PreviewMouseLeftButtonUp(object? sender, MouseButtonEventArgs e)
-        {
-            if (_isPanning)
-            {
-                _isPanning = false;
-                ImageScrollViewer.ReleaseMouseCapture();
-                // restore default cursor
-                ImageScrollViewer.Cursor = null;
-                e.Handled = true;
-            }
-        }
-
-        private void ImageScrollViewer_LostMouseCapture(object? sender, MouseEventArgs e)
-        {
-            // ensure state is cleared and cursor restored if capture is lost unexpectedly
-            if (_isPanning)
-            {
-                _isPanning = false;
-                ImageScrollViewer.Cursor = null;
-            }
-        }
-
-        private void ImageScrollViewer_PreviewMouseMove(object? sender, MouseEventArgs e)
-        {
-            if (!_isPanning)
-                return;
-
-            var currentPoint = e.GetPosition(this);
-            var delta = currentPoint - _panStartPoint;
-
-            // invert delta so dragging the mouse moves the image in the expected direction
-            double newH = _panStartOffset.X - delta.X;
-            double newV = _panStartOffset.Y - delta.Y;
-
-            // clamp to scrollable extents
-            newH = Math.Clamp(newH, 0, ImageScrollViewer.ScrollableWidth);
-            newV = Math.Clamp(newV, 0, ImageScrollViewer.ScrollableHeight);
-
-            ImageScrollViewer.ScrollToHorizontalOffset(newH);
-            ImageScrollViewer.ScrollToVerticalOffset(newV);
 
             e.Handled = true;
         }
