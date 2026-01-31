@@ -30,14 +30,8 @@ namespace TinyView
             if (e?.PropertyName == nameof(ImageViewModel.RawData))
             {
                 // ensure we're on UI thread
-                Dispatcher.Invoke(ApplyCurrentPalette);
+                Dispatcher.Invoke(() => _viewModel.ApplyPalette());
             }
-        }
-
-        // Selection is now bound to the view-model via SelectedPalette; keep helper for compatibility
-        private void ApplyCurrentPalette()
-        {
-            _viewModel.ApplyPalette(_viewModel.SelectedPalette.Palette);
         }
 
         // accumulator to handle sub-notch (high-resolution) wheel deltas

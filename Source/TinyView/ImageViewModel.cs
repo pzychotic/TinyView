@@ -70,7 +70,7 @@ namespace TinyView.ViewModels
                 if (Equals(value, _selectedPalette)) return;
                 _selectedPalette = value;
                 OnPropertyChanged();
-                ApplyPalette(_selectedPalette.Palette);
+                ApplyPalette();
             }
         }
 
@@ -166,12 +166,15 @@ namespace TinyView.ViewModels
             }
         }
 
-        public void ApplyPalette(BitmapPalette palette)
+        /// <summary>
+        /// Apply the currently-selected palette to the current RawData.
+        /// </summary>
+        public void ApplyPalette()
         {
             if (RawData == null)
                 return;
 
-            var bitmap = new WriteableBitmap(RawData.Width, RawData.Height, 96, 96, PixelFormats.Indexed8, palette);
+            var bitmap = new WriteableBitmap(RawData.Width, RawData.Height, 96, 96, PixelFormats.Indexed8, SelectedPalette.Palette);
             bitmap.WritePixels(new Int32Rect(0, 0, RawData.Width, RawData.Height), RawData.IndexedData, RawData.Width, 0);
             ImageSource = bitmap;
         }
