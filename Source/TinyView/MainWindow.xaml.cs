@@ -21,10 +21,6 @@ namespace TinyView
 
             _viewModel.PropertyChanged += ViewModel_PropertyChanged;
 
-            // subscribe to mouse events on the Image control
-            PreviewImage.MouseMove += PreviewImage_MouseMove;
-            PreviewImage.MouseLeave += PreviewImage_MouseLeave;
-
             // handle Ctrl + MouseWheel for zooming
             PreviewMouseWheel += MainWindow_PreviewMouseWheel;
         }
@@ -37,36 +33,6 @@ namespace TinyView
                 Dispatcher.Invoke(ApplyCurrentPalette);
             }
         }
-
-        private void PreviewImage_MouseMove(object? sender, MouseEventArgs e)
-        {
-            if (_viewModel.ImageSource == null || _viewModel.RawData == null)
-                return;
-
-            var pos = e.GetPosition(PreviewImage);
-            var bmp = _viewModel.ImageSource;
-
-            double displayWidth = PreviewImage.ActualWidth;
-            double displayHeight = PreviewImage.ActualHeight;
-
-            if (displayWidth <= 0 || displayHeight <= 0)
-                return;
-
-            int x = (int)(pos.X * bmp.PixelWidth / displayWidth);
-            int y = (int)(pos.Y * bmp.PixelHeight / displayHeight);
-
-            if (x < 0 || x >= bmp.PixelWidth || y < 0 || y >= bmp.PixelHeight)
-            {
-                _viewModel.ValueText = "0,0: undefined";
-                return;
-            }
-
-            string? value = _viewModel.RawData.GetValueString(x, y);
-            _viewModel.ValueText = $"{x},{y}: {value}";
-        }
-
-        private void PreviewImage_MouseLeave(object? sender, MouseEventArgs e) =>
-            _viewModel.ValueText = "0,0: undefined";
 
         private void ComboBoxColorPalette_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

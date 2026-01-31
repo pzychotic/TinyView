@@ -89,7 +89,9 @@
                       behaviors:ScrollViewerPanBehavior.EnablePan="True">
             <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
                    RenderOptions.BitmapScalingMode="NearestNeighbor"
-                   Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}">
+                   Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}"
+                   behaviors:ImageHoverBehavior.HoverCommand="{Binding HoverCommand}"
+                   behaviors:ImageHoverBehavior.LeaveCommand="{Binding LeaveHoverCommand}">
                 <Image.LayoutTransform>
                     <ScaleTransform ScaleX="{Binding ZoomFactor}" ScaleY="{Binding ZoomFactor}" />
                 </Image.LayoutTransform>
