@@ -92,20 +92,31 @@ namespace TinyView.ViewModels
             // initialize image loader implementations
             _imageLoaders = [new MagickImageLoader(), new PfimImageLoader()];
 
-            OpenCommand = new RelayCommand<object?>(_ => ExecuteOpen());
+            OpenCommand = new AsyncRelayCommand<object?>(async _ =>
+            {
+                var dialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Filter = "Image Files (*.dds;*.png)|*.dds;*.png|PNG Files (*.png)|*.png|DDS Files (*.dds)|*.dds|All Files (*.*)|*.*"
+                };
 
-            ZoomInCommand = new RelayCommand<object?>(_ => ZoomFactor *= 2.0);
-            ZoomOutCommand = new RelayCommand<object?>(_ => ZoomFactor /= 2.0);
-            ZoomResetCommand = new RelayCommand<object?>(_ => ZoomFactor = 1.0);
+                if (dialog.ShowDialog() == true)
+                {
+                    await LoadImageAsync(dialog.FileName);
+                }
+            });
 
-            DropCommand = new RelayCommand<string[]>(files =>
+            DropCommand = new AsyncRelayCommand<string[]>(async files =>
             {
                 if (files != null && files.Length > 0)
                 {
                     // only support one file right now
-                    LoadImage(files[0]);
+                    await LoadImageAsync(files[0]);
                 }
             });
+
+            ZoomInCommand = new RelayCommand<object?>(_ => ZoomFactor *= 2.0);
+            ZoomOutCommand = new RelayCommand<object?>(_ => ZoomFactor /= 2.0);
+            ZoomResetCommand = new RelayCommand<object?>(_ => ZoomFactor = 1.0);
 
             HoverCommand = new RelayCommand<PixelPosition>(p =>
             {
@@ -133,20 +144,7 @@ namespace TinyView.ViewModels
             }
         }
 
-        private void ExecuteOpen()
-        {
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Filter = "Image Files (*.dds;*.png)|*.dds;*.png|PNG Files (*.png)|*.png|DDS Files (*.dds)|*.dds|All Files (*.*)|*.*"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                LoadImage(dialog.FileName);
-            }
-        }
-
-        private void LoadImage(string path)
+        private async Task LoadImageAsync(string path)
         {
             try
             {
@@ -156,23 +154,27 @@ namespace TinyView.ViewModels
                 {
                     if (loader.CanLoad(ext))
                     {
-                        RawData = loader.LoadImage(path);
+                        // await the loader on the UI context so subsequent UI work runs on the UI thread
+                        RawData = await loader.LoadImageAsync(path);
                         break;
                     }
                 }
 
                 if (RawData == null)
-                {
                     throw new NotSupportedException($"Unsupported image format: {ext}");
-                }
 
                 Filename = Path.GetFileName(path);
 
-                OnPropertyChanged(nameof(WindowTitle));
+                Application.Current.Dispatcher.Invoke(() => OnPropertyChanged(nameof(WindowTitle)));
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading image:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // show a modal (blocking) message box owned by the main window so the UI is blocked until dismissed
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    var owner = Application.Current.MainWindow;
+                    MessageBox.Show(owner, $"Error loading image:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
             }
         }
 

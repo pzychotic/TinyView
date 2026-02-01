@@ -5,6 +5,6 @@ namespace TinyView.Services
     public interface IImageLoader
     {
         bool CanLoad(string extension);
-        IRawImageDataProvider LoadImage(string path);
+        Task<IRawImageDataProvider> LoadImageAsync(string path);
     }
 }

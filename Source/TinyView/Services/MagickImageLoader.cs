@@ -7,33 +7,34 @@ namespace TinyView.Services
     {
         public bool CanLoad(string extension) => extension.Equals(".png");
 
-        public IRawImageDataProvider LoadImage(string path)
-        {
-            using var image = new MagickImage(path);
-
-            if (image.ChannelCount != 1 && image.ColorType != ColorType.Grayscale)
-                throw new InvalidOperationException("Expected a 16-bit grayscale image.");
-
-            int width = (int)image.Width;
-            int height = (int)image.Height;
-
-            // extract raw 16-bit data
-            var pixelData = new ushort[width, height];
-
-            using (var pixels = image.GetPixels())
+        public Task<IRawImageDataProvider> LoadImageAsync(string path)
+            => Task.Run<IRawImageDataProvider>(() =>
             {
-                for (int y = 0; y < height; ++y)
+                using var image = new MagickImage(path);
+
+                if (image.ChannelCount != 1 && image.ColorType != ColorType.Grayscale)
+                    throw new InvalidOperationException("Expected a 16-bit grayscale image.");
+
+                int width = (int)image.Width;
+                int height = (int)image.Height;
+
+                // extract raw 16-bit data
+                var pixelData = new ushort[width, height];
+
+                using (var pixels = image.GetPixels())
                 {
-                    for (int x = 0; x < width; ++x)
+                    for (int y = 0; y < height; ++y)
                     {
-                        ushort value = pixels.GetPixel(x, y).GetChannel(0);
-                        pixelData[x, y] = value;
+                        for (int x = 0; x < width; ++x)
+                        {
+                            ushort value = pixels.GetPixel(x, y).GetChannel(0);
+                            pixelData[x, y] = value;
+                        }
                     }
                 }
-            }
 
-            string format = "Gray16 (ushort)";
-            return new RawImageData<ushort>(width, height, pixelData, format);
-        }
+                string format = "Gray16 (ushort)";
+                return new RawImageData<ushort>(width, height, pixelData, format);
+            });
     }
 }
