@@ -84,8 +84,14 @@ namespace TinyView.ViewModels
         public ICommand HoverCommand { get; }
         public ICommand LeaveHoverCommand { get; }
 
+        // image loader services (instance-based)
+        private readonly IImageLoader[] _imageLoaders;
+
         public ImageViewModel()
         {
+            // initialize image loader implementations
+            _imageLoaders = [new MagickImageLoader(), new PfimImageLoader()];
+
             OpenCommand = new RelayCommand<object?>(_ => ExecuteOpen());
 
             ZoomInCommand = new RelayCommand<object?>(_ => ZoomFactor *= 2.0);
@@ -140,20 +146,22 @@ namespace TinyView.ViewModels
             }
         }
 
-        public void LoadImage(string path)
+        private void LoadImage(string path)
         {
             try
             {
                 string ext = Path.GetExtension(path).ToLower();
-                if (ext == ".png")
+                // pick a loader by asking each registered loader if it can handle the extension
+                foreach (var loader in _imageLoaders)
                 {
-                    RawData = MagickImageLoader.LoadImage(path);
+                    if (loader.CanLoad(ext))
+                    {
+                        RawData = loader.LoadImage(path);
+                        break;
+                    }
                 }
-                else if (ext == ".dds")
-                {
-                    RawData = PfimImageLoader.LoadImage(path);
-                }
-                else
+
+                if (RawData == null)
                 {
                     throw new NotSupportedException($"Unsupported image format: {ext}");
                 }

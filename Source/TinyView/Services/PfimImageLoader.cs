@@ -3,9 +3,11 @@ using TinyView.Models;
 
 namespace TinyView.Services
 {
-    public class PfimImageLoader
+    public class PfimImageLoader : IImageLoader
     {
-        public static IRawImageDataProvider LoadImage(string path)
+        public bool CanLoad(string extension) => extension.Equals(".dds");
+
+        public IRawImageDataProvider LoadImage(string path)
         {
             using var image = Pfimage.FromFile(path);
                 

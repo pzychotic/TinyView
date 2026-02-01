@@ -3,9 +3,11 @@ using TinyView.Models;
 
 namespace TinyView.Services
 {
-    public class MagickImageLoader
+    public class MagickImageLoader : IImageLoader
     {
-        public static IRawImageDataProvider LoadImage(string path)
+        public bool CanLoad(string extension) => extension.Equals(".png");
+
+        public IRawImageDataProvider LoadImage(string path)
         {
             using var image = new MagickImage(path);
 
