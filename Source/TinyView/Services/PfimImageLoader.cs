@@ -1,7 +1,7 @@
-﻿using Pfim;
+using Pfim;
 using TinyView.Models;
 
-namespace TinyView
+namespace TinyView.Services
 {
     public class PfimImageLoader
     {

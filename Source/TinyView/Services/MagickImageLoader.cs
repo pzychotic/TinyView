@@ -1,7 +1,7 @@
-﻿using ImageMagick;
+using ImageMagick;
 using TinyView.Models;
 
-namespace TinyView
+namespace TinyView.Services
 {
     public class MagickImageLoader
     {
