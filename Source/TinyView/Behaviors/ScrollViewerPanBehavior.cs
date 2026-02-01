@@ -70,7 +70,7 @@ namespace TinyView.Behaviors
                 return;
 
             SetIsPanning(sv, true);
-            SetPanStartPoint(sv, e.GetPosition(Application.Current.MainWindow != null ? Application.Current.MainWindow : sv));
+            SetPanStartPoint(sv, e.GetPosition(sv));
             SetPanStartOffset(sv, new Point(sv.HorizontalOffset, sv.VerticalOffset));
             // capture mouse so we continue to receive events while dragging
             sv.CaptureMouse();
@@ -114,7 +114,7 @@ namespace TinyView.Behaviors
             if (!GetIsPanning(sv))
                 return;
 
-            var currentPoint = e.GetPosition(Application.Current.MainWindow != null ? Application.Current.MainWindow : sv);
+            var currentPoint = e.GetPosition(sv);
             var start = GetPanStartPoint(sv);
             var delta = currentPoint - start;
 
