@@ -1,3 +1,5 @@
+using TinyView.Models;
+
 namespace TinyView.Tests
 {
     [TestFixture]
