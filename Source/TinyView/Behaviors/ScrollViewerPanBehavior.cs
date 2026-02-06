@@ -153,5 +153,31 @@ namespace TinyView.Behaviors
 
         private static Point GetPanStartOffset(DependencyObject obj) => (Point)obj.GetValue(PanStartOffsetProperty);
         private static void SetPanStartOffset(DependencyObject obj, Point value) => obj.SetValue(PanStartOffsetProperty, value);
+
+        /// <summary>
+        /// Reset any panning state on the provided ScrollViewer and scroll to the origin (0,0).
+        /// This clears attached panning properties so subsequent pans start fresh.
+        /// </summary>
+        public static void ResetPan(ScrollViewer? sv)
+        {
+            if (sv == null)
+                return;
+
+            // if a panning operation is active ensure we clear capture and state
+            if (GetIsPanning(sv))
+            {
+                SetIsPanning(sv, false);
+                sv.ReleaseMouseCapture();
+                sv.Cursor = null;
+            }
+
+            // reset start point/offset to defaults
+            SetPanStartPoint(sv, default(Point));
+            SetPanStartOffset(sv, default(Point));
+
+            // scroll to top-left
+            sv.ScrollToHorizontalOffset(0);
+            sv.ScrollToVerticalOffset(0);
+        }
     }
 }

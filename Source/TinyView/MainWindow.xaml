@@ -83,7 +83,7 @@
         </ToolBar>
 
         <!-- ScrollViewer ensures image fits and can be scrolled if large -->
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="2"
+        <ScrollViewer x:Name="ImageScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="2"
                       behaviors:DropBehavior.DropCommand="{Binding DropCommand}"
                       behaviors:ScrollViewerPanBehavior.EnablePan="True"
                       behaviors:MouseWheelZoomBehavior.EnableWheelZoom="True"
