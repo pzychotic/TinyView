@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 
 namespace TinyView
@@ -19,6 +19,27 @@ namespace TinyView
             // Ensure future threads default to invariant culture
             CultureInfo.DefaultThreadCurrentCulture = invariant;
             CultureInfo.DefaultThreadCurrentUICulture = invariant;
+
+            // attempt to restore last window state (if available)
+            try
+            {
+                var path = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "TinyView", "UserSettings.json");
+
+                if (System.IO.File.Exists(path))
+                {
+                    var txt = System.IO.File.ReadAllText(path);
+                    var settings = System.Text.Json.JsonSerializer.Deserialize<Models.UserSettings>(txt);
+                    // store onto App resources so MainWindow can pick it up during construction
+                    if (settings != null)
+                        Resources["UserSettings"] = settings;
+                }
+            }
+            catch
+            {
+                // ignore errors restoring settings
+            }
 
             base.OnStartup(e);
         }

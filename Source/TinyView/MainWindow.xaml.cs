@@ -16,9 +16,62 @@ namespace TinyView
         {
             InitializeComponent();
 
+            // restore window geometry from app resources if available
+            if (Application.Current.Resources.Contains("UserSettings") &&
+                Application.Current.Resources["UserSettings"] is Models.UserSettings settings)
+            {
+                // apply size if present
+                if (!double.IsNaN(settings.Width) && !double.IsNaN(settings.Height))
+                {
+                    Width = settings.Width;
+                    Height = settings.Height;
+                }
+
+                // apply position if present
+                if (!double.IsNaN(settings.Left) && !double.IsNaN(settings.Top))
+                {
+                    Left = settings.Left;
+                    Top = settings.Top;
+                }
+
+                // if the saved state was maximized, defer applying until window is shown
+                if (settings.IsMaximized)
+                {
+                    Loaded += (_, __) => WindowState = WindowState.Maximized;
+                }
+            }
+
             DataContext = _viewModel;
 
             _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+
+            // when closing, persist window state
+            Closing += MainWindow_Closing;
+        }
+
+        private void MainWindow_Closing(object? sender, CancelEventArgs e)
+        {
+            try
+            {
+                var settings = new Models.UserSettings
+                {
+                    IsMaximized = WindowState == WindowState.Maximized,
+                    Width = Width,
+                    Height = Height,
+                    Left = Left,
+                    Top = Top
+                };
+
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TinyView");
+                System.IO.Directory.CreateDirectory(dir);
+                var path = System.IO.Path.Combine(dir, "UserSettings.json");
+                var txt = System.Text.Json.JsonSerializer.Serialize(settings);
+                System.IO.File.WriteAllText(path, txt);
+            }
+            catch
+            {
+                // ignore save errors
+            }
         }
 
         private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
