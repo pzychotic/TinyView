@@ -10,5 +10,8 @@ namespace TinyView.Models
 
         // Whether the window was maximized when the app exited
         public bool IsMaximized { get; set; } = false;
+
+        // Name of the selected color palette
+        public string SelectedPaletteName { get; set; } = string.Empty;
     }
 }

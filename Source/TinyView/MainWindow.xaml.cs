@@ -34,6 +34,17 @@ namespace TinyView
                     Top = settings.Top;
                 }
 
+                // restore selected palette if present
+                if (!string.IsNullOrEmpty(settings.SelectedPaletteName))
+                {
+                    var palettes = Models.ColorPalettes.Palettes;
+                    var match = palettes.FirstOrDefault(p => p.Name == settings.SelectedPaletteName);
+                    if (!string.IsNullOrEmpty(match.Name))
+                    {
+                        _viewModel.SelectedPalette = match;
+                    }
+                }
+
                 // if the saved state was maximized, defer applying until window is shown
                 if (settings.IsMaximized)
                 {
@@ -59,7 +70,8 @@ namespace TinyView
                     Width = Width,
                     Height = Height,
                     Left = Left,
-                    Top = Top
+                    Top = Top,
+                    SelectedPaletteName = _viewModel.SelectedPalette.Name
                 };
 
                 var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TinyView");
