@@ -1,7 +1,7 @@
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace TinyView
+namespace TinyView.Models
 {
     public static class ColorPalettes
     {

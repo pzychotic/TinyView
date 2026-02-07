@@ -1,6 +1,6 @@
 // Automatically generated from https://github.com/sjmgarnier/viridisLite/tree/master/data-raw/option*.csv
 
-namespace TinyView
+namespace TinyView.Models
 {
     public static class ColorMaps
     {

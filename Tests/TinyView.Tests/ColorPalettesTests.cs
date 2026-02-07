@@ -8,8 +8,8 @@ namespace TinyView.Tests
     {
         private static IEnumerable<(string Name, object Palette)> GetPaletteEntries()
         {
-            var asm = typeof(TinyView.ColorMaps).Assembly;
-            var palettesType = asm.GetType("TinyView.ColorPalettes", throwOnError: true)!;
+            var asm = typeof(Models.ColorMaps).Assembly;
+            var palettesType = asm.GetType("TinyView.Models.ColorPalettes", throwOnError: true)!;
             var palettesField = palettesType.GetField("Palettes", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!;
             var list = palettesField.GetValue(null) as IEnumerable ?? throw new InvalidOperationException("Palettes field is not enumerable");
 
@@ -58,7 +58,7 @@ namespace TinyView.Tests
                 var palette = (System.Windows.Media.Imaging.BitmapPalette)paletteObj;
                 var colors = palette.Colors;
 
-                var map = (byte[,])typeof(TinyView.ColorMaps)
+                var map = (byte[,])typeof(Models.ColorMaps)
                     .GetField(name, BindingFlags.Public | BindingFlags.Static)!
                     .GetValue(null)!;
 

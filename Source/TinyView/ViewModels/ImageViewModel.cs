@@ -76,6 +76,9 @@ namespace TinyView.ViewModels
             }
         }
 
+        // expose palettes to the view
+        public IReadOnlyList<ColorPalettes.PaletteEntry> Palettes => ColorPalettes.Palettes;
+
         public ICommand OpenCommand { get; }
         public ICommand ZoomInCommand { get; }
         public ICommand ZoomOutCommand { get; }

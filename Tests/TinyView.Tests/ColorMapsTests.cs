@@ -9,7 +9,7 @@ namespace TinyView.Tests
         // Helper to enumerate maps
         private static IEnumerable<(string Name, byte[,] Map)> GetMaps()
         {
-            var type = typeof(TinyView.ColorMaps);
+            var type = typeof(Models.ColorMaps);
             var propertyType = typeof(byte[,]);
 
             var fields = type
