@@ -80,6 +80,7 @@ namespace TinyView.ViewModels
         public IReadOnlyList<ColorPalettes.PaletteEntry> Palettes => ColorPalettes.Palettes;
 
         public ICommand OpenCommand { get; }
+        public ICommand ExitCommand { get; }
         public ICommand ZoomInCommand { get; }
         public ICommand ZoomOutCommand { get; }
         public ICommand ZoomResetCommand { get; }
@@ -116,6 +117,8 @@ namespace TinyView.ViewModels
                     await LoadImageAsync(files[0]);
                 }
             });
+
+            ExitCommand = new RelayCommand<object?>(_ => Application.Current.Shutdown());
 
             ZoomInCommand = new RelayCommand<object?>(_ => ZoomFactor *= 2.0);
             ZoomOutCommand = new RelayCommand<object?>(_ => ZoomFactor /= 2.0);

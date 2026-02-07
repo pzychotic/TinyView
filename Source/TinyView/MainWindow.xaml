@@ -39,6 +39,8 @@
                         <Image Source="/Resources/OpenFile.png"/>
                     </MenuItem.Icon>
                 </MenuItem>
+                <Separator />
+                <MenuItem Header="E_xit" Command="{Binding ExitCommand}" InputGestureText="Alt+F4" />
             </MenuItem>
 
             <MenuItem Header="_View">
