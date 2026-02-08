@@ -1,0 +1,45 @@
+# GitHub Actions: publish app (framework-dependent win-x64) and attach ZIP to an existing Release
+# Trigger: when a GitHub Release is published (via web UI or API)
+
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-attach:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Publish
+      run: dotnet publish ./Source/TinyView/TinyView.csproj -c Release -r win-x64 -p:SelfContained=false -p:PublishReadyToRun=true -o ./publish/win-x64
+
+    - name: Create artifacts directory
+      run: mkdir artifacts
+
+    - name: Zip publish folder
+      run: powershell -Command "Compress-Archive -Path ./publish/win-x64/* -DestinationPath ./artifacts/TinyView-win-x64.zip -Force"
+
+    - name: Upload ZIP to the published Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./artifacts/TinyView-win-x64.zip
+        asset_name: TinyView-win-x64.zip
+        asset_content_type: application/zip
