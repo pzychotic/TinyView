@@ -13,6 +13,13 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <Version>1.0.0-beta</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <InformationalVersion>1.0.0-beta</InformationalVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Resources\Cursor.png" />
     <None Remove="Resources\ImageMinMax.png" />
