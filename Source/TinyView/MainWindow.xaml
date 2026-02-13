@@ -60,6 +60,10 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
+
+            <MenuItem Header="?">
+                <MenuItem Header="_About" Command="{Binding AboutCommand}" />
+            </MenuItem>
         </Menu>
 
         <ToolBar Height="26" VerticalAlignment="Top" Grid.Row="1" >

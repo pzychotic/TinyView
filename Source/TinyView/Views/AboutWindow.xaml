@@ -1,0 +1,38 @@
+<Window x:Class="TinyView.Views.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:TinyView.ViewModels"
+        xmlns:behaviors="clr-namespace:TinyView.Behaviors"
+        SnapsToDevicePixels="True" UseLayoutRounding="True"
+        Title="About"
+        Width="400" Height="180"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        behaviors:CloseOnCommand.Command="{Binding CloseCommand}">
+    <Window.DataContext>
+        <vm:AboutViewModel />
+    </Window.DataContext>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+            <Image Source="{Binding AppIcon}" Width="64" Height="64" Margin="0,0,12,0" />
+            <StackPanel>
+                <TextBlock Text="{Binding AppName}" FontSize="16" FontWeight="Bold" />
+                <TextBlock Text="{Binding Version}" FontSize="16" />
+                <TextBlock TextWrapping="Wrap">
+                    <Hyperlink Command="{Binding OpenRepoCommand}">
+                        <TextBlock Text="{Binding RepoUrl}" FontSize="16" />
+                    </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+        </StackPanel>
+
+        <Button Grid.Row="2" Content="Close" Width="80" HorizontalAlignment="Right"
+                Command="{Binding Path=(behaviors:CloseOnCommand.ProxyCommand), RelativeSource={RelativeSource AncestorType=Window}}" />
+    </Grid>
+</Window>

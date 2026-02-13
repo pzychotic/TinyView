@@ -81,6 +81,7 @@ namespace TinyView.ViewModels
 
         public ICommand OpenCommand { get; }
         public ICommand ExitCommand { get; }
+        public ICommand AboutCommand { get; }
         public ICommand ZoomInCommand { get; }
         public ICommand ZoomOutCommand { get; }
         public ICommand ZoomResetCommand { get; }
@@ -107,6 +108,15 @@ namespace TinyView.ViewModels
                 {
                     await LoadImageAsync(dialog.FileName);
                 }
+            });
+
+            AboutCommand = new RelayCommand<object?>(_ =>
+            {
+                var about = new Views.AboutWindow
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                about.ShowDialog();
             });
 
             DropCommand = new AsyncRelayCommand<string[]>(async files =>
