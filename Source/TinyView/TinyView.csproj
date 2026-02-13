@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -21,6 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\AppIcon.png" />
     <None Remove="Resources\Cursor.png" />
     <None Remove="Resources\ImageMinMax.png" />
     <None Remove="Resources\ImageSize.png" />
@@ -37,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\AppIcon.png" />
     <Resource Include="Resources\Cursor.png" />
     <Resource Include="Resources\ImageMinMax.png" />
     <Resource Include="Resources\ImageSize.png" />
