@@ -1,25 +1,26 @@
 name: CI
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: [pull_request, push]
 
 jobs:
   build:
     name: Build
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
 
     steps:
-    - uses: actions/checkout@v6
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
+
     - name: Restore dependencies
       run: dotnet restore
+
     - name: Build Release
       run: dotnet build --no-restore --configuration Release
+
     - name: Test
       run: dotnet test --no-build --configuration Release --verbosity normal

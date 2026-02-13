@@ -17,7 +17,7 @@ The mouse over will display the raw pixel value under the cursor in the status b
 ### From the command line
 
 Prerequisites:
-- .NET SDK 8.0 - install from https://dotnet.microsoft.com/
+- .NET SDK 10.0 - install from https://dotnet.microsoft.com/
 
 Build and run:
 1. Build:
@@ -33,14 +33,14 @@ Build and run:
    dotnet run --project Source\TinyView\TinyView.csproj
    ```
 
-### From Visual Studio 2022/2026
+### From Visual Studio 2026
 
 Prerequisites:
 - .Net Desktop development workload
-- .Net 8.0 Runtime
+- .Net 10.0 Runtime
 - .Net SDK
 
-Just open ```TinyView.sln``` build and run.
+Just open ```TinyView.slnx``` build and run.
 
 ## Dependencies
 - [Magick.Net](https://github.com/dlemstra/Magick.NET) for PNG file loading
