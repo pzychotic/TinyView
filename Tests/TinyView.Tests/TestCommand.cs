@@ -10,6 +10,8 @@ namespace TinyView.Tests
         public bool CanExecute(object? parameter) => CanExecuteReturn;
         public void Execute(object? parameter) => Executed = true;
 
+#pragma warning disable CS0067 // The event is never used
         public event EventHandler? CanExecuteChanged;
+#pragma warning restore CS0067
     }
 }
