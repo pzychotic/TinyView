@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Source/TinyView/TinyView.csproj" />
+  <Project Path="Tests/TinyView.Tests/TinyView.Tests.csproj" />
+</Solution>
