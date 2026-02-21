@@ -3,17 +3,27 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![CI](https://github.com/pzychotic/TinyView/actions/workflows/ci.yml/badge.svg)](https://github.com/pzychotic/TinyView/actions/workflows/ci.yml)
 
-A specialized viewer for 16/32 bit single channel images.
+A specialized viewer for 16/32-bit single channel images.
 - DDS: R16F, R32F
-- PNG: 16 bit grayscale
-- TIFF: 16/32 bit uint and float
+- PNG: 16-bit grayscale
+- TIFF: 16/32-bit uint and float
 
-The pixel value range between min and max from the image will be scaled to 0-255 range for screen display.
-This allows to visualize data encoded in images (e.g. heightmaps) that usually can't be displayed by normal image viewers.
-Additional to the grayscale display, different color maps are available that also work for common types of color blindness.
-The mouse over will display the raw pixel value under the cursor in the status bar.
+If you ever found yourself wondering why your images only show up in black or white in other image viewers, you've come to the right place.
+
+The pixel value range of the image, from minimum to maximum, will be scaled to the 0-255 range for screen display.
+This allows data encoded in images (e.g. heightmaps) to be visualized, which normal image viewers usually can't display.
+In addition to the grayscale display, there are different color maps available that also work for common types of color blindness.
+Hovering over an area will display the raw pixel value under the cursor in the status bar.
 
 ![Screenshots](Docs/Screenshots.png)
+
+## Features
+- Open files by drag&drop
+- Zoom using keyboard shortcuts and mouse wheel
+- Pan around by holding the left mouse button
+- Automatic dynamic range scaling adjusts pixel values for screen display
+- Multiple color maps, including colorblind-friendly palettes
+- Pixel inspection shows raw pixel values in the status bar on mouse over
 
 ## Build
 ### From the command line
