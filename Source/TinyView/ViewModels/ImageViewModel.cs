@@ -95,13 +95,13 @@ namespace TinyView.ViewModels
         public ImageViewModel()
         {
             // initialize image loader implementations
-            _imageLoaders = [new MagickImageLoader(), new PfimImageLoader()];
+            _imageLoaders = [new MagickImageLoader(), new PfimImageLoader(), new TiffImageLoader()];
 
             OpenCommand = new AsyncRelayCommand<object?>(async _ =>
             {
                 var dialog = new Microsoft.Win32.OpenFileDialog
                 {
-                    Filter = "Image Files (*.dds;*.png)|*.dds;*.png|PNG Files (*.png)|*.png|DDS Files (*.dds)|*.dds|All Files (*.*)|*.*"
+                    Filter = "Image Files (*.dds;*.png;*.tif;*.tiff)|*.dds;*.png;*.tif;*.tiff|DDS Files (*.dds)|*.dds|PNG Files (*.png)|*.png|TIFF Files (*.tif;*.tiff)|*.tif;*.tiff|All Files (*.*)|*.*"
                 };
 
                 if (dialog.ShowDialog() == true)
