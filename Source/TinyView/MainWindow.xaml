@@ -94,6 +94,7 @@
             <Separator />
             <ComboBox x:Name="ComboBoxColorPalette" Width="80"
                       DisplayMemberPath="Name"
+                      IsEnabled="{Binding HasImage}"
                       ItemsSource="{Binding Palettes}"
                       SelectedItem="{Binding SelectedPalette, Mode=TwoWay}"
                       ToolTip="Select color palette for visualization" />

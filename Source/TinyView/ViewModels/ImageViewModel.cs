@@ -28,6 +28,7 @@ namespace TinyView.ViewModels
                 _rawData = value;
                 Zoom.Reset();
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(HasImage));
                 OnPropertyChanged(nameof(ImageSizeText));
                 OnPropertyChanged(nameof(ImageMinMaxText));
                 OnPropertyChanged(nameof(ImageFormatText));
@@ -49,6 +50,7 @@ namespace TinyView.ViewModels
             set { if (value == _valueText) return; _valueText = value; OnPropertyChanged(); }
         }
 
+        public bool HasImage => RawData != null;
         public string ImageSizeText => RawData != null ? $"{RawData.Width}x{RawData.Height}" : "0x0";
         public string ImageMinMaxText => RawData != null ? $"{RawData.Min:0.##}..{RawData.Max:0.##}" : "0..0";
         public string ImageFormatText => RawData?.DataFormat ?? "undefined";
@@ -124,9 +126,9 @@ namespace TinyView.ViewModels
 
             ExitCommand = new RelayCommand<object?>(_ => Application.Current.Shutdown());
 
-            ZoomInCommand = new RelayCommand<object?>(_ => Zoom.ZoomIn(), _ => Zoom.CanZoomIn);
-            ZoomOutCommand = new RelayCommand<object?>(_ => Zoom.ZoomOut(), _ => Zoom.CanZoomOut);
-            ZoomResetCommand = new RelayCommand<object?>(_ => Zoom.Reset());
+            ZoomInCommand = new RelayCommand<object?>(_ => Zoom.ZoomIn(), _ => HasImage && Zoom.CanZoomIn);
+            ZoomOutCommand = new RelayCommand<object?>(_ => Zoom.ZoomOut(), _ => HasImage && Zoom.CanZoomOut);
+            ZoomResetCommand = new RelayCommand<object?>(_ => Zoom.Reset(), _ => HasImage);
 
             Zoom.PropertyChanged += (_, e) =>
             {
