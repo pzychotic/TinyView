@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -26,10 +26,12 @@ namespace TinyView.ViewModels
             set
             {
                 _rawData = value;
+                ZoomFactor = 1.0;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ImageSizeText));
                 OnPropertyChanged(nameof(ImageMinMaxText));
                 OnPropertyChanged(nameof(ImageFormatText));
+                ApplyPalette();
             }
         }
 
@@ -197,7 +199,7 @@ namespace TinyView.ViewModels
         /// <summary>
         /// Apply the currently-selected palette to the current RawData.
         /// </summary>
-        public void ApplyPalette()
+        private void ApplyPalette()
         {
             if (RawData == null)
                 return;

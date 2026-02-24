@@ -90,18 +90,7 @@ namespace TinyView
         {
             if (e?.PropertyName == nameof(ImageViewModel.RawData))
             {
-                // ensure we're on UI thread
-                Dispatcher.Invoke(() =>
-                {
-                    // apply palette to new image
-                    _viewModel.ApplyPalette();
-
-                    // reset zoom factor to default
-                    _viewModel.ZoomFactor = 1.0;
-
-                    // reset any panning offsets on the scroll viewer
-                    ScrollViewerPanBehavior.ResetPan(ImageScrollViewer);
-                });
+                ScrollViewerPanBehavior.ResetPan(ImageScrollViewer);
             }
         }
     }
