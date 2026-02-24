@@ -94,41 +94,44 @@ namespace TinyView.ViewModels
         // image loader services (instance-based)
         private readonly IImageLoader[] _imageLoaders;
 
-        public ImageViewModel()
+        private readonly IDialogService _dialogService;
+
+        private bool _isBusy;
+        public bool IsBusy
         {
+            get => _isBusy;
+            private set
+            {
+                if (_isBusy == value) return;
+                _isBusy = value;
+                OnPropertyChanged();
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
+
+        public ImageViewModel(IDialogService? dialogService = null)
+        {
+            _dialogService = dialogService ?? new NullDialogService();
+
             // initialize image loader implementations
             _imageLoaders = [new MagickImageLoader(), new PfimImageLoader(), new TiffImageLoader()];
 
             OpenCommand = new AsyncRelayCommand<object?>(async _ =>
             {
-                var dialog = new Microsoft.Win32.OpenFileDialog
-                {
-                    Filter = "Image Files (*.dds;*.png;*.tif;*.tiff)|*.dds;*.png;*.tif;*.tiff|DDS Files (*.dds)|*.dds|PNG Files (*.png)|*.png|TIFF Files (*.tif;*.tiff)|*.tif;*.tiff|All Files (*.*)|*.*"
-                };
+                const string filter = "Image Files (*.dds;*.png;*.tif;*.tiff)|*.dds;*.png;*.tif;*.tiff|DDS Files (*.dds)|*.dds|PNG Files (*.png)|*.png|TIFF Files (*.tif;*.tiff)|*.tif;*.tiff|All Files (*.*)|*.*";
+                var path = _dialogService.ShowOpenFileDialog(filter);
+                if (path != null)
+                    await LoadImageAsync(path);
+            }, _ => !IsBusy);
 
-                if (dialog.ShowDialog() == true)
-                {
-                    await LoadImageAsync(dialog.FileName);
-                }
-            });
-
-            AboutCommand = new RelayCommand<object?>(_ =>
-            {
-                var about = new Views.AboutWindow
-                {
-                    Owner = Application.Current.MainWindow
-                };
-                about.ShowDialog();
-            });
+            AboutCommand = new RelayCommand<object?>(_ => _dialogService.ShowAbout());
 
             DropCommand = new AsyncRelayCommand<string[]>(async files =>
             {
-                if (files != null && files.Length > 0)
-                {
-                    // only support one file right now
+                // only support one file right now
+                if (files?.Length > 0)
                     await LoadImageAsync(files[0]);
-                }
-            });
+            }, _ => !IsBusy);
 
             ExitCommand = new RelayCommand<object?>(_ => Application.Current.Shutdown());
 
@@ -164,6 +167,7 @@ namespace TinyView.ViewModels
 
         private async Task LoadImageAsync(string path)
         {
+            IsBusy = true;
             try
             {
                 string ext = Path.GetExtension(path).ToLower();
@@ -172,7 +176,6 @@ namespace TinyView.ViewModels
                 {
                     if (loader.CanLoad(ext))
                     {
-                        // await the loader on the UI context so subsequent UI work runs on the UI thread
                         RawData = await loader.LoadImageAsync(path);
                         break;
                     }
@@ -182,17 +185,15 @@ namespace TinyView.ViewModels
                     throw new NotSupportedException($"Unsupported image format: {ext}");
 
                 Filename = Path.GetFileName(path);
-
-                Application.Current.Dispatcher.Invoke(() => OnPropertyChanged(nameof(WindowTitle)));
+                OnPropertyChanged(nameof(WindowTitle));
             }
             catch (Exception ex)
             {
-                // show a modal (blocking) message box owned by the main window so the UI is blocked until dismissed
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    var owner = Application.Current.MainWindow;
-                    MessageBox.Show(owner, $"Error loading image:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                });
+                _dialogService.ShowError("Error", $"Error loading image:\n{ex.Message}");
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
 
@@ -212,5 +213,12 @@ namespace TinyView.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        private sealed class NullDialogService : IDialogService
+        {
+            public string? ShowOpenFileDialog(string filter) => null;
+            public void ShowError(string title, string message) { }
+            public void ShowAbout() { }
+        }
     }
 }

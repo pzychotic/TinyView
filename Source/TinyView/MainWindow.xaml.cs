@@ -10,7 +10,7 @@ namespace TinyView
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly ImageViewModel _viewModel = new();
+        private readonly ImageViewModel _viewModel = new(new Services.WpfDialogService());
 
         public MainWindow()
         {
