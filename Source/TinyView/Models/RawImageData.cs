@@ -61,6 +61,6 @@ namespace TinyView.Models
             return _rawData[x, y].ToString();
         }
 
-        private T[,] _rawData;
+        private readonly T[,] _rawData;
     }
 }
