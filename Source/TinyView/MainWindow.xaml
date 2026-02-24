@@ -104,14 +104,14 @@
                       behaviors:DropBehavior.DropCommand="{Binding DropCommand}"
                       behaviors:ScrollViewerPanBehavior.EnablePan="True"
                       behaviors:MouseWheelZoomBehavior.EnableWheelZoom="True"
-                      behaviors:MouseWheelZoomBehavior.ZoomFactor="{Binding ZoomFactor, Mode=TwoWay}">
+                      behaviors:MouseWheelZoomBehavior.ZoomFactor="{Binding Zoom.Factor, Mode=TwoWay}">
             <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
                    RenderOptions.BitmapScalingMode="NearestNeighbor"
                    Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}"
                    behaviors:ImageHoverBehavior.HoverCommand="{Binding HoverCommand}"
                    behaviors:ImageHoverBehavior.LeaveCommand="{Binding LeaveHoverCommand}">
                 <Image.LayoutTransform>
-                    <ScaleTransform ScaleX="{Binding ZoomFactor}" ScaleY="{Binding ZoomFactor}" />
+                    <ScaleTransform ScaleX="{Binding Zoom.Factor}" ScaleY="{Binding Zoom.Factor}" />
                 </Image.LayoutTransform>
             </Image>
         </ScrollViewer>
@@ -147,7 +147,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal" ToolTip="Current zoom factor">
                         <Image Source="/Resources/Zoom.png" Width="16" Height="16" Margin="0,0,4,0" />
-                        <TextBlock Text="{Binding ZoomFactor, StringFormat='{}{0:0.##%}', FallbackValue='100%'}" />
+                        <TextBlock Text="{Binding Zoom.Factor, StringFormat='{}{0:0.%}', FallbackValue='100%'}" />
                     </StackPanel>
 
                     <Border Width="1" Height="16" Margin="4,0"

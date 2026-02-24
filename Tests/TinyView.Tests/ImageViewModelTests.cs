@@ -11,18 +11,18 @@ namespace TinyView.Tests
         public void ZoomCommands_UpdateZoomFactor()
         {
             var vm = new ImageViewModel();
-            vm.ZoomFactor = 1.0;
+            vm.Zoom.Factor = 1.0;
 
             vm.ZoomInCommand.Execute(null);
-            Assert.That(vm.ZoomFactor, Is.EqualTo(2.0));
+            Assert.That(vm.Zoom.Factor, Is.EqualTo(2.0));
 
             vm.ZoomOutCommand.Execute(null);
             vm.ZoomOutCommand.Execute(null);
-            Assert.That(vm.ZoomFactor, Is.EqualTo(0.5));
+            Assert.That(vm.Zoom.Factor, Is.EqualTo(0.5));
 
-            vm.ZoomFactor = 4.0;
+            vm.Zoom.Factor = 4.0;
             vm.ZoomResetCommand.Execute(null);
-            Assert.That(vm.ZoomFactor, Is.EqualTo(1.0));
+            Assert.That(vm.Zoom.Factor, Is.EqualTo(1.0));
         }
 
         [Test]

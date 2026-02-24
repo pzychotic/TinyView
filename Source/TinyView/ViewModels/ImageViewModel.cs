@@ -26,7 +26,7 @@ namespace TinyView.ViewModels
             set
             {
                 _rawData = value;
-                ZoomFactor = 1.0;
+                Zoom.Reset();
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ImageSizeText));
                 OnPropertyChanged(nameof(ImageMinMaxText));
@@ -39,18 +39,7 @@ namespace TinyView.ViewModels
 
         private string Filename = string.Empty;
 
-        // Zoom handling
-        private double _zoomFactor = 1.0;
-        public double ZoomFactor
-        {
-            get => _zoomFactor;
-            set
-            {
-                if (value == _zoomFactor) return;
-                _zoomFactor = value;
-                OnPropertyChanged();
-            }
-        }
+        public ZoomState Zoom { get; } = new ZoomState();
 
         // Status text shown in the status bar (pixel position and value)
         private string _valueText = "0,0: undefined";
@@ -135,9 +124,15 @@ namespace TinyView.ViewModels
 
             ExitCommand = new RelayCommand<object?>(_ => Application.Current.Shutdown());
 
-            ZoomInCommand = new RelayCommand<object?>(_ => ZoomFactor *= 2.0);
-            ZoomOutCommand = new RelayCommand<object?>(_ => ZoomFactor /= 2.0);
-            ZoomResetCommand = new RelayCommand<object?>(_ => ZoomFactor = 1.0);
+            ZoomInCommand = new RelayCommand<object?>(_ => Zoom.ZoomIn(), _ => Zoom.CanZoomIn);
+            ZoomOutCommand = new RelayCommand<object?>(_ => Zoom.ZoomOut(), _ => Zoom.CanZoomOut);
+            ZoomResetCommand = new RelayCommand<object?>(_ => Zoom.Reset());
+
+            Zoom.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName is nameof(ZoomState.CanZoomIn) or nameof(ZoomState.CanZoomOut))
+                    CommandManager.InvalidateRequerySuggested();
+            };
 
             HoverCommand = new RelayCommand<PixelPosition>(p =>
             {
