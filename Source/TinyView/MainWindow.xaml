@@ -7,6 +7,17 @@
         Title="{Binding WindowTitle, FallbackValue='TinyView'}"
         Height="600" Width="800">
 
+    <!-- Show wait cursor while a file is loading -->
+    <Window.Style>
+        <Style TargetType="Window">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                    <Setter Property="Cursor" Value="Wait" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Style>
+
     <!-- Keyboard shortcuts -->
     <Window.InputBindings>
         <!-- Ctrl + 'O' for Open -->
