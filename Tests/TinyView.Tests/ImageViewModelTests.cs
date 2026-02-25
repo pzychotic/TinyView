@@ -29,11 +29,11 @@ namespace TinyView.Tests
         public void HoverCommand_SetsValueText_ForInRangeAndOutOfRange()
         {
             int width = 2, height = 2;
-            var data = new int[width, height];
-            data[0, 0] = 0;
-            data[1, 0] = 255;
-            data[0, 1] = 128;
-            data[1, 1] = 64;
+            var data = new int[width * height];
+            data[0 * width + 0] = 0;
+            data[0 * width + 1] = 255;
+            data[1 * width + 0] = 128;
+            data[1 * width + 1] = 64;
 
             var provider = new RawImageData<int>(width, height, data, "INT_FMT");
             var vm = new ImageViewModel();
@@ -61,11 +61,11 @@ namespace TinyView.Tests
         public void ApplyPalette_SetsImageSource_FromRawDataIndexedBytes()
         {
             int width = 2, height = 2;
-            var data = new int[width, height];
-            data[0, 0] = 0;
-            data[1, 0] = 255;
-            data[0, 1] = 128;
-            data[1, 1] = 64;
+            var data = new int[width * height];
+            data[0 * width + 0] = 0;
+            data[0 * width + 1] = 255;
+            data[1 * width + 0] = 128;
+            data[1 * width + 1] = 64;
 
             var provider = new RawImageData<int>(width, height, data, "INT_FMT");
 
@@ -90,8 +90,8 @@ namespace TinyView.Tests
         public void RawData_Set_RaisesExpectedPropertyChangedEvents()
         {
             int width = 1, height = 1;
-            var data = new int[width, height];
-            data[0, 0] = 7;
+            var data = new int[width * height];
+            data[0 * width + 0] = 7;
             var provider = new RawImageData<int>(width, height, data, "INT_FMT");
 
             var vm = new ImageViewModel();

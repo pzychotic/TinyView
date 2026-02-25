@@ -59,7 +59,7 @@ namespace TinyView.Services
                     where TElement : unmanaged
                     where TTarget : System.Numerics.INumber<TTarget>
                 {
-                    var pixelData = new TTarget[width, height];
+                    var pixelData = new TTarget[width * height];
 
                     for (int y = 0; y < height; ++y)
                     {
@@ -67,9 +67,10 @@ namespace TinyView.Services
                             throw new InvalidOperationException("Failed to read TIFF scanline.");
 
                         var values = MemoryMarshal.Cast<byte, TElement>(scanline.AsSpan());
+                        int offset = y * width;
                         for (int x = 0; x < width; ++x)
                         {
-                            pixelData[x, y] = convert(values[x]);
+                            pixelData[offset + x] = convert(values[x]);
                         }
                     }
 

@@ -1,4 +1,5 @@
 using Pfim;
+using System.Runtime.InteropServices;
 using TinyView.Models;
 
 namespace TinyView.Services
@@ -20,16 +21,20 @@ namespace TinyView.Services
                 bool isHalf = image.Format == ImageFormat.R16f;
 
                 // extract raw data
-                var pixelData = new float[width, height];
+                var pixelData = new float[width * height];
 
-                for (int y = 0; y < height; ++y)
+                if (isHalf)
                 {
-                    for (int x = 0; x < width; ++x)
+                    var halfData = MemoryMarshal.Cast<byte, Half>(image.Data);
+                    for (int i = 0; i < pixelData.Length; i++)
                     {
-                        float value = isHalf ? ((float)BitConverter.ToHalf(image.Data, (y * width + x) * 2))
-                                                : BitConverter.ToSingle(image.Data, (y * width + x) * 4);
-                        pixelData[x, y] = value;
+                        pixelData[i] = (float)halfData[i];
                     }
+                }
+                else
+                {
+                    var floatData = MemoryMarshal.Cast<byte, float>(image.Data);
+                    floatData.CopyTo(pixelData);
                 }
 
                 string format = isHalf ? "R16F (half)" : "R32F (float)";

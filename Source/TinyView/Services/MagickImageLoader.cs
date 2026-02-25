@@ -19,16 +19,17 @@ namespace TinyView.Services
                 int height = (int)image.Height;
 
                 // extract raw 16-bit data
-                var pixelData = new ushort[width, height];
+                var pixelData = new ushort[width * height];
 
                 using (var pixels = image.GetPixels())
                 {
                     for (int y = 0; y < height; ++y)
                     {
+                        int offset = y * width;
                         for (int x = 0; x < width; ++x)
                         {
                             ushort value = pixels.GetPixel(x, y).GetChannel(0);
-                            pixelData[x, y] = value;
+                            pixelData[offset + x] = value;
                         }
                     }
                 }

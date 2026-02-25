@@ -9,12 +9,12 @@ namespace TinyView.Tests
         public void Constructor_SetsProperties_And_GeneratesIndexedData_ForInt()
         {
             int width = 2, height = 2;
-            // fill using [x,y] indexing as expected by RawImageData
-            var data = new int[width, height];
-            data[0, 0] = 0;   // x=0,y=0
-            data[1, 0] = 255; // x=1,y=0
-            data[0, 1] = 128; // x=0,y=1
-            data[1, 1] = 64;  // x=1,y=1
+            // fill using 1D indexing as expected by RawImageData
+            var data = new int[width * height];
+            data[0 * width + 0] = 0;   // x=0,y=0
+            data[0 * width + 1] = 255; // x=1,y=0
+            data[1 * width + 0] = 128; // x=0,y=1
+            data[1 * width + 1] = 64;  // x=1,y=1
 
             var provider = new RawImageData<int>(width, height, data, "INT_FMT");
 
@@ -42,15 +42,12 @@ namespace TinyView.Tests
         public void Constructor_MinEqualsMax_AllIndexedValuesZero_ForFloat()
         {
             int width = 2, height = 2;
-            var data = new float[width, height];
+            var data = new float[width * height];
 
             // all entries the same -> Min == Max branch taken
-            for (int x = 0; x < width; ++x)
+            for (int i = 0; i < data.Length; ++i)
             {
-                for (int y = 0; y < height; ++y)
-                {
-                    data[x, y] = 5.0f;
-                }
+                data[i] = 5.0f;
             }
 
             var provider = new RawImageData<float>(width, height, data, "FLT_FMT");
@@ -74,17 +71,17 @@ namespace TinyView.Tests
         public void IndexedData_Calculation_MatchesManualComputation_ForMixedValues()
         {
             int width = 3, height = 1;
-            var data = new double[width, height];
+            var data = new double[width * height];
             // use values that test normalization and rounding behavior
-            data[0, 0] = -10.0;
-            data[1, 0] = 0.0;
-            data[2, 0] = 10.0;
+            data[0 * width + 0] = -10.0;
+            data[0 * width + 1] = 0.0;
+            data[0 * width + 2] = 10.0;
 
             var provider = new RawImageData<double>(width, height, data, "DBL_FMT");
 
             // manual computation of min/max and expected indices
-            float min = Convert.ToSingle(data.Cast<double>().Min());
-            float max = Convert.ToSingle(data.Cast<double>().Max());
+            float min = Convert.ToSingle(data.Min());
+            float max = Convert.ToSingle(data.Max());
             float scale = min == max ? 1f : 255f / (max - min);
 
             var expected = new byte[width * height];
@@ -92,7 +89,7 @@ namespace TinyView.Tests
             {
                 for (int x = 0; x < width; ++x)
                 {
-                    float norm = (Convert.ToSingle(data[x, y]) - min) * scale;
+                    float norm = (Convert.ToSingle(data[y * width + x]) - min) * scale;
                     byte idx = (byte)Math.Clamp(norm, 0, 255);
                     expected[y * width + x] = idx;
                 }
@@ -104,8 +101,8 @@ namespace TinyView.Tests
             Assert.That(provider.DataFormat, Is.EqualTo("DBL_FMT"));
 
             // GetValueString() should return the ToString() of the raw value
-            Assert.That(provider.GetValueString(0, 0), Is.EqualTo(data[0, 0].ToString()));
-            Assert.That(provider.GetValueString(2, 0), Is.EqualTo(data[2, 0].ToString()));
+            Assert.That(provider.GetValueString(0, 0), Is.EqualTo(data[0 * width + 0].ToString()));
+            Assert.That(provider.GetValueString(2, 0), Is.EqualTo(data[0 * width + 2].ToString()));
         }
     }
 }

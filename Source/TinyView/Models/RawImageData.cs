@@ -12,13 +12,13 @@ namespace TinyView.Models
     {
         private readonly string _dataFormat;
 
-        public RawImageData(int width, int height, T[,] data, string dataFormat)
+        public RawImageData(int width, int height, T[] data, string dataFormat)
         {
             Width = width;
             Height = height;
 
-            Min = Convert.ToSingle(data.Cast<T>().Min());
-            Max = Convert.ToSingle(data.Cast<T>().Max());
+            Min = Convert.ToSingle(data.Min());
+            Max = Convert.ToSingle(data.Max());
 
             _rawData = data;
             IndexedData = new byte[Width * Height];
@@ -36,11 +36,12 @@ namespace TinyView.Models
             float scale = Min == Max ? 1f : 255f / (Max - Min);
             for (int y = 0; y < Height; ++y)
             {
+                int offset = y * Width;
                 for (int x = 0; x < Width; ++x)
                 {
-                    float norm = (Convert.ToSingle(_rawData[x, y]) - Min) * scale;
+                    float norm = (Convert.ToSingle(_rawData[offset + x]) - Min) * scale;
                     byte index = (byte)Math.Clamp(norm, 0, 255);
-                    IndexedData[y * Width + x] = index;
+                    IndexedData[offset + x] = index;
                 }
             }
         }
@@ -58,9 +59,9 @@ namespace TinyView.Models
         public string? GetValueString(int x, int y)
         {
             Debug.Assert(x >= 0 && x < Width && y >= 0 && y < Height);
-            return _rawData[x, y].ToString();
+            return _rawData[y * Width + x].ToString();
         }
 
-        private readonly T[,] _rawData;
+        private readonly T[] _rawData;
     }
 }
