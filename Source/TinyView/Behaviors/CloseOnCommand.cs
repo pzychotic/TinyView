@@ -1,6 +1,6 @@
+using CommunityToolkit.Mvvm.Input;
 using System.Windows;
 using System.Windows.Input;
-using TinyView.ViewModels;
 
 namespace TinyView.Behaviors
 {
@@ -50,7 +50,7 @@ namespace TinyView.Behaviors
             if (e.NewValue is ICommand target)
             {
                 // lightweight proxy command
-                var proxy = new RelayCommand(
+                var proxy = new RelayCommand<object?>(
                     execute: param =>
                     {
                         try

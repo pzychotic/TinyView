@@ -11,6 +11,7 @@ namespace TinyView.Tests
         public void ZoomCommands_UpdateZoomFactor()
         {
             var vm = new ImageViewModel();
+            vm.RawData = new RawImageData<int>(1, 1, new int[1], "INT_FMT");
             vm.Zoom.Factor = 1.0;
 
             vm.ZoomInCommand.Execute(null);

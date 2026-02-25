@@ -1,9 +1,8 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace TinyView.ViewModels
 {
-    public class ZoomState : INotifyPropertyChanged
+    public partial class ZoomState : ObservableObject
     {
         public const double DefaultFactor = 1.0;
         public const double MinFactor = 1.0 / 64.0; // 1.5%
@@ -17,23 +16,19 @@ namespace TinyView.ViewModels
             set
             {
                 var clamped = Math.Clamp(value, MinFactor, MaxFactor);
-                if (clamped == _factor) return;
-                _factor = clamped;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(CanZoomIn));
-                OnPropertyChanged(nameof(CanZoomOut));
+                if (SetProperty(ref _factor, clamped))
+                {
+                    OnPropertyChanged(nameof(CanZoomIn));
+                    OnPropertyChanged(nameof(CanZoomOut));
+                }
             }
         }
 
-        public bool CanZoomIn => _factor < MaxFactor;
-        public bool CanZoomOut => _factor > MinFactor;
+        public bool CanZoomIn => Factor < MaxFactor;
+        public bool CanZoomOut => Factor > MinFactor;
 
         public void ZoomIn() => Factor *= ButtonStep;
         public void ZoomOut() => Factor /= ButtonStep;
         public void Reset() => Factor = DefaultFactor;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string? name = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

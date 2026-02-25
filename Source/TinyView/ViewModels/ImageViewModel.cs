@@ -1,8 +1,7 @@
-using System.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TinyView.Models;
@@ -10,14 +9,10 @@ using TinyView.Services;
 
 namespace TinyView.ViewModels
 {
-    public class ImageViewModel : INotifyPropertyChanged
+    public partial class ImageViewModel : ObservableObject
     {
+        [ObservableProperty]
         private WriteableBitmap? _imageSource;
-        public WriteableBitmap? ImageSource
-        {
-            get => _imageSource;
-            set { _imageSource = value; OnPropertyChanged(); }
-        }
 
         private IRawImageDataProvider? _rawData;
         public IRawImageDataProvider? RawData
@@ -25,30 +20,32 @@ namespace TinyView.ViewModels
             get => _rawData;
             set
             {
-                _rawData = value;
-                Zoom.Reset();
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(HasImage));
-                OnPropertyChanged(nameof(ImageSizeText));
-                OnPropertyChanged(nameof(ImageMinMaxText));
-                OnPropertyChanged(nameof(ImageFormatText));
-                ApplyPalette();
+                if (SetProperty(ref _rawData, value))
+                {
+                    Zoom.Reset();
+                    OnPropertyChanged(nameof(HasImage));
+                    OnPropertyChanged(nameof(ImageSizeText));
+                    OnPropertyChanged(nameof(ImageMinMaxText));
+                    OnPropertyChanged(nameof(ImageFormatText));
+                    ApplyPalette();
+                    ZoomInCommand.NotifyCanExecuteChanged();
+                    ZoomOutCommand.NotifyCanExecuteChanged();
+                    ZoomResetCommand.NotifyCanExecuteChanged();
+                }
             }
         }
 
         public string WindowTitle => Filename.Length > 0 ? $"TinyView - {Filename}" : "TinyView";
 
-        private string Filename = string.Empty;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(WindowTitle))]
+        private string _filename = string.Empty;
 
         public ZoomState Zoom { get; } = new ZoomState();
 
         // Status text shown in the status bar (pixel position and value)
+        [ObservableProperty]
         private string _valueText = "0,0: undefined";
-        public string ValueText
-        {
-            get => _valueText;
-            set { if (value == _valueText) return; _valueText = value; OnPropertyChanged(); }
-        }
 
         public bool HasImage => RawData != null;
         public string ImageSizeText => RawData != null ? $"{RawData.Width}x{RawData.Height}" : "0x0";
@@ -62,43 +59,25 @@ namespace TinyView.ViewModels
             get => _selectedPalette;
             set
             {
-                if (Equals(value, _selectedPalette)) return;
-                _selectedPalette = value;
-                OnPropertyChanged();
-                ApplyPalette();
+                if (SetProperty(ref _selectedPalette, value))
+                {
+                    ApplyPalette();
+                }
             }
         }
 
         // expose palettes to the view
         public IReadOnlyList<ColorPalettes.PaletteEntry> Palettes => ColorPalettes.Palettes;
 
-        public ICommand OpenCommand { get; }
-        public ICommand ExitCommand { get; }
-        public ICommand AboutCommand { get; }
-        public ICommand ZoomInCommand { get; }
-        public ICommand ZoomOutCommand { get; }
-        public ICommand ZoomResetCommand { get; }
-        public ICommand DropCommand { get; }
-        public ICommand HoverCommand { get; }
-        public ICommand LeaveHoverCommand { get; }
-
         // image loader services (instance-based)
         private readonly IImageLoader[] _imageLoaders;
 
         private readonly IDialogService _dialogService;
 
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor("OpenCommand")]
+        [NotifyCanExecuteChangedFor("DropCommand")]
         private bool _isBusy;
-        public bool IsBusy
-        {
-            get => _isBusy;
-            private set
-            {
-                if (_isBusy == value) return;
-                _isBusy = value;
-                OnPropertyChanged();
-                CommandManager.InvalidateRequerySuggested();
-            }
-        }
 
         public ImageViewModel(IDialogService? dialogService = null)
         {
@@ -107,53 +86,14 @@ namespace TinyView.ViewModels
             // initialize image loader implementations
             _imageLoaders = [new MagickImageLoader(), new PfimImageLoader(), new TiffImageLoader()];
 
-            OpenCommand = new AsyncRelayCommand<object?>(async _ =>
-            {
-                const string filter = "Image Files (*.dds;*.png;*.tif;*.tiff)|*.dds;*.png;*.tif;*.tiff|DDS Files (*.dds)|*.dds|PNG Files (*.png)|*.png|TIFF Files (*.tif;*.tiff)|*.tif;*.tiff|All Files (*.*)|*.*";
-                var path = _dialogService.ShowOpenFileDialog(filter);
-                if (path != null)
-                    await LoadImageAsync(path);
-            }, _ => !IsBusy);
-
-            AboutCommand = new RelayCommand<object?>(_ => _dialogService.ShowAbout());
-
-            DropCommand = new AsyncRelayCommand<string[]>(async files =>
-            {
-                // only support one file right now
-                if (files?.Length > 0)
-                    await LoadImageAsync(files[0]);
-            }, _ => !IsBusy);
-
-            ExitCommand = new RelayCommand<object?>(_ => Application.Current.Shutdown());
-
-            ZoomInCommand = new RelayCommand<object?>(_ => Zoom.ZoomIn(), _ => HasImage && Zoom.CanZoomIn);
-            ZoomOutCommand = new RelayCommand<object?>(_ => Zoom.ZoomOut(), _ => HasImage && Zoom.CanZoomOut);
-            ZoomResetCommand = new RelayCommand<object?>(_ => Zoom.Reset(), _ => HasImage);
-
             Zoom.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName is nameof(ZoomState.CanZoomIn) or nameof(ZoomState.CanZoomOut))
-                    CommandManager.InvalidateRequerySuggested();
-            };
-
-            HoverCommand = new RelayCommand<PixelPosition>(p =>
-            {
-                if (RawData != null)
                 {
-                    int x = p.X;
-                    int y = p.Y;
-                    if (x < 0 || y < 0 || x >= RawData.Width || y >= RawData.Height)
-                    {
-                        ValueText = "0,0: undefined";
-                        return;
-                    }
-
-                    string? value = RawData.GetValueString(x, y);
-                    ValueText = $"{x},{y}: {value}";
+                    ZoomInCommand.NotifyCanExecuteChanged();
+                    ZoomOutCommand.NotifyCanExecuteChanged();
                 }
-            });
-
-            LeaveHoverCommand = new RelayCommand<object?>(_ => { ValueText = "0,0: undefined"; });
+            };
 
             // set initial palette to first available entry
             if (ColorPalettes.Palettes.Count > 0)
@@ -161,6 +101,65 @@ namespace TinyView.ViewModels
                 SelectedPalette = ColorPalettes.Palettes[0];
             }
         }
+
+        private bool CanExecuteWhenNotBusy() => !IsBusy;
+
+        [RelayCommand(CanExecute = nameof(CanExecuteWhenNotBusy))]
+        private async Task OpenAsync()
+        {
+            const string filter = "Image Files (*.dds;*.png;*.tif;*.tiff)|*.dds;*.png;*.tif;*.tiff|DDS Files (*.dds)|*.dds|PNG Files (*.png)|*.png|TIFF Files (*.tif;*.tiff)|*.tif;*.tiff|All Files (*.*)|*.*";
+            var path = _dialogService.ShowOpenFileDialog(filter);
+            if (path != null)
+                await LoadImageAsync(path);
+        }
+
+        [RelayCommand]
+        private void About() => _dialogService.ShowAbout();
+
+        [RelayCommand(CanExecute = nameof(CanExecuteWhenNotBusy))]
+        private async Task DropAsync(string[]? files)
+        {
+            // only support one file right now
+            if (files?.Length > 0)
+                await LoadImageAsync(files[0]);
+        }
+
+        [RelayCommand]
+        private void Exit() => Application.Current.Shutdown();
+
+        private bool CanZoomIn() => HasImage && Zoom.CanZoomIn;
+        private bool CanZoomOut() => HasImage && Zoom.CanZoomOut;
+        private bool CanZoomReset() => HasImage;
+
+        [RelayCommand(CanExecute = nameof(CanZoomIn))]
+        private void ZoomIn() => Zoom.ZoomIn();
+
+        [RelayCommand(CanExecute = nameof(CanZoomOut))]
+        private void ZoomOut() => Zoom.ZoomOut();
+
+        [RelayCommand(CanExecute = nameof(CanZoomReset))]
+        private void ZoomReset() => Zoom.Reset();
+
+        [RelayCommand]
+        private void Hover(PixelPosition p)
+        {
+            if (RawData != null)
+            {
+                int x = p.X;
+                int y = p.Y;
+                if (x < 0 || y < 0 || x >= RawData.Width || y >= RawData.Height)
+                {
+                    ValueText = "0,0: undefined";
+                    return;
+                }
+
+                string? value = RawData.GetValueString(x, y);
+                ValueText = $"{x},{y}: {value}";
+            }
+        }
+
+        [RelayCommand]
+        private void LeaveHover() => ValueText = "0,0: undefined";
 
         private async Task LoadImageAsync(string path)
         {
@@ -182,7 +181,6 @@ namespace TinyView.ViewModels
                     throw new NotSupportedException($"Unsupported image format: {ext}");
 
                 Filename = Path.GetFileName(path);
-                OnPropertyChanged(nameof(WindowTitle));
             }
             catch (Exception ex)
             {
@@ -204,12 +202,8 @@ namespace TinyView.ViewModels
 
             var bitmap = new WriteableBitmap(RawData.Width, RawData.Height, 96, 96, PixelFormats.Indexed8, SelectedPalette.Palette);
             bitmap.WritePixels(new Int32Rect(0, 0, RawData.Width, RawData.Height), RawData.IndexedData, RawData.Width, 0);
-            ImageSource = bitmap;
+            this.ImageSource = bitmap;
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string? name = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         private sealed class NullDialogService : IDialogService
         {
