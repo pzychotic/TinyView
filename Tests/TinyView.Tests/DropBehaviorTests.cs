@@ -1,3 +1,4 @@
+using Microsoft.Xaml.Behaviors;
 using System.Windows.Controls;
 
 namespace TinyView.Tests
@@ -11,13 +12,15 @@ namespace TinyView.Tests
         {
             var element = new Border();
             var cmd = new TestCommand();
+            var behavior = new Behaviors.DropBehavior();
 
             Assert.That(element.AllowDrop, Is.False);
 
-            Behaviors.DropBehavior.SetDropCommand(element, cmd);
+            Interaction.GetBehaviors(element).Add(behavior);
+            behavior.Command = cmd;
 
             Assert.That(element.AllowDrop, Is.True);
-            var returned = Behaviors.DropBehavior.GetDropCommand(element);
+            var returned = behavior.Command;
             Assert.That(returned, Is.SameAs(cmd));
         }
 
@@ -26,15 +29,17 @@ namespace TinyView.Tests
         {
             var element = new Border();
             var cmd = new TestCommand();
+            var behavior = new Behaviors.DropBehavior();
+            Interaction.GetBehaviors(element).Add(behavior);
 
-            Behaviors.DropBehavior.SetDropCommand(element, cmd);
+            behavior.Command = cmd;
             Assert.That(element.AllowDrop, Is.True);
 
-            Behaviors.DropBehavior.SetDropCommand(element, null);
+            Interaction.GetBehaviors(element).Remove(behavior);
 
             Assert.That(element.AllowDrop, Is.False);
-            var returned = Behaviors.DropBehavior.GetDropCommand(element);
-            Assert.That(returned, Is.Null);
+            var returned = behavior.Command;
+            Assert.That(returned, Is.SameAs(cmd));
         }
 
         [Test]
@@ -43,13 +48,15 @@ namespace TinyView.Tests
             var element = new Border();
             var cmd1 = new TestCommand();
             var cmd2 = new TestCommand();
+            var behavior = new Behaviors.DropBehavior();
+            Interaction.GetBehaviors(element).Add(behavior);
 
-            Behaviors.DropBehavior.SetDropCommand(element, cmd1);
-            Assert.That(Behaviors.DropBehavior.GetDropCommand(element), Is.SameAs(cmd1));
+            behavior.Command = cmd1;
+            Assert.That(behavior.Command, Is.SameAs(cmd1));
 
-            Behaviors.DropBehavior.SetDropCommand(element, cmd2);
+            behavior.Command = cmd2;
             Assert.That(element.AllowDrop, Is.True);
-            Assert.That(Behaviors.DropBehavior.GetDropCommand(element), Is.SameAs(cmd2));
+            Assert.That(behavior.Command, Is.SameAs(cmd2));
         }
     }
 }

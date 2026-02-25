@@ -1,6 +1,7 @@
 <Window x:Class="TinyView.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:TinyView"
         xmlns:behaviors="clr-namespace:TinyView.Behaviors"
         SnapsToDevicePixels="True" UseLayoutRounding="True"
@@ -101,16 +102,18 @@
         </ToolBar>
 
         <!-- ScrollViewer ensures image fits and can be scrolled if large -->
-        <ScrollViewer x:Name="ImageScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="2"
-                      behaviors:DropBehavior.DropCommand="{Binding DropCommand}"
-                      behaviors:ScrollViewerPanBehavior.EnablePan="True"
-                      behaviors:MouseWheelZoomBehavior.EnableWheelZoom="True"
-                      behaviors:MouseWheelZoomBehavior.ZoomFactor="{Binding Zoom.Factor, Mode=TwoWay}">
+        <ScrollViewer x:Name="ImageScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="2">
+            <i:Interaction.Behaviors>
+                <behaviors:DropBehavior Command="{Binding DropCommand}" />
+                <behaviors:MouseWheelZoomBehavior ZoomFactor="{Binding Zoom.Factor, Mode=TwoWay}" />
+                <behaviors:ScrollViewerPanBehavior x:Name="PanBehavior" />
+            </i:Interaction.Behaviors>
             <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
                    RenderOptions.BitmapScalingMode="NearestNeighbor"
-                   Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}"
-                   behaviors:ImageHoverBehavior.HoverCommand="{Binding HoverCommand}"
-                   behaviors:ImageHoverBehavior.LeaveCommand="{Binding LeaveHoverCommand}">
+                   Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}">
+                <i:Interaction.Behaviors>
+                    <behaviors:ImageHoverBehavior HoverCommand="{Binding HoverCommand}" LeaveCommand="{Binding LeaveHoverCommand}" />
+                </i:Interaction.Behaviors>
                 <Image.LayoutTransform>
                     <ScaleTransform ScaleX="{Binding Zoom.Factor}" ScaleY="{Binding Zoom.Factor}" />
                 </Image.LayoutTransform>

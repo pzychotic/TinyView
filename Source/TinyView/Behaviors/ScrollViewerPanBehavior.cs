@@ -1,3 +1,4 @@
+using Microsoft.Xaml.Behaviors;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -6,129 +7,90 @@ using System.Windows.Media;
 
 namespace TinyView.Behaviors
 {
-    public static class ScrollViewerPanBehavior
+    public class ScrollViewerPanBehavior : Behavior<ScrollViewer>
     {
-        public static readonly DependencyProperty EnablePanProperty =
-            DependencyProperty.RegisterAttached(
-                "EnablePan",
-                typeof(bool),
-                typeof(ScrollViewerPanBehavior),
-                new PropertyMetadata(false, OnEnablePanChanged));
+        public ScrollViewerPanBehavior() { }
 
-        public static void SetEnablePan(DependencyObject element, bool value) =>
-            element.SetValue(EnablePanProperty, value);
+        private bool _isPanning;
+        private Point _panStartPoint;
+        private Point _panStartOffset;
 
-        public static bool GetEnablePan(DependencyObject element) =>
-            (bool)element.GetValue(EnablePanProperty);
-
-        private static void OnEnablePanChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        protected override void OnAttached()
         {
-            if (d is not ScrollViewer sv)
-                return;
-
-            if ((bool)e.NewValue)
-                Attach(sv);
-            else
-                Detach(sv);
+            base.OnAttached();
+            AssociatedObject.PreviewMouseLeftButtonDown += OnPreviewMouseLeftButtonDown;
+            AssociatedObject.PreviewMouseLeftButtonUp += OnPreviewMouseLeftButtonUp;
+            AssociatedObject.PreviewMouseMove += OnPreviewMouseMove;
+            AssociatedObject.LostMouseCapture += OnLostMouseCapture;
         }
 
-        private static readonly DependencyProperty IsPanningProperty =
-            DependencyProperty.RegisterAttached("IsPanning", typeof(bool), typeof(ScrollViewerPanBehavior), new PropertyMetadata(false));
-
-        private static readonly DependencyProperty PanStartPointProperty =
-            DependencyProperty.RegisterAttached("PanStartPoint", typeof(Point), typeof(ScrollViewerPanBehavior), new PropertyMetadata(default(Point)));
-
-        private static readonly DependencyProperty PanStartOffsetProperty =
-            DependencyProperty.RegisterAttached("PanStartOffset", typeof(Point), typeof(ScrollViewerPanBehavior), new PropertyMetadata(default(Point)));
-
-        private static void Attach(ScrollViewer sv)
+        protected override void OnDetaching()
         {
-            sv.PreviewMouseLeftButtonDown += OnPreviewMouseLeftButtonDown;
-            sv.PreviewMouseLeftButtonUp += OnPreviewMouseLeftButtonUp;
-            sv.PreviewMouseMove += OnPreviewMouseMove;
-            sv.LostMouseCapture += OnLostMouseCapture;
+            AssociatedObject.PreviewMouseLeftButtonDown -= OnPreviewMouseLeftButtonDown;
+            AssociatedObject.PreviewMouseLeftButtonUp -= OnPreviewMouseLeftButtonUp;
+            AssociatedObject.PreviewMouseMove -= OnPreviewMouseMove;
+            AssociatedObject.LostMouseCapture -= OnLostMouseCapture;
+            base.OnDetaching();
         }
 
-        private static void Detach(ScrollViewer sv)
+        private void OnPreviewMouseLeftButtonDown(object? sender, MouseButtonEventArgs e)
         {
-            sv.PreviewMouseLeftButtonDown -= OnPreviewMouseLeftButtonDown;
-            sv.PreviewMouseLeftButtonUp -= OnPreviewMouseLeftButtonUp;
-            sv.PreviewMouseMove -= OnPreviewMouseMove;
-            sv.LostMouseCapture -= OnLostMouseCapture;
-        }
-
-        private static void OnPreviewMouseLeftButtonDown(object? sender, MouseButtonEventArgs e)
-        {
-            if (sender is not ScrollViewer sv)
-                return;
-
             // prevent scrollbar and its parts to handle the event
             if (e.OriginalSource is DependencyObject dep && IsOverScrollbar(dep))
                 return;
 
-            if (!sv.IsMouseOver)
+            if (!AssociatedObject.IsMouseOver)
                 return;
 
-            SetIsPanning(sv, true);
-            SetPanStartPoint(sv, e.GetPosition(sv));
-            SetPanStartOffset(sv, new Point(sv.HorizontalOffset, sv.VerticalOffset));
+            _isPanning = true;
+            _panStartPoint = e.GetPosition(AssociatedObject);
+            _panStartOffset = new Point(AssociatedObject.HorizontalOffset, AssociatedObject.VerticalOffset);
             // capture mouse so we continue to receive events while dragging
-            sv.CaptureMouse();
-            sv.Cursor = Cursors.Hand;
+            AssociatedObject.CaptureMouse();
+            AssociatedObject.Cursor = Cursors.Hand;
 
             e.Handled = true;
         }
 
-        private static void OnPreviewMouseLeftButtonUp(object? sender, MouseButtonEventArgs e)
+        private void OnPreviewMouseLeftButtonUp(object? sender, MouseButtonEventArgs e)
         {
-            if (sender is not ScrollViewer sv)
-                return;
-
-            if (GetIsPanning(sv))
+            if (_isPanning)
             {
-                SetIsPanning(sv, false);
-                sv.ReleaseMouseCapture();
-                sv.Cursor = null;
+                _isPanning = false;
+                AssociatedObject.ReleaseMouseCapture();
+                AssociatedObject.Cursor = null;
                 e.Handled = true;
             }
         }
 
-        private static void OnLostMouseCapture(object? sender, MouseEventArgs e)
+        private void OnLostMouseCapture(object? sender, MouseEventArgs e)
         {
-            if (sender is not ScrollViewer sv)
-                return;
-
             // ensure state is cleared and cursor restored if capture is lost unexpectedly
-            if (GetIsPanning(sv))
+            if (_isPanning)
             {
-                SetIsPanning(sv, false);
-                sv.Cursor = null;
+                _isPanning = false;
+                AssociatedObject.Cursor = null;
             }
         }
 
-        private static void OnPreviewMouseMove(object? sender, MouseEventArgs e)
+        private void OnPreviewMouseMove(object? sender, MouseEventArgs e)
         {
-            if (sender is not ScrollViewer sv)
+            if (!_isPanning)
                 return;
 
-            if (!GetIsPanning(sv))
-                return;
-
-            var currentPoint = e.GetPosition(sv);
-            var start = GetPanStartPoint(sv);
-            var delta = currentPoint - start;
+            var currentPoint = e.GetPosition(AssociatedObject);
+            var delta = currentPoint - _panStartPoint;
 
             // invert delta so dragging the mouse moves the image in the expected direction
-            var startOffset = GetPanStartOffset(sv);
-            double newH = startOffset.X - delta.X;
-            double newV = startOffset.Y - delta.Y;
+            double newH = _panStartOffset.X - delta.X;
+            double newV = _panStartOffset.Y - delta.Y;
 
             // clamp to scrollable extents
-            newH = Math.Clamp(newH, 0, sv.ScrollableWidth);
-            newV = Math.Clamp(newV, 0, sv.ScrollableHeight);
+            newH = Math.Clamp(newH, 0, AssociatedObject.ScrollableWidth);
+            newV = Math.Clamp(newV, 0, AssociatedObject.ScrollableHeight);
 
-            sv.ScrollToHorizontalOffset(newH);
-            sv.ScrollToVerticalOffset(newV);
+            AssociatedObject.ScrollToHorizontalOffset(newH);
+            AssociatedObject.ScrollToVerticalOffset(newV);
 
             e.Handled = true;
         }
@@ -145,39 +107,26 @@ namespace TinyView.Behaviors
             return false;
         }
 
-        private static bool GetIsPanning(DependencyObject obj) => (bool)obj.GetValue(IsPanningProperty);
-        private static void SetIsPanning(DependencyObject obj, bool value) => obj.SetValue(IsPanningProperty, value);
-
-        private static Point GetPanStartPoint(DependencyObject obj) => (Point)obj.GetValue(PanStartPointProperty);
-        private static void SetPanStartPoint(DependencyObject obj, Point value) => obj.SetValue(PanStartPointProperty, value);
-
-        private static Point GetPanStartOffset(DependencyObject obj) => (Point)obj.GetValue(PanStartOffsetProperty);
-        private static void SetPanStartOffset(DependencyObject obj, Point value) => obj.SetValue(PanStartOffsetProperty, value);
-
         /// <summary>
         /// Reset any panning state on the provided ScrollViewer and scroll to the origin (0,0).
-        /// This clears attached panning properties so subsequent pans start fresh.
         /// </summary>
-        public static void ResetPan(ScrollViewer? sv)
+        public void ResetPan()
         {
-            if (sv == null)
-                return;
-
             // if a panning operation is active ensure we clear capture and state
-            if (GetIsPanning(sv))
+            if (_isPanning)
             {
-                SetIsPanning(sv, false);
-                sv.ReleaseMouseCapture();
-                sv.Cursor = null;
+                _isPanning = false;
+                AssociatedObject.ReleaseMouseCapture();
+                AssociatedObject.Cursor = null;
             }
 
             // reset start point/offset to defaults
-            SetPanStartPoint(sv, default(Point));
-            SetPanStartOffset(sv, default(Point));
+            _panStartPoint = default;
+            _panStartOffset = default;
 
             // scroll to top-left
-            sv.ScrollToHorizontalOffset(0);
-            sv.ScrollToVerticalOffset(0);
+            AssociatedObject.ScrollToHorizontalOffset(0);
+            AssociatedObject.ScrollToVerticalOffset(0);
         }
     }
 }

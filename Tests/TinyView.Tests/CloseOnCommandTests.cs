@@ -1,3 +1,4 @@
+using Microsoft.Xaml.Behaviors;
 using System.Windows;
 using System.Windows.Input;
 using TinyView.Behaviors;
@@ -13,10 +14,12 @@ namespace TinyView.Tests
         {
             var window = new Window();
             var cmd = new TestCommand();
+            var behavior = new CloseOnCommand();
+            Interaction.GetBehaviors(window).Add(behavior);
 
             Assert.That(CloseOnCommand.GetProxyCommand(window), Is.Null);
 
-            CloseOnCommand.SetCommand(window, cmd);
+            behavior.Command = cmd;
 
             var proxy = CloseOnCommand.GetProxyCommand(window);
             Assert.That(proxy, Is.Not.Null);
@@ -31,8 +34,10 @@ namespace TinyView.Tests
         {
             var window = new Window();
             var cmd = new TestCommand();
+            var behavior = new CloseOnCommand();
+            Interaction.GetBehaviors(window).Add(behavior);
 
-            CloseOnCommand.SetCommand(window, cmd);
+            behavior.Command = cmd;
 
             var proxy = CloseOnCommand.GetProxyCommand(window);
             Assert.That(proxy, Is.Not.Null);
@@ -56,12 +61,14 @@ namespace TinyView.Tests
         {
             var window = new Window();
             var cmd = new TestCommand();
+            var behavior = new CloseOnCommand();
+            Interaction.GetBehaviors(window).Add(behavior);
 
-            CloseOnCommand.SetCommand(window, cmd);
+            behavior.Command = cmd;
             Assert.That(CloseOnCommand.GetProxyCommand(window), Is.Not.Null);
 
             // now clear
-            CloseOnCommand.SetCommand(window, null);
+            behavior.Command = null;
 
             Assert.That(CloseOnCommand.GetProxyCommand(window), Is.Null);
             var kb = window.InputBindings.OfType<KeyBinding>().FirstOrDefault(k => (k.Gesture as KeyGesture)?.Key == Key.Escape);

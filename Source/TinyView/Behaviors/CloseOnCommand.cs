@@ -1,24 +1,24 @@
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Xaml.Behaviors;
 using System.Windows;
 using System.Windows.Input;
 
 namespace TinyView.Behaviors
 {
     /// <summary>
-    /// Attached behavior that exposes a window-scoped proxy command which executes a target ICommand
+    /// Behavior that exposes a window-scoped proxy command which executes a target ICommand
     /// and then closes the window. The behavior also wires the Escape key to the proxy command.
-    /// Usage:
-    ///   behaviors:CloseOnCommand.Command="{Binding CloseCommand}"
-    /// Bind a control to the window proxy:
-    ///   Command="{Binding Path=(behaviors:CloseOnCommand.ProxyCommand), RelativeSource={RelativeSource AncestorType=Window}}"
     /// </summary>
-    public static class CloseOnCommand
+    public class CloseOnCommand : Behavior<Window>
     {
         public static readonly DependencyProperty CommandProperty =
-            DependencyProperty.RegisterAttached("Command", typeof(ICommand), typeof(CloseOnCommand), new PropertyMetadata(null, OnCommandChanged));
+            DependencyProperty.Register("Command", typeof(ICommand), typeof(CloseOnCommand), new PropertyMetadata(null, OnCommandChanged));
 
-        public static void SetCommand(DependencyObject d, ICommand? value) => d.SetValue(CommandProperty, value);
-        public static ICommand? GetCommand(DependencyObject d) => (ICommand?)d.GetValue(CommandProperty);
+        public ICommand? Command
+        {
+            get => (ICommand?)GetValue(CommandProperty);
+            set => SetValue(CommandProperty, value);
+        }
 
         // proxy command exposed on the window so controls can bind to it
         public static readonly DependencyProperty ProxyCommandProperty =
@@ -27,27 +27,41 @@ namespace TinyView.Behaviors
         public static ICommand? GetProxyCommand(DependencyObject d) => (ICommand?)d.GetValue(ProxyCommandProperty);
         private static void SetProxyCommand(DependencyObject d, ICommand? value) => d.SetValue(ProxyCommandProperty, value);
 
-        // store Esc keybinding so we can remove it when command changes
-        private static readonly DependencyProperty EscKeyBindingProperty =
-            DependencyProperty.RegisterAttached("EscKeyBinding", typeof(KeyBinding), typeof(CloseOnCommand), new PropertyMetadata(null));
-
-        private static void SetEscKeyBinding(DependencyObject d, KeyBinding? kb) => d.SetValue(EscKeyBindingProperty, kb);
-        private static KeyBinding? GetEscKeyBinding(DependencyObject d) => (KeyBinding?)d.GetValue(EscKeyBindingProperty);
+        private KeyBinding? _escKeyBinding;
 
         private static void OnCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is not Window window)
+            if (d is not CloseOnCommand behavior)
+                return;
+
+            behavior.UpdateCommand(e.NewValue as ICommand);
+        }
+
+        protected override void OnAttached()
+        {
+            base.OnAttached();
+            UpdateCommand(Command);
+        }
+
+        protected override void OnDetaching()
+        {
+            UpdateCommand(null);
+            base.OnDetaching();
+        }
+
+        private void UpdateCommand(ICommand? target)
+        {
+            if (AssociatedObject == null)
                 return;
 
             // remove previous key binding if any
-            var oldKb = GetEscKeyBinding(window);
-            if (oldKb != null)
+            if (_escKeyBinding != null)
             {
-                window.InputBindings.Remove(oldKb);
-                SetEscKeyBinding(window, null);
+                AssociatedObject.InputBindings.Remove(_escKeyBinding);
+                _escKeyBinding = null;
             }
 
-            if (e.NewValue is ICommand target)
+            if (target != null)
             {
                 // lightweight proxy command
                 var proxy = new RelayCommand<object?>(
@@ -64,21 +78,20 @@ namespace TinyView.Behaviors
                         }
 
                         // close the window asynchronously on the UI thread
-                        _ = window.Dispatcher.InvokeAsync(window.Close);
+                        _ = AssociatedObject.Dispatcher.InvokeAsync(AssociatedObject.Close);
                     },
                     canExecute: param => target.CanExecute(param)
                 );
 
-                SetProxyCommand(window, proxy);
+                SetProxyCommand(AssociatedObject, proxy);
 
                 // wire Escape to the proxy command
-                var kb = new KeyBinding(proxy, new KeyGesture(Key.Escape));
-                window.InputBindings.Add(kb);
-                SetEscKeyBinding(window, kb);
+                _escKeyBinding = new KeyBinding(proxy, new KeyGesture(Key.Escape));
+                AssociatedObject.InputBindings.Add(_escKeyBinding);
             }
             else
             {
-                SetProxyCommand(window, null);
+                SetProxyCommand(AssociatedObject, null);
             }
         }
     }

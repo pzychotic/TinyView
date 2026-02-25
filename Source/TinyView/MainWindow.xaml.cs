@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.Windows;
-using TinyView.Behaviors;
 using TinyView.ViewModels;
 
 namespace TinyView
@@ -90,7 +89,7 @@ namespace TinyView
         {
             if (e?.PropertyName == nameof(ImageViewModel.RawData))
             {
-                ScrollViewerPanBehavior.ResetPan(ImageScrollViewer);
+                PanBehavior.ResetPan();
             }
         }
     }

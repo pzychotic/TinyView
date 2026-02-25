@@ -1,3 +1,4 @@
+using Microsoft.Xaml.Behaviors;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -29,7 +30,9 @@ namespace TinyView.Tests
             img.UpdateLayout();
 
             var cmd = new TestCommand();
-            Behaviors.ImageHoverBehavior.SetHoverCommand(img, cmd);
+            var behavior = new Behaviors.ImageHoverBehavior();
+            Interaction.GetBehaviors(img).Add(behavior);
+            behavior.HoverCommand = cmd;
 
             var args = new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, 0)
             {
@@ -53,7 +56,9 @@ namespace TinyView.Tests
             img.UpdateLayout();
 
             var cmd = new TestCommand();
-            Behaviors.ImageHoverBehavior.SetHoverCommand(img, cmd);
+            var behavior = new Behaviors.ImageHoverBehavior();
+            Interaction.GetBehaviors(img).Add(behavior);
+            behavior.HoverCommand = cmd;
 
             var args = new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, 0)
             {
@@ -72,7 +77,9 @@ namespace TinyView.Tests
             var img = new Image();
 
             var cmd = new TestCommand();
-            Behaviors.ImageHoverBehavior.SetLeaveCommand(img, cmd);
+            var behavior = new Behaviors.ImageHoverBehavior();
+            Interaction.GetBehaviors(img).Add(behavior);
+            behavior.LeaveCommand = cmd;
 
             var args = new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, 0)
             {

@@ -1,3 +1,4 @@
+using Microsoft.Xaml.Behaviors;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -5,100 +6,83 @@ using System.Windows.Media.Imaging;
 
 namespace TinyView.Behaviors
 {
-    public static class ImageHoverBehavior
+    public class ImageHoverBehavior : Behavior<Image>
     {
         public static readonly DependencyProperty HoverCommandProperty =
-            DependencyProperty.RegisterAttached(
+            DependencyProperty.Register(
                 "HoverCommand",
                 typeof(ICommand),
                 typeof(ImageHoverBehavior),
-                new PropertyMetadata(null, OnHoverCommandChanged));
+                new PropertyMetadata(null));
 
-        public static void SetHoverCommand(DependencyObject element, ICommand? value) =>
-            element.SetValue(HoverCommandProperty, value);
-
-        public static ICommand? GetHoverCommand(DependencyObject element) =>
-            (ICommand?)element.GetValue(HoverCommandProperty);
+        public ICommand? HoverCommand
+        {
+            get => (ICommand?)GetValue(HoverCommandProperty);
+            set => SetValue(HoverCommandProperty, value);
+        }
 
         public static readonly DependencyProperty LeaveCommandProperty =
-            DependencyProperty.RegisterAttached(
+            DependencyProperty.Register(
                 "LeaveCommand",
                 typeof(ICommand),
                 typeof(ImageHoverBehavior),
-                new PropertyMetadata(null, OnLeaveCommandChanged));
+                new PropertyMetadata(null));
 
-        public static void SetLeaveCommand(DependencyObject element, ICommand? value) =>
-            element.SetValue(LeaveCommandProperty, value);
-
-        public static ICommand? GetLeaveCommand(DependencyObject element) =>
-            (ICommand?)element.GetValue(LeaveCommandProperty);
-
-        private static void OnHoverCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        public ICommand? LeaveCommand
         {
-            if (d is Image img)
-            {
-                if (e.OldValue == null && e.NewValue != null)
-                    img.MouseMove += OnMouseMove;
-                else if (e.OldValue != null && e.NewValue == null)
-                    img.MouseMove -= OnMouseMove;
-            }
+            get => (ICommand?)GetValue(LeaveCommandProperty);
+            set => SetValue(LeaveCommandProperty, value);
         }
 
-        private static void OnLeaveCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        protected override void OnAttached()
         {
-            if (d is Image img)
-            {
-                if (e.OldValue == null && e.NewValue != null)
-                    img.MouseLeave += OnMouseLeave;
-                else if (e.OldValue != null && e.NewValue == null)
-                    img.MouseLeave -= OnMouseLeave;
-            }
+            base.OnAttached();
+            AssociatedObject.MouseMove += OnMouseMove;
+            AssociatedObject.MouseLeave += OnMouseLeave;
         }
 
-        private static void OnMouseMove(object? sender, MouseEventArgs e)
+        protected override void OnDetaching()
         {
-            if (sender is not Image img)
+            AssociatedObject.MouseMove -= OnMouseMove;
+            AssociatedObject.MouseLeave -= OnMouseLeave;
+            base.OnDetaching();
+        }
+
+        private void OnMouseMove(object? sender, MouseEventArgs e)
+        {
+            if (HoverCommand == null) return;
+
+            if (AssociatedObject.Source is not BitmapSource bmp)
                 return;
 
-            var cmd = GetHoverCommand(img);
-            if (cmd == null) return;
-
-            if (img.Source is not BitmapSource bmp)
-                return;
-
-            double displayWidth = img.ActualWidth;
-            double displayHeight = img.ActualHeight;
+            double displayWidth = AssociatedObject.ActualWidth;
+            double displayHeight = AssociatedObject.ActualHeight;
             if (displayWidth <= 0 || displayHeight <= 0)
                 return;
 
-            var pos = e.GetPosition(img);
+            var pos = e.GetPosition(AssociatedObject);
 
             int x = (int)(pos.X * bmp.PixelWidth / displayWidth);
             int y = (int)(pos.Y * bmp.PixelHeight / displayHeight);
 
             if (x < 0 || x >= bmp.PixelWidth || y < 0 || y >= bmp.PixelHeight)
             {
-                var leave = GetLeaveCommand(img);
-                if (leave != null && leave.CanExecute(null))
-                    leave.Execute(null);
+                if (LeaveCommand != null && LeaveCommand.CanExecute(null))
+                    LeaveCommand.Execute(null);
                 return;
             }
 
             var pixel = new ViewModels.PixelPosition(x, y);
-            if (cmd.CanExecute(pixel))
-                cmd.Execute(pixel);
+            if (HoverCommand.CanExecute(pixel))
+                HoverCommand.Execute(pixel);
 
             e.Handled = true;
         }
 
-        private static void OnMouseLeave(object? sender, MouseEventArgs e)
+        private void OnMouseLeave(object? sender, MouseEventArgs e)
         {
-            if (sender is not Image img)
-                return;
-
-            var cmd = GetLeaveCommand(img);
-            if (cmd != null && cmd.CanExecute(null))
-                cmd.Execute(null);
+            if (LeaveCommand != null && LeaveCommand.CanExecute(null))
+                LeaveCommand.Execute(null);
 
             e.Handled = true;
         }

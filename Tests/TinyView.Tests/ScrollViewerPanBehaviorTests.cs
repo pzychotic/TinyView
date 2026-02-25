@@ -1,3 +1,4 @@
+using Microsoft.Xaml.Behaviors;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,8 +30,8 @@ namespace TinyView.Tests
         public void PreviewMouseLeftButtonDown_StartsPanning()
         {
             var sv = CreateTestScrollViewer();
-
-            Behaviors.ScrollViewerPanBehavior.SetEnablePan(sv, true);
+            var behavior = new Behaviors.ScrollViewerPanBehavior();
+            Interaction.GetBehaviors(sv).Add(behavior);
 
             var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Left)
             {
@@ -40,21 +41,21 @@ namespace TinyView.Tests
             sv.RaiseEvent(args);
 
             // In headless test environments IsMouseOver may be false so handlers may not start panning.
-            // Verify the attached property was set instead of relying on mouse capture.
-            Assert.That(Behaviors.ScrollViewerPanBehavior.GetEnablePan(sv), Is.True);
+            // Verify the behavior is attached.
+            Assert.That(Interaction.GetBehaviors(sv).Contains(behavior), Is.True);
         }
 
         [Test]
         public void PreviewMouseLeftButtonUp_StopsPanning_ReleasesMouseAndRestoresCursor()
         {
             var sv = CreateTestScrollViewer();
+            var behavior = new Behaviors.ScrollViewerPanBehavior();
+            Interaction.GetBehaviors(sv).Add(behavior);
 
-            Behaviors.ScrollViewerPanBehavior.SetEnablePan(sv, true);
-
-            // simulate that panning has started using the private attached property and capture the mouse
+            // simulate that panning has started using reflection
             var type = typeof(Behaviors.ScrollViewerPanBehavior);
-            var setIsPanning = type.GetMethod("SetIsPanning", BindingFlags.NonPublic | BindingFlags.Static)!;
-            setIsPanning.Invoke(null, [sv, true]);
+            var isPanningField = type.GetField("_isPanning", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            isPanningField.SetValue(behavior, true);
             // ensure mouse is captured so release logic runs
             sv.CaptureMouse();
 
@@ -73,12 +74,12 @@ namespace TinyView.Tests
         public void LostMouseCapture_ClearsCursor_WhenPanning()
         {
             var sv = CreateTestScrollViewer();
-
-            Behaviors.ScrollViewerPanBehavior.SetEnablePan(sv, true);
+            var behavior = new Behaviors.ScrollViewerPanBehavior();
+            Interaction.GetBehaviors(sv).Add(behavior);
 
             var type = typeof(Behaviors.ScrollViewerPanBehavior);
-            var setIsPanning = type.GetMethod("SetIsPanning", BindingFlags.NonPublic | BindingFlags.Static)!;
-            setIsPanning.Invoke(null, [sv, true]);
+            var isPanningField = type.GetField("_isPanning", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            isPanningField.SetValue(behavior, true);
             sv.CaptureMouse();
 
             var lost = new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, 0)
@@ -94,25 +95,24 @@ namespace TinyView.Tests
         public void OnPreviewMouseMove_PansScrollViewer_UpdatesOffsets()
         {
             var sv = CreateTestScrollViewer();
-
-            // enable pan behavior so handlers are attached
-            Behaviors.ScrollViewerPanBehavior.SetEnablePan(sv, true);
+            var behavior = new Behaviors.ScrollViewerPanBehavior();
+            Interaction.GetBehaviors(sv).Add(behavior);
 
             Assert.That(sv.ScrollableWidth, Is.GreaterThan(0), "ScrollableWidth should be > 0 for the test layout");
             Assert.That(sv.ScrollableHeight, Is.GreaterThan(0), "ScrollableHeight should be > 0 for the test layout");
 
             var type = typeof(Behaviors.ScrollViewerPanBehavior);
-            var setIsPanning = type.GetMethod("SetIsPanning", BindingFlags.NonPublic | BindingFlags.Static)!;
-            var setPanStartPoint = type.GetMethod("SetPanStartPoint", BindingFlags.NonPublic | BindingFlags.Static)!;
-            var setPanStartOffset = type.GetMethod("SetPanStartOffset", BindingFlags.NonPublic | BindingFlags.Static)!;
+            var isPanningField = type.GetField("_isPanning", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var panStartPointField = type.GetField("_panStartPoint", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var panStartOffsetField = type.GetField("_panStartOffset", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
             var startPoint = new Point(50, 50);
             var startOffset = new Point(10, 20);
 
             // simulate that panning already started with a start point and offset
-            setIsPanning.Invoke(null, [sv, true]);
-            setPanStartPoint.Invoke(null, [sv, startPoint]);
-            setPanStartOffset.Invoke(null, [sv, startOffset]);
+            isPanningField.SetValue(behavior, true);
+            panStartPointField.SetValue(behavior, startPoint);
+            panStartOffsetField.SetValue(behavior, startOffset);
 
             var args = new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, 0)
             {

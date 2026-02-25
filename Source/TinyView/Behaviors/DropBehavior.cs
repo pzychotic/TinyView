@@ -1,70 +1,61 @@
+using Microsoft.Xaml.Behaviors;
 using System.Windows;
 using System.Windows.Input;
 
 namespace TinyView.Behaviors
 {
-    public static class DropBehavior
+    public class DropBehavior : Behavior<UIElement>
     {
-        public static readonly DependencyProperty DropCommandProperty =
-            DependencyProperty.RegisterAttached(
-                "DropCommand",
+        public static readonly DependencyProperty CommandProperty =
+            DependencyProperty.Register(
+                "Command",
                 typeof(ICommand),
                 typeof(DropBehavior),
-                new PropertyMetadata(null, OnDropCommandChanged));
+                new PropertyMetadata(null));
 
-        public static void SetDropCommand(DependencyObject element, ICommand? value) =>
-            element.SetValue(DropCommandProperty, value);
-
-        public static ICommand? GetDropCommand(DependencyObject element) =>
-            (ICommand?)element.GetValue(DropCommandProperty);
-
-        private static void OnDropCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        public ICommand? Command
         {
-            if (d is UIElement ui)
-            {
-                if (e.OldValue == null && e.NewValue != null)
-                {
-                    ui.AllowDrop = true;
-                    ui.DragEnter += OnDragEnter;
-                    ui.Drop += OnDrop;
-                }
-                else if (e.OldValue != null && e.NewValue == null)
-                {
-                    ui.AllowDrop = false;
-                    ui.DragEnter -= OnDragEnter;
-                    ui.Drop -= OnDrop;
-                }
-            }
+            get => (ICommand?)GetValue(CommandProperty);
+            set => SetValue(CommandProperty, value);
         }
 
-        private static void OnDragEnter(object? sender, DragEventArgs e)
+        protected override void OnAttached()
         {
-            if (sender is UIElement ui)
-            {
-                if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                    e.Effects = DragDropEffects.Copy;
-                else
-                    e.Effects = DragDropEffects.None;
-
-                e.Handled = true;
-            }
+            base.OnAttached();
+            AssociatedObject.AllowDrop = true;
+            AssociatedObject.DragEnter += OnDragEnter;
+            AssociatedObject.Drop += OnDrop;
         }
 
-        private static void OnDrop(object? sender, DragEventArgs e)
+        protected override void OnDetaching()
         {
-            if (sender is DependencyObject d)
+            AssociatedObject.AllowDrop = false;
+            AssociatedObject.DragEnter -= OnDragEnter;
+            AssociatedObject.Drop -= OnDrop;
+            base.OnDetaching();
+        }
+
+        private void OnDragEnter(object? sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effects = DragDropEffects.Copy;
+            else
+                e.Effects = DragDropEffects.None;
+
+            e.Handled = true;
+        }
+
+        private void OnDrop(object? sender, DragEventArgs e)
+        {
+            if (Command == null) return;
+
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
             {
-                var command = GetDropCommand(d);
-                if (command == null) return;
-
-                if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
-                {
-                    if (command.CanExecute(files))
-                        command.Execute(files);
-                }
-
-                e.Handled = true;
+                if (Command.CanExecute(files))
+                    Command.Execute(files);
             }
+
+            e.Handled = true;
         }
     }
 }
