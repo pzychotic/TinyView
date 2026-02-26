@@ -10,7 +10,7 @@ namespace TinyView.Behaviors
     {
         public static readonly DependencyProperty HoverCommandProperty =
             DependencyProperty.Register(
-                "HoverCommand",
+                nameof(HoverCommand),
                 typeof(ICommand),
                 typeof(ImageHoverBehavior),
                 new PropertyMetadata(null));
@@ -23,7 +23,7 @@ namespace TinyView.Behaviors
 
         public static readonly DependencyProperty LeaveCommandProperty =
             DependencyProperty.Register(
-                "LeaveCommand",
+                nameof(LeaveCommand),
                 typeof(ICommand),
                 typeof(ImageHoverBehavior),
                 new PropertyMetadata(null));

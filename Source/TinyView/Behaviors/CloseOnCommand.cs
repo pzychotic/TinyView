@@ -12,7 +12,7 @@ namespace TinyView.Behaviors
     public class CloseOnCommand : Behavior<Window>
     {
         public static readonly DependencyProperty CommandProperty =
-            DependencyProperty.Register("Command", typeof(ICommand), typeof(CloseOnCommand), new PropertyMetadata(null, OnCommandChanged));
+            DependencyProperty.Register(nameof(Command), typeof(ICommand), typeof(CloseOnCommand), new PropertyMetadata(null, OnCommandChanged));
 
         public ICommand? Command
         {

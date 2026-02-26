@@ -8,7 +8,7 @@ namespace TinyView.Behaviors
     {
         public static readonly DependencyProperty CommandProperty =
             DependencyProperty.Register(
-                "Command",
+                nameof(Command),
                 typeof(ICommand),
                 typeof(DropBehavior),
                 new PropertyMetadata(null));

@@ -12,7 +12,7 @@ namespace TinyView.Behaviors
         // two-way bindable ZoomFactor property
         public static readonly DependencyProperty ZoomFactorProperty =
             DependencyProperty.Register(
-                "ZoomFactor",
+                nameof(ZoomFactor),
                 typeof(double),
                 typeof(MouseWheelZoomBehavior),
                 new FrameworkPropertyMetadata(1.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
