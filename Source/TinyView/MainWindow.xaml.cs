@@ -61,27 +61,20 @@ namespace TinyView
 
         private void MainWindow_Closing(object? sender, CancelEventArgs e)
         {
-            try
+            var settings = new Models.UserSettings
             {
-                var settings = new Models.UserSettings
-                {
-                    IsMaximized = WindowState == WindowState.Maximized,
-                    Width = Width,
-                    Height = Height,
-                    Left = Left,
-                    Top = Top,
-                    SelectedPaletteName = _viewModel.SelectedPalette.Name
-                };
+                IsMaximized = WindowState == WindowState.Maximized,
+                Width = Width,
+                Height = Height,
+                Left = Left,
+                Top = Top,
+                SelectedPaletteName = _viewModel.SelectedPalette.Name
+            };
 
-                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TinyView");
-                System.IO.Directory.CreateDirectory(dir);
-                var path = System.IO.Path.Combine(dir, "UserSettings.json");
-                var txt = System.Text.Json.JsonSerializer.Serialize(settings);
-                System.IO.File.WriteAllText(path, txt);
-            }
-            catch
+            if (Application.Current.Resources.Contains("SettingsService") &&
+                Application.Current.Resources["SettingsService"] is ISettingsService service)
             {
-                // ignore save errors
+                service.Save(settings);
             }
         }
 

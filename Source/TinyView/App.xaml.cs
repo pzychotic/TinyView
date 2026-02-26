@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Windows;
+using TinyView.Services;
 
 namespace TinyView
 {
@@ -21,25 +22,13 @@ namespace TinyView
             CultureInfo.DefaultThreadCurrentUICulture = invariant;
 
             // attempt to restore last window state (if available)
-            try
-            {
-                var path = System.IO.Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "TinyView", "UserSettings.json");
+            var settingsService = new JsonSettingsService();
+            var settings = settingsService.Load();
+            if (settings != null)
+                Resources["UserSettings"] = settings;
 
-                if (System.IO.File.Exists(path))
-                {
-                    var txt = System.IO.File.ReadAllText(path);
-                    var settings = System.Text.Json.JsonSerializer.Deserialize<Models.UserSettings>(txt);
-                    // store onto App resources so MainWindow can pick it up during construction
-                    if (settings != null)
-                        Resources["UserSettings"] = settings;
-                }
-            }
-            catch
-            {
-                // ignore errors restoring settings
-            }
+            // make settings service available to the window
+            Resources["SettingsService"] = settingsService;
 
             base.OnStartup(e);
         }
