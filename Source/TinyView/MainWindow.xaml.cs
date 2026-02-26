@@ -54,8 +54,6 @@ namespace TinyView
 
             DataContext = _viewModel;
 
-            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
-
             // when closing, persist window state
             Closing += MainWindow_Closing;
         }
@@ -76,14 +74,6 @@ namespace TinyView
                 Application.Current.Resources["SettingsService"] is ISettingsService service)
             {
                 service.Save(settings);
-            }
-        }
-
-        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e?.PropertyName == nameof(ImageViewModel.RawData))
-            {
-                PanBehavior.ResetPan();
             }
         }
     }

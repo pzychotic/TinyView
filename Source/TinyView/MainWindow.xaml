@@ -106,7 +106,7 @@
             <i:Interaction.Behaviors>
                 <behaviors:DropBehavior Command="{Binding DropCommand}" />
                 <behaviors:MouseWheelZoomBehavior ZoomFactor="{Binding Zoom.Factor, Mode=TwoWay}" />
-                <behaviors:ScrollViewerPanBehavior x:Name="PanBehavior" />
+                <behaviors:ScrollViewerPanBehavior ResetTrigger="{Binding PanResetTrigger}" />
             </i:Interaction.Behaviors>
             <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
                    RenderOptions.BitmapScalingMode="NearestNeighbor"

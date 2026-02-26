@@ -11,6 +11,29 @@ namespace TinyView.Behaviors
     {
         public ScrollViewerPanBehavior() { }
 
+        /// <summary>
+        /// Bindable trigger property. Each time the value changes, the pan state is reset
+        /// and the ScrollViewer scrolls back to the origin.
+        /// </summary>
+        public static readonly DependencyProperty ResetTriggerProperty =
+            DependencyProperty.Register(
+                nameof(ResetTrigger),
+                typeof(bool),
+                typeof(ScrollViewerPanBehavior),
+                new PropertyMetadata(false, OnResetTriggerChanged));
+
+        public bool ResetTrigger
+        {
+            get => (bool)GetValue(ResetTriggerProperty);
+            set => SetValue(ResetTriggerProperty, value);
+        }
+
+        private static void OnResetTriggerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ScrollViewerPanBehavior behavior && behavior.AssociatedObject != null)
+                behavior.ResetPan();
+        }
+
         private bool _isPanning;
         private Point _panStartPoint;
         private Point _panStartOffset;

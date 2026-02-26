@@ -14,6 +14,17 @@ namespace TinyView.ViewModels
         [ObservableProperty]
         private WriteableBitmap? _imageSource;
 
+        /// <summary>
+        /// Toggled each time the pan state should be reset (e.g. when a new image is loaded).
+        /// Bound to ScrollViewerPanBehavior.ResetTrigger.
+        /// </summary>
+        private bool _panResetTrigger;
+        public bool PanResetTrigger
+        {
+            get => _panResetTrigger;
+            set => SetProperty(ref _panResetTrigger, value);
+        }
+
         private IRawImageDataProvider? _rawData;
         public IRawImageDataProvider? RawData
         {
@@ -23,6 +34,7 @@ namespace TinyView.ViewModels
                 if (SetProperty(ref _rawData, value))
                 {
                     Zoom.Reset();
+                    PanResetTrigger = !PanResetTrigger;
                     OnPropertyChanged(nameof(HasImage));
                     OnPropertyChanged(nameof(ImageSizeText));
                     OnPropertyChanged(nameof(ImageMinMaxText));
