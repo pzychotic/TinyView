@@ -9,8 +9,6 @@ namespace TinyView.Behaviors
 {
     public class ScrollViewerPanBehavior : Behavior<ScrollViewer>
     {
-        public ScrollViewerPanBehavior() { }
-
         /// <summary>
         /// Bindable trigger property. Each time the value changes, the pan state is reset
         /// and the ScrollViewer scrolls back to the origin.

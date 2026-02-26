@@ -214,7 +214,7 @@ namespace TinyView.ViewModels
 
             var bitmap = new WriteableBitmap(RawData.Width, RawData.Height, 96, 96, PixelFormats.Indexed8, SelectedPalette.Palette);
             bitmap.WritePixels(new Int32Rect(0, 0, RawData.Width, RawData.Height), RawData.IndexedData, RawData.Width, 0);
-            this.ImageSource = bitmap;
+            ImageSource = bitmap;
         }
 
         private sealed class NullDialogService : IDialogService
