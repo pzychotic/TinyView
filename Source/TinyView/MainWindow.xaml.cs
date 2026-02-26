@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows;
+using TinyView.Services;
 using TinyView.ViewModels;
 
 namespace TinyView
