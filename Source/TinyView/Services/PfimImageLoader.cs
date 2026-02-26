@@ -6,7 +6,7 @@ namespace TinyView.Services
 {
     public class PfimImageLoader : IImageLoader
     {
-        public bool CanLoad(string extension) => extension.Equals(".dds");
+        public bool CanLoad(string extension) => extension.Equals(".dds", StringComparison.OrdinalIgnoreCase);
 
         public Task<IRawImageDataProvider> LoadImageAsync(string path)
             => Task.Run<IRawImageDataProvider>(() =>

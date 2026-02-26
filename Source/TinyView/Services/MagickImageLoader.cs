@@ -5,7 +5,7 @@ namespace TinyView.Services
 {
     public class MagickImageLoader : IImageLoader
     {
-        public bool CanLoad(string extension) => extension.Equals(".png");
+        public bool CanLoad(string extension) => extension.Equals(".png", StringComparison.OrdinalIgnoreCase);
 
         public Task<IRawImageDataProvider> LoadImageAsync(string path)
             => Task.Run<IRawImageDataProvider>(() =>

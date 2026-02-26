@@ -166,7 +166,7 @@ namespace TinyView.ViewModels
             IsBusy = true;
             try
             {
-                string ext = Path.GetExtension(path).ToLower();
+                string ext = Path.GetExtension(path).ToLowerInvariant();
                 // pick a loader by asking each registered loader if it can handle the extension
                 foreach (var loader in _imageLoaders)
                 {
