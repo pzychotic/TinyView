@@ -1,4 +1,5 @@
 using TinyView.Models;
+using TinyView.Services;
 using TinyView.ViewModels;
 
 namespace TinyView.Tests
@@ -106,6 +107,105 @@ namespace TinyView.Tests
             Assert.That(seen, Does.Contain("ImageSizeText"));
             Assert.That(seen, Does.Contain("ImageMinMaxText"));
             Assert.That(seen, Does.Contain("ImageFormatText"));
+        }
+
+        [Test]
+        public void HasImage_IsFalseByDefault_TrueAfterSettingRawData()
+        {
+            var vm = new ImageViewModel();
+            Assert.That(vm.HasImage, Is.False);
+
+            vm.RawData = new RawImageData<int>(1, 1, new int[1], "INT_FMT");
+            Assert.That(vm.HasImage, Is.True);
+        }
+
+        [Test]
+        public void Filename_SetUpdatesWindowTitle()
+        {
+            var vm = new ImageViewModel();
+            Assert.That(vm.WindowTitle, Is.EqualTo("TinyView"));
+
+            vm.Filename = "test.png";
+            Assert.That(vm.WindowTitle, Is.EqualTo("TinyView - test.png"));
+        }
+
+        [Test]
+        public void ImageSizeText_ReflectsRawData()
+        {
+            var vm = new ImageViewModel();
+            Assert.That(vm.ImageSizeText, Is.EqualTo("0x0"));
+
+            vm.RawData = new RawImageData<int>(4, 3, new int[12], "INT_FMT");
+            Assert.That(vm.ImageSizeText, Is.EqualTo("4x3"));
+        }
+
+        [Test]
+        public void ImageFormatText_ReflectsRawData()
+        {
+            var vm = new ImageViewModel();
+            Assert.That(vm.ImageFormatText, Is.EqualTo("undefined"));
+
+            vm.RawData = new RawImageData<int>(1, 1, new int[1], "MY_FMT");
+            Assert.That(vm.ImageFormatText, Is.EqualTo("MY_FMT"));
+        }
+
+        [Test]
+        public void PanResetTrigger_TogglesWhenRawDataChanges()
+        {
+            var vm = new ImageViewModel();
+            bool initial = vm.PanResetTrigger;
+
+            vm.RawData = new RawImageData<int>(1, 1, new int[1], "INT_FMT");
+            Assert.That(vm.PanResetTrigger, Is.Not.EqualTo(initial));
+        }
+
+        [Test]
+        public void ExitCommand_InvokesDialogServiceShutdown()
+        {
+            var svc = new SpyDialogService();
+            var vm = new ImageViewModel(svc);
+            vm.ExitCommand.Execute(null);
+            Assert.That(svc.ShutdownRequested, Is.True);
+        }
+
+        [Test]
+        public void AboutCommand_InvokesDialogServiceShowAbout()
+        {
+            var svc = new SpyDialogService();
+            var vm = new ImageViewModel(svc);
+            vm.AboutCommand.Execute(null);
+            Assert.That(svc.AboutShown, Is.True);
+        }
+
+        [Test]
+        public void IsBusy_DisablesOpenAndDropCommands()
+        {
+            var vm = new ImageViewModel();
+            Assert.That(vm.OpenCommand.CanExecute(null), Is.True);
+            Assert.That(vm.DropCommand.CanExecute(null), Is.True);
+
+            vm.IsBusy = true;
+            Assert.That(vm.OpenCommand.CanExecute(null), Is.False);
+            Assert.That(vm.DropCommand.CanExecute(null), Is.False);
+        }
+
+        [Test]
+        public void ZoomCommands_DisabledWhenNoImage()
+        {
+            var vm = new ImageViewModel();
+            Assert.That(vm.ZoomInCommand.CanExecute(null), Is.False);
+            Assert.That(vm.ZoomOutCommand.CanExecute(null), Is.False);
+            Assert.That(vm.ZoomResetCommand.CanExecute(null), Is.False);
+        }
+
+        private sealed class SpyDialogService : IDialogService
+        {
+            public bool ShutdownRequested { get; private set; }
+            public bool AboutShown { get; private set; }
+            public string? ShowOpenFileDialog(string filter) => null;
+            public void ShowError(string title, string message) { }
+            public void ShowAbout() => AboutShown = true;
+            public void RequestShutdown() => ShutdownRequested = true;
         }
     }
 }
