@@ -20,5 +20,10 @@ namespace TinyView.Services
             var about = new Views.AboutWindow { Owner = Application.Current.MainWindow };
             about.ShowDialog();
         }
+
+        public void RequestShutdown()
+        {
+            Application.Current.Shutdown();
+        }
     }
 }

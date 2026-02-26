@@ -5,5 +5,6 @@ namespace TinyView.Services
         string? ShowOpenFileDialog(string filter);
         void ShowError(string title, string message);
         void ShowAbout();
+        void RequestShutdown();
     }
 }

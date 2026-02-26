@@ -137,7 +137,7 @@ namespace TinyView.ViewModels
         }
 
         [RelayCommand]
-        private void Exit() => Application.Current.Shutdown();
+        private void Exit() => _dialogService.RequestShutdown();
 
         private bool CanZoomIn() => HasImage && Zoom.CanZoomIn;
         private bool CanZoomOut() => HasImage && Zoom.CanZoomOut;
@@ -222,6 +222,7 @@ namespace TinyView.ViewModels
             public string? ShowOpenFileDialog(string filter) => null;
             public void ShowError(string title, string message) { }
             public void ShowAbout() { }
+            public void RequestShutdown() { }
         }
     }
 }
