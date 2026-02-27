@@ -1,6 +1,7 @@
 title: TinyView
 description: A specialized viewer for 16/32-bit single channel images
 remote_theme: pages-themes/cayman@v0.2.0
+baseurl: /TinyView
 
 plugins:
   - jekyll-remote-theme
