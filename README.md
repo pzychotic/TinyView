@@ -25,6 +25,8 @@ Hovering over an area will display the raw pixel value under the cursor in the s
 - Multiple color maps, including colorblind-friendly palettes
 - Pixel inspection shows raw pixel values in the status bar on mouse over
 
+For more details, see the [Changelog](Docs/Changelog.md).
+
 ## Build
 ### From the command line
 
