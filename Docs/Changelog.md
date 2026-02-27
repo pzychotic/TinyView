@@ -1,3 +1,8 @@
+---
+layout: default
+title: Changelog
+---
+
 # Changelog
 
 All notable changes to TinyView are documented in this file.
@@ -30,3 +35,7 @@ All notable changes to TinyView are documented in this file.
 ## v1.0.0 - 2026-02-13
 
 First official release.
+
+---
+
+[← Back to Home](./) · [Screenshots](Screenshots) · [GitHub Repository](https://github.com/pzychotic/TinyView) · [Releases](https://github.com/pzychotic/TinyView/releases)
