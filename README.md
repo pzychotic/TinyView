@@ -58,6 +58,8 @@ Just open ```TinyView.slnx``` build and run.
 - [Pfim](https://github.com/nickbabcock/Pfim) for DDS file loading
 - [Magick.Net](https://github.com/dlemstra/Magick.NET) for PNG file loading
 - [LibTiff.Net](https://github.com/BitMiracle/libtiff.net) for TIFF file loading
+- [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet)
+- [Microsoft.Xaml.Behaviors.Wpf](https://github.com/microsoft/XamlBehaviorsWpf)
 
 ## References
 - ColorMaps created from [viridisLite](https://github.com/sjmgarnier/viridisLite)
