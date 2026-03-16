@@ -34,6 +34,8 @@ namespace TinyView.ViewModels
                 if (SetProperty(ref _rawData, value))
                 {
                     Zoom.Reset();
+                    IsFlippedHorizontally = false;
+                    IsFlippedVertically = false;
                     PanResetTrigger = !PanResetTrigger;
                     OnPropertyChanged(nameof(HasImage));
                     OnPropertyChanged(nameof(ImageSizeText));
@@ -63,6 +65,18 @@ namespace TinyView.ViewModels
         public string ImageSizeText => RawData != null ? $"{RawData.Width}x{RawData.Height}" : "0x0";
         public string ImageMinMaxText => RawData != null ? $"{RawData.Min:0.##}..{RawData.Max:0.##}" : "0..0";
         public string ImageFormatText => RawData?.DataFormat ?? "undefined";
+
+        // Flip state (toggled via toolbar/menu, applied via LayoutTransform)
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FlipScaleX))]
+        private bool _isFlippedHorizontally;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FlipScaleY))]
+        private bool _isFlippedVertically;
+
+        public double FlipScaleX => IsFlippedHorizontally ? -1.0 : 1.0;
+        public double FlipScaleY => IsFlippedVertically ? -1.0 : 1.0;
 
         // Selected color palette from the UI (nullable because initially none may be selected)
         private ColorPalettes.PaletteEntry _selectedPalette;

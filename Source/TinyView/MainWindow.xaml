@@ -71,6 +71,17 @@
                         <Image Source="/Resources/ZoomReset.png" />
                     </MenuItem.Icon>
                 </MenuItem>
+                <Separator />
+                <MenuItem Header="Flip _Horizontal" IsCheckable="True" IsChecked="{Binding IsFlippedHorizontally, Mode=TwoWay}" IsEnabled="{Binding HasImage}">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/FlipHorizontal.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Flip _Vertical" IsCheckable="True" IsChecked="{Binding IsFlippedVertically, Mode=TwoWay}" IsEnabled="{Binding HasImage}">
+                    <MenuItem.Icon>
+                        <Image Source="/Resources/FlipVertical.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <MenuItem Header="?">
@@ -92,6 +103,13 @@
             <Button Command="{Binding ZoomResetCommand}" ToolTip="Reset Zoom (Ctrl+*)">
                 <Image Source="/Resources/ZoomReset.png" Width="16" Height="16" />
             </Button>
+            <Separator />
+            <ToggleButton IsChecked="{Binding IsFlippedHorizontally}" IsEnabled="{Binding HasImage}" ToolTip="Flip Horizontal">
+                <Image Source="/Resources/FlipHorizontal.png" Width="16" Height="16" />
+            </ToggleButton>
+            <ToggleButton IsChecked="{Binding IsFlippedVertically}" IsEnabled="{Binding HasImage}" ToolTip="Flip Vertical">
+                <Image Source="/Resources/FlipVertical.png" Width="16" Height="16" />
+            </ToggleButton>
             <Separator />
             <ComboBox x:Name="ComboBoxColorPalette" Width="80"
                       DisplayMemberPath="Name"
@@ -115,7 +133,10 @@
                     <behaviors:ImageHoverBehavior HoverCommand="{Binding HoverCommand}" LeaveCommand="{Binding LeaveHoverCommand}" />
                 </i:Interaction.Behaviors>
                 <Image.LayoutTransform>
-                    <ScaleTransform ScaleX="{Binding Zoom.Factor}" ScaleY="{Binding Zoom.Factor}" />
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="{Binding Zoom.Factor}" ScaleY="{Binding Zoom.Factor}" />
+                        <ScaleTransform ScaleX="{Binding FlipScaleX}" ScaleY="{Binding FlipScaleY}" />
+                    </TransformGroup>
                 </Image.LayoutTransform>
             </Image>
         </ScrollViewer>
