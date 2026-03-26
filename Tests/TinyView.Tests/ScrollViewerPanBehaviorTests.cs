@@ -142,5 +142,88 @@ namespace TinyView.Tests
             Assert.That(res1, Is.True);
             Assert.That(res2, Is.False);
         }
+
+        [Test]
+        public void UpdateMargin_AppliesViewportMargin_WhenOverpanEnabled()
+        {
+            var sv = CreateTestScrollViewer();
+            var behavior = new Behaviors.ScrollViewerPanBehavior();
+            Interaction.GetBehaviors(sv).Add(behavior);
+
+            behavior.IsOverpanEnabled = true;
+            behavior.UpdateMargin();
+            sv.UpdateLayout();
+
+            var wrapper = sv.Content as FrameworkElement;
+            Assert.That(wrapper, Is.Not.Null);
+
+            double vw = sv.ViewportWidth;
+            double vh = sv.ViewportHeight;
+            Assert.That(wrapper!.Margin.Left, Is.EqualTo(vw));
+            Assert.That(wrapper.Margin.Top, Is.EqualTo(vh));
+            Assert.That(wrapper.Margin.Right, Is.EqualTo(vw));
+            Assert.That(wrapper.Margin.Bottom, Is.EqualTo(vh));
+        }
+
+        [Test]
+        public void UpdateMargin_SetsZeroMargin_WhenOverpanDisabled()
+        {
+            var sv = CreateTestScrollViewer();
+            var behavior = new Behaviors.ScrollViewerPanBehavior();
+            Interaction.GetBehaviors(sv).Add(behavior);
+
+            // first enable to set a non-zero margin
+            behavior.IsOverpanEnabled = true;
+            behavior.UpdateMargin();
+            sv.UpdateLayout();
+
+            // then disable
+            behavior.IsOverpanEnabled = false;
+            behavior.UpdateMargin();
+            sv.UpdateLayout();
+
+            var wrapper = sv.Content as FrameworkElement;
+            Assert.That(wrapper, Is.Not.Null);
+            Assert.That(wrapper!.Margin, Is.EqualTo(new Thickness(0)));
+        }
+
+        [Test]
+        public void CenterContent_ScrollsToCenterOfScrollableArea()
+        {
+            var sv = CreateTestScrollViewer();
+            var behavior = new Behaviors.ScrollViewerPanBehavior();
+            Interaction.GetBehaviors(sv).Add(behavior);
+
+            // ensure there is scrollable extent
+            Assert.That(sv.ScrollableWidth, Is.GreaterThan(0));
+            Assert.That(sv.ScrollableHeight, Is.GreaterThan(0));
+
+            behavior.CenterContent();
+            sv.UpdateLayout();
+
+            Assert.That(sv.HorizontalOffset, Is.EqualTo(sv.ScrollableWidth / 2.0));
+            Assert.That(sv.VerticalOffset, Is.EqualTo(sv.ScrollableHeight / 2.0));
+        }
+
+        [Test]
+        public void ResetPan_ClearsPanState_WhenOverpanDisabled()
+        {
+            var sv = CreateTestScrollViewer();
+            var behavior = new Behaviors.ScrollViewerPanBehavior();
+            Interaction.GetBehaviors(sv).Add(behavior);
+            behavior.IsOverpanEnabled = false;
+
+            // simulate active panning
+            var type = typeof(Behaviors.ScrollViewerPanBehavior);
+            var isPanningField = type.GetField("_isPanning", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            isPanningField.SetValue(behavior, true);
+            sv.CaptureMouse();
+
+            behavior.ResetPan();
+
+            Assert.That((bool)isPanningField.GetValue(behavior)!, Is.False);
+            Assert.That(sv.HorizontalOffset, Is.EqualTo(0));
+            Assert.That(sv.VerticalOffset, Is.EqualTo(0));
+        }
     }
 }

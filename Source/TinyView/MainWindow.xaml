@@ -124,21 +124,23 @@
             <i:Interaction.Behaviors>
                 <behaviors:DropBehavior Command="{Binding DropCommand}" />
                 <behaviors:MouseWheelZoomBehavior ZoomFactor="{Binding Zoom.Factor, Mode=TwoWay}" />
-                <behaviors:ScrollViewerPanBehavior ResetTrigger="{Binding PanResetTrigger}" />
+                <behaviors:ScrollViewerPanBehavior ResetTrigger="{Binding PanResetTrigger}" IsOverpanEnabled="{Binding HasImage}" />
             </i:Interaction.Behaviors>
-            <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   RenderOptions.BitmapScalingMode="NearestNeighbor"
-                   Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}">
-                <i:Interaction.Behaviors>
-                    <behaviors:ImageHoverBehavior HoverCommand="{Binding HoverCommand}" LeaveCommand="{Binding LeaveHoverCommand}" />
-                </i:Interaction.Behaviors>
-                <Image.LayoutTransform>
-                    <TransformGroup>
-                        <ScaleTransform ScaleX="{Binding Zoom.Factor}" ScaleY="{Binding Zoom.Factor}" />
-                        <ScaleTransform ScaleX="{Binding FlipScaleX}" ScaleY="{Binding FlipScaleY}" />
-                    </TransformGroup>
-                </Image.LayoutTransform>
-            </Image>
+            <Grid x:Name="ImageWrapper">
+                <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       RenderOptions.BitmapScalingMode="NearestNeighbor"
+                       Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}">
+                    <i:Interaction.Behaviors>
+                        <behaviors:ImageHoverBehavior HoverCommand="{Binding HoverCommand}" LeaveCommand="{Binding LeaveHoverCommand}" />
+                    </i:Interaction.Behaviors>
+                    <Image.LayoutTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="{Binding Zoom.Factor}" ScaleY="{Binding Zoom.Factor}" />
+                            <ScaleTransform ScaleX="{Binding FlipScaleX}" ScaleY="{Binding FlipScaleY}" />
+                        </TransformGroup>
+                    </Image.LayoutTransform>
+                </Image>
+            </Grid>
         </ScrollViewer>
 
         <StatusBar Grid.Row="3" Height="26">

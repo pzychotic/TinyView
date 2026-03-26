@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace TinyView.Behaviors
 {
@@ -32,6 +33,33 @@ namespace TinyView.Behaviors
                 behavior.ResetPan();
         }
 
+        /// <summary>
+        /// When true, a viewport-sized margin is applied to the ScrollViewer content so
+        /// the image can be panned until it is just outside the visible area.
+        /// Bind to the ViewModel's HasImage property.
+        /// </summary>
+        public static readonly DependencyProperty IsOverpanEnabledProperty =
+            DependencyProperty.Register(
+                nameof(IsOverpanEnabled),
+                typeof(bool),
+                typeof(ScrollViewerPanBehavior),
+                new PropertyMetadata(false, OnIsOverpanEnabledChanged));
+
+        public bool IsOverpanEnabled
+        {
+            get => (bool)GetValue(IsOverpanEnabledProperty);
+            set => SetValue(IsOverpanEnabledProperty, value);
+        }
+
+        private static void OnIsOverpanEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ScrollViewerPanBehavior behavior && behavior.AssociatedObject != null)
+            {
+                behavior.UpdateMargin();
+                behavior.DeferCenterContent();
+            }
+        }
+
         private bool _isPanning;
         private Point _panStartPoint;
         private Point _panStartOffset;
@@ -43,6 +71,7 @@ namespace TinyView.Behaviors
             AssociatedObject.PreviewMouseLeftButtonUp += OnPreviewMouseLeftButtonUp;
             AssociatedObject.PreviewMouseMove += OnPreviewMouseMove;
             AssociatedObject.LostMouseCapture += OnLostMouseCapture;
+            AssociatedObject.SizeChanged += OnScrollViewerSizeChanged;
         }
 
         protected override void OnDetaching()
@@ -51,6 +80,7 @@ namespace TinyView.Behaviors
             AssociatedObject.PreviewMouseLeftButtonUp -= OnPreviewMouseLeftButtonUp;
             AssociatedObject.PreviewMouseMove -= OnPreviewMouseMove;
             AssociatedObject.LostMouseCapture -= OnLostMouseCapture;
+            AssociatedObject.SizeChanged -= OnScrollViewerSizeChanged;
             base.OnDetaching();
         }
 
@@ -106,10 +136,6 @@ namespace TinyView.Behaviors
             double newH = _panStartOffset.X - delta.X;
             double newV = _panStartOffset.Y - delta.Y;
 
-            // clamp to scrollable extents
-            newH = Math.Clamp(newH, 0, AssociatedObject.ScrollableWidth);
-            newV = Math.Clamp(newV, 0, AssociatedObject.ScrollableHeight);
-
             AssociatedObject.ScrollToHorizontalOffset(newH);
             AssociatedObject.ScrollToVerticalOffset(newV);
 
@@ -145,9 +171,85 @@ namespace TinyView.Behaviors
             _panStartPoint = default;
             _panStartOffset = default;
 
-            // scroll to top-left
-            AssociatedObject.ScrollToHorizontalOffset(0);
-            AssociatedObject.ScrollToVerticalOffset(0);
+            UpdateMargin();
+            DeferCenterContent();
+        }
+
+        /// <summary>
+        /// Sets the margin on the ScrollViewer's content wrapper to create the
+        /// overpan area. The margin equals the viewport size on each side so the
+        /// image can be scrolled just outside the visible area.
+        /// </summary>
+        public void UpdateMargin()
+        {
+            if (AssociatedObject?.Content is not FrameworkElement wrapper)
+                return;
+
+            if (!IsOverpanEnabled)
+            {
+                wrapper.Margin = new Thickness(0);
+                return;
+            }
+
+            double vw = AssociatedObject.ViewportWidth;
+            double vh = AssociatedObject.ViewportHeight;
+            wrapper.Margin = new Thickness(vw, vh, vw, vh);
+        }
+
+        /// <summary>
+        /// Defers centering the content until after the next layout pass so that
+        /// the ScrollViewer's extent reflects any margin changes.
+        /// </summary>
+        private void DeferCenterContent()
+        {
+            if (!IsOverpanEnabled)
+            {
+                AssociatedObject.ScrollToHorizontalOffset(0);
+                AssociatedObject.ScrollToVerticalOffset(0);
+                return;
+            }
+
+            AssociatedObject.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, CenterContent);
+        }
+
+        /// <summary>
+        /// Scrolls so the image is centered in the viewport.
+        /// </summary>
+        public void CenterContent()
+        {
+            AssociatedObject.ScrollToHorizontalOffset(AssociatedObject.ScrollableWidth / 2.0);
+            AssociatedObject.ScrollToVerticalOffset(AssociatedObject.ScrollableHeight / 2.0);
+        }
+
+        private void OnScrollViewerSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (!IsOverpanEnabled)
+                return;
+
+            if (AssociatedObject?.Content is not FrameworkElement wrapper)
+                return;
+
+            // Remember old margin so we can compensate the scroll offset.
+            double oldMarginH = wrapper.Margin.Left;
+            double oldMarginV = wrapper.Margin.Top;
+
+            UpdateMargin();
+
+            double deltaH = wrapper.Margin.Left - oldMarginH;
+            double deltaV = wrapper.Margin.Top - oldMarginV;
+
+            if (deltaH != 0 || deltaV != 0)
+            {
+                // Defer the offset compensation until the layout has been updated
+                // with the new margin so that ScrollableWidth/Height are current.
+                double targetH = AssociatedObject.HorizontalOffset + deltaH;
+                double targetV = AssociatedObject.VerticalOffset + deltaV;
+                AssociatedObject.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
+                {
+                    AssociatedObject.ScrollToHorizontalOffset(targetH);
+                    AssociatedObject.ScrollToVerticalOffset(targetV);
+                });
+            }
         }
     }
 }
