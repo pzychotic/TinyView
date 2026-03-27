@@ -49,6 +49,9 @@ namespace TinyView.Behaviors
             int wholeNotches = (int)(_wheelDeltaAccum / WheelDeltaPerNotch);
             if (wholeNotches != 0)
             {
+                // Tell ScrollViewerPanBehavior to anchor the zoom at the cursor position.
+                ScrollViewerPanBehavior.SetZoomAnchor(AssociatedObject, e.GetPosition(AssociatedObject));
+
                 double current = ZoomFactor;
                 current *= Math.Pow(DefaultZoomStep, wholeNotches);
                 ZoomFactor = current;

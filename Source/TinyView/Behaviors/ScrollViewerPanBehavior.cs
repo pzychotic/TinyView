@@ -11,6 +11,52 @@ namespace TinyView.Behaviors
     public class ScrollViewerPanBehavior : Behavior<ScrollViewer>
     {
         /// <summary>
+        /// Attached property that specifies the viewport-relative anchor point for the
+        /// next zoom operation.  When set (non-null) the scroll compensation will keep
+        /// this point stable; otherwise the viewport center is used.
+        /// Intended to be set by <see cref="MouseWheelZoomBehavior"/> before it changes
+        /// the zoom factor.
+        /// </summary>
+        public static readonly DependencyProperty ZoomAnchorProperty =
+            DependencyProperty.RegisterAttached(
+                "ZoomAnchor",
+                typeof(Point?),
+                typeof(ScrollViewerPanBehavior),
+                new PropertyMetadata(null));
+
+        public static void SetZoomAnchor(DependencyObject d, Point? value) => d.SetValue(ZoomAnchorProperty, value);
+        public static Point? GetZoomAnchor(DependencyObject d) => (Point?)d.GetValue(ZoomAnchorProperty);
+
+        /// <summary>
+        /// Current zoom factor, bound two-way to the ViewModel's Zoom.Factor.
+        /// When the value changes, scroll offsets are adjusted so that the anchor
+        /// point (cursor position or viewport center) stays fixed on screen.
+        /// </summary>
+        public static readonly DependencyProperty ZoomFactorProperty =
+            DependencyProperty.Register(
+                nameof(ZoomFactor),
+                typeof(double),
+                typeof(ScrollViewerPanBehavior),
+                new FrameworkPropertyMetadata(1.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnZoomFactorChanged));
+
+        public double ZoomFactor
+        {
+            get => (double)GetValue(ZoomFactorProperty);
+            set => SetValue(ZoomFactorProperty, value);
+        }
+
+        private static void OnZoomFactorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ScrollViewerPanBehavior behavior && behavior.AssociatedObject != null)
+            {
+                double oldZoom = (double)e.OldValue;
+                double newZoom = (double)e.NewValue;
+                if (oldZoom > 0 && newZoom > 0 && oldZoom != newZoom)
+                    behavior.AdjustScrollForZoom(oldZoom, newZoom);
+            }
+        }
+
+        /// <summary>
         /// Bindable trigger property. Each time the value changes, the pan state is reset
         /// and the ScrollViewer scrolls back to the origin.
         /// </summary>
@@ -219,6 +265,48 @@ namespace TinyView.Behaviors
         {
             AssociatedObject.ScrollToHorizontalOffset(AssociatedObject.ScrollableWidth / 2.0);
             AssociatedObject.ScrollToVerticalOffset(AssociatedObject.ScrollableHeight / 2.0);
+        }
+
+        /// <summary>
+        /// Adjusts the scroll offsets after a zoom factor change so that the anchor
+        /// point (cursor position or viewport center) remains at the same screen location.
+        /// </summary>
+        private void AdjustScrollForZoom(double oldZoom, double newZoom)
+        {
+            var sv = AssociatedObject;
+
+            // Read and clear the one-shot anchor set by MouseWheelZoomBehavior.
+            Point? explicitAnchor = GetZoomAnchor(sv);
+            SetZoomAnchor(sv, null);
+
+            // Anchor in viewport coordinates (fallback to viewport center).
+            Point anchor = explicitAnchor ?? new Point(sv.ViewportWidth / 2.0, sv.ViewportHeight / 2.0);
+
+            double ratio = newZoom / oldZoom;
+
+            // The content-space point under the anchor, accounting for overpan margin.
+            // Horizontal and vertical margins differ (ViewportWidth vs ViewportHeight).
+            var wrapper = sv.Content as FrameworkElement;
+            double marginH = wrapper?.Margin.Left ?? 0;
+            double marginV = wrapper?.Margin.Top ?? 0;
+
+            double cpH = sv.HorizontalOffset + anchor.X;
+            double cpV = sv.VerticalOffset + anchor.Y;
+
+            // The margin portion of the content is constant; only the image portion scales.
+            double newCpH = marginH + (cpH - marginH) * ratio;
+            double newCpV = marginV + (cpV - marginV) * ratio;
+
+            double targetH = newCpH - anchor.X;
+            double targetV = newCpV - anchor.Y;
+
+            // Set the requested offsets synchronously. ScrollToHorizontalOffset/
+            // ScrollToVerticalOffset only store the target and invalidate arrange;
+            // the actual clamping against the (new) extent happens during the same
+            // layout pass that measures the zoomed image, so both changes appear in
+            // a single rendered frame — no visible jitter.
+            sv.ScrollToHorizontalOffset(targetH);
+            sv.ScrollToVerticalOffset(targetV);
         }
 
         private void OnScrollViewerSizeChanged(object sender, SizeChangedEventArgs e)
