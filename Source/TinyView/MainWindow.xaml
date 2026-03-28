@@ -89,26 +89,26 @@
             </MenuItem>
         </Menu>
 
-        <ToolBar Height="26" VerticalAlignment="Top" Grid.Row="1" >
+        <ToolBar Height="32" VerticalAlignment="Top" Grid.Row="1" >
             <Button Command="{Binding OpenCommand}" ToolTip="Open File (Ctrl+O)">
-                <Image Source="/Resources/OpenFile.png" Width="16" Height="16" />
+                <Image Source="/Resources/OpenFile.png" />
             </Button>
             <Separator />
             <Button Command="{Binding ZoomInCommand}" ToolTip="Zoom In (Ctrl++)">
-                <Image Source="/Resources/ZoomIn.png" Width="16" Height="16" />
+                <Image Source="/Resources/ZoomIn.png" />
             </Button>
             <Button Command="{Binding ZoomOutCommand}" ToolTip="Zoom Out (Ctrl+-)">
-                <Image Source="/Resources/ZoomOut.png" Width="16" Height="16" />
+                <Image Source="/Resources/ZoomOut.png" />
             </Button>
             <Button Command="{Binding ZoomResetCommand}" ToolTip="Reset Zoom (Ctrl+*)">
-                <Image Source="/Resources/ZoomReset.png" Width="16" Height="16" />
+                <Image Source="/Resources/ZoomReset.png" />
             </Button>
             <Separator />
             <ToggleButton IsChecked="{Binding IsFlippedHorizontally}" IsEnabled="{Binding HasImage}" ToolTip="Flip Horizontal">
-                <Image Source="/Resources/FlipHorizontal.png" Width="16" Height="16" />
+                <Image Source="/Resources/FlipHorizontal.png" />
             </ToggleButton>
             <ToggleButton IsChecked="{Binding IsFlippedVertically}" IsEnabled="{Binding HasImage}" ToolTip="Flip Vertical">
-                <Image Source="/Resources/FlipVertical.png" Width="16" Height="16" />
+                <Image Source="/Resources/FlipVertical.png" />
             </ToggleButton>
             <Separator />
             <ComboBox x:Name="ComboBoxColorPalette" Width="80"
