@@ -26,6 +26,7 @@ Hovering over an area will display the raw pixel value under the cursor in the s
 - Open files by drag & drop
 - Zoom using keyboard shortcuts and mouse wheel
 - Pan around by holding the left mouse button
+- Flip the image horizontally and vertically
 - Automatic dynamic range scaling adjusts pixel values for screen display
 - Multiple color maps, including colorblind-friendly palettes
 - Pixel inspection shows raw pixel values in the status bar on mouse over
@@ -41,6 +42,7 @@ Hovering over an area will display the raw pixel value under the cursor in the s
 ## References
 
 - ColorMaps created from [viridisLite](https://github.com/sjmgarnier/viridisLite)
+- Icons created from [Fluent System Icons](https://github.com/microsoft/fluentui-system-icons)
 
 ---
 

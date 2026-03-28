@@ -7,6 +7,31 @@ title: Changelog
 
 All notable changes to TinyView are documented in this file.
 
+## v1.2.0 - 2026-03-28
+
+### User-Visible Changes
+
+- Added buttons and menu items to flip the image
+- Allow panning outside the visible area
+- Use cursor position as anchor for the zoom
+- Crisper icons
+- Updated README
+
+### Internal Changes
+
+- Refactored pan and zoom behaviors for clearer separation
+- Created a GitHub Pages website
+- Excluded `Docs` and `Scripts` from CI builds
+- Added more tests
+
+### Dependency Updates
+
+- Bumped CommunityToolkit.Mvvm from 8.4.0 to 8.4.2
+- Bumped Magick.NET-Q16-AnyCPU from 14.10.3 to 14.11.1
+- Bumped Microsoft.Xaml.Behaviors.Wpf from 1.1.141 to 1.1.142
+- Bumped NUnit from 4.5.0 to 4.5.1
+- Bumped NUnit3TestAdapter from 6.1.0 to 6.2.0
+
 ## v1.1.0 - 2026-02-27
 
 ### User-Visible Changes

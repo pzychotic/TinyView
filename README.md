@@ -4,9 +4,10 @@
 [![CI](https://github.com/pzychotic/TinyView/actions/workflows/ci.yml/badge.svg)](https://github.com/pzychotic/TinyView/actions/workflows/ci.yml)
 
 A specialized viewer for 16/32-bit single channel images.
-- DDS: R16F, R32F
-- PNG: 16-bit grayscale
-- TIFF: 16/32-bit uint and float
+
+- **DDS:** R16F, R32F
+- **PNG:** 16-bit grayscale
+- **TIFF:** 16/32-bit uint and float
 
 If you ever found yourself wondering why your images only show up in black or white in other image viewers, you've come to the right place.
 
@@ -18,9 +19,11 @@ Hovering over an area will display the raw pixel value under the cursor in the s
 ![Screenshots](Docs/Screenshots.png)
 
 ## Features
-- Open files by drag&drop
+
+- Open files by drag & drop
 - Zoom using keyboard shortcuts and mouse wheel
 - Pan around by holding the left mouse button
+- Flip the image horizontally and vertically
 - Automatic dynamic range scaling adjusts pixel values for screen display
 - Multiple color maps, including colorblind-friendly palettes
 - Pixel inspection shows raw pixel values in the status bar on mouse over
@@ -57,6 +60,7 @@ Prerequisites:
 Just open ```TinyView.slnx``` build and run.
 
 ## Dependencies
+
 - [Pfim](https://github.com/nickbabcock/Pfim) for DDS file loading
 - [Magick.Net](https://github.com/dlemstra/Magick.NET) for PNG file loading
 - [LibTiff.Net](https://github.com/BitMiracle/libtiff.net) for TIFF file loading
@@ -64,4 +68,6 @@ Just open ```TinyView.slnx``` build and run.
 - [Microsoft.Xaml.Behaviors.Wpf](https://github.com/microsoft/XamlBehaviorsWpf)
 
 ## References
+
 - ColorMaps created from [viridisLite](https://github.com/sjmgarnier/viridisLite)
+- Icons created from [Fluent System Icons](https://github.com/microsoft/fluentui-system-icons)
