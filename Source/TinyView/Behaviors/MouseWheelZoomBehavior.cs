@@ -4,12 +4,18 @@ using System.Windows.Input;
 
 namespace TinyView.Behaviors
 {
+    /// <summary>
+    /// Translates Ctrl+MouseWheel input into zoom factor changes.
+    /// Decoupled from scroll compensation — sets <see cref="ZoomAnchor"/>
+    /// (bound to <c>Zoom.Anchor</c>) before changing <see cref="ZoomFactor"/>
+    /// so that <see cref="ZoomCompensationBehavior"/> can keep the cursor
+    /// position stable.
+    /// </summary>
     public class MouseWheelZoomBehavior : Behavior<UIElement>
     {
         private const int WheelDeltaPerNotch = 120; // Win32 WHEEL_DELTA
         private const double DefaultZoomStep = 1.1; // 10% per notch
 
-        // two-way bindable ZoomFactor property
         public static readonly DependencyProperty ZoomFactorProperty =
             DependencyProperty.Register(
                 nameof(ZoomFactor),
@@ -23,7 +29,25 @@ namespace TinyView.Behaviors
             set => SetValue(ZoomFactorProperty, value);
         }
 
-        private double _wheelDeltaAccum;
+        /// <summary>
+        /// Viewport-relative anchor point for cursor-centered zoom.
+        /// Bound two-way to <c>Zoom.Anchor</c> so that
+        /// <see cref="ZoomCompensationBehavior"/> can consume it.
+        /// </summary>
+        public static readonly DependencyProperty ZoomAnchorProperty =
+            DependencyProperty.Register(
+                nameof(ZoomAnchor),
+                typeof(Point?),
+                typeof(MouseWheelZoomBehavior),
+                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
+        public Point? ZoomAnchor
+        {
+            get => (Point?)GetValue(ZoomAnchorProperty);
+            set => SetValue(ZoomAnchorProperty, value);
+        }
+
+        internal double _wheelDeltaAccum;
 
         protected override void OnAttached()
         {
@@ -39,24 +63,22 @@ namespace TinyView.Behaviors
 
         private void OnPreviewMouseWheel(object? sender, MouseWheelEventArgs e)
         {
-            // only zoom when Ctrl is held to allow normal scrolling otherwise
             if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
                 return;
 
-            // accumulate delta to support high-resolution mice that send sub-notch values
             _wheelDeltaAccum += e.Delta;
 
             int wholeNotches = (int)(_wheelDeltaAccum / WheelDeltaPerNotch);
             if (wholeNotches != 0)
             {
-                // Tell ScrollViewerPanBehavior to anchor the zoom at the cursor position.
-                ScrollViewerPanBehavior.SetZoomAnchor(AssociatedObject, e.GetPosition(AssociatedObject));
+                // Set the anchor before changing the factor so the compensation
+                // behavior can read it in the same dispatcher frame.
+                ZoomAnchor = e.GetPosition(AssociatedObject);
 
                 double current = ZoomFactor;
                 current *= Math.Pow(DefaultZoomStep, wholeNotches);
                 ZoomFactor = current;
 
-                // consume the notches we handled
                 _wheelDeltaAccum -= wholeNotches * WheelDeltaPerNotch;
             }
 

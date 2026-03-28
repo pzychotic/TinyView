@@ -15,15 +15,10 @@ namespace TinyView.ViewModels
         private WriteableBitmap? _imageSource;
 
         /// <summary>
-        /// Toggled each time the pan state should be reset (e.g. when a new image is loaded).
-        /// Bound to ScrollViewerPanBehavior.ResetTrigger.
+        /// Notifier that view-layer behaviors subscribe to in order to reset
+        /// viewport state (cancel panning, re-center content, etc.).
         /// </summary>
-        private bool _panResetTrigger;
-        public bool PanResetTrigger
-        {
-            get => _panResetTrigger;
-            set => SetProperty(ref _panResetTrigger, value);
-        }
+        public ViewportResetNotifier PanResetNotifier { get; } = new();
 
         private IRawImageDataProvider? _rawData;
         public IRawImageDataProvider? RawData
@@ -36,7 +31,7 @@ namespace TinyView.ViewModels
                     Zoom.Reset();
                     IsFlippedHorizontally = false;
                     IsFlippedVertically = false;
-                    PanResetTrigger = !PanResetTrigger;
+                    PanResetNotifier.RequestReset();
                     OnPropertyChanged(nameof(HasImage));
                     OnPropertyChanged(nameof(ImageSizeText));
                     OnPropertyChanged(nameof(ImageMinMaxText));
@@ -165,6 +160,17 @@ namespace TinyView.ViewModels
 
         [RelayCommand(CanExecute = nameof(CanZoomReset))]
         private void ZoomReset() => Zoom.Reset();
+
+        /// <summary>
+        /// Resets zoom to 1× and re-centers the viewport.
+        /// Ready to bind to a toolbar/menu button.
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(CanZoomReset))]
+        private void ResetView()
+        {
+            Zoom.Reset();
+            PanResetNotifier.RequestReset();
+        }
 
         [RelayCommand]
         private void Hover(PixelPosition p)

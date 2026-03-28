@@ -123,8 +123,10 @@
         <ScrollViewer x:Name="ImageScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="2">
             <i:Interaction.Behaviors>
                 <behaviors:DropBehavior Command="{Binding DropCommand}" />
-                <behaviors:MouseWheelZoomBehavior ZoomFactor="{Binding Zoom.Factor, Mode=TwoWay}" />
-                <behaviors:ScrollViewerPanBehavior ResetTrigger="{Binding PanResetTrigger}" IsOverpanEnabled="{Binding HasImage}" ZoomFactor="{Binding Zoom.Factor}" />
+                <behaviors:MouseWheelZoomBehavior ZoomFactor="{Binding Zoom.Factor, Mode=TwoWay}" ZoomAnchor="{Binding Zoom.Anchor, Mode=TwoWay}" />
+                <behaviors:ScrollViewerPanBehavior ResetNotifier="{Binding PanResetNotifier}" />
+                <behaviors:OverpanBehavior IsEnabled="{Binding HasImage}" ResetNotifier="{Binding PanResetNotifier}" />
+                <behaviors:ZoomCompensationBehavior ZoomFactor="{Binding Zoom.Factor}" ZoomAnchor="{Binding Zoom.Anchor, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
             <Grid x:Name="ImageWrapper">
                 <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"

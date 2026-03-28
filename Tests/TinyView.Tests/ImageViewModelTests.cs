@@ -150,13 +150,14 @@ namespace TinyView.Tests
         }
 
         [Test]
-        public void PanResetTrigger_TogglesWhenRawDataChanges()
+        public void PanResetNotifier_FiresWhenRawDataChanges()
         {
             var vm = new ImageViewModel();
-            bool initial = vm.PanResetTrigger;
+            bool fired = false;
+            vm.PanResetNotifier.ResetRequested += () => fired = true;
 
             vm.RawData = new RawImageData<int>(1, 1, new int[1], "INT_FMT");
-            Assert.That(vm.PanResetTrigger, Is.Not.EqualTo(initial));
+            Assert.That(fired, Is.True);
         }
 
         [Test]

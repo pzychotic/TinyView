@@ -30,19 +30,23 @@ namespace TinyView.Tests
         }
 
         [Test]
+        public void DefaultZoomAnchor_IsNull()
+        {
+            var element = new Border();
+            var behavior = new Behaviors.MouseWheelZoomBehavior();
+            Interaction.GetBehaviors(element).Add(behavior);
+            Assert.That(behavior.ZoomAnchor, Is.Null);
+        }
+
+        [Test]
         public void OnPreviewMouseWheel_NoCtrl_DoesNothing()
         {
             var element = new Border();
             var behavior = new Behaviors.MouseWheelZoomBehavior();
             Interaction.GetBehaviors(element).Add(behavior);
 
-            // get private _wheelDeltaAccum field
-            var accumField = typeof(Behaviors.MouseWheelZoomBehavior).GetField("_wheelDeltaAccum", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            Assert.That(behavior._wheelDeltaAccum, Is.EqualTo(0.0));
 
-            // initial accum should be 0
-            Assert.That((double)accumField.GetValue(behavior)!, Is.EqualTo(0.0));
-
-            // call private OnPreviewMouseWheel without Ctrl modifier
             var mi = typeof(Behaviors.MouseWheelZoomBehavior).GetMethod("OnPreviewMouseWheel", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var args = new MouseWheelEventArgs(InputManager.Current.PrimaryMouseDevice, 0, 120)
             {
@@ -51,8 +55,7 @@ namespace TinyView.Tests
 
             mi.Invoke(behavior, [element, args]);
 
-            // because Ctrl was not pressed, nothing should have changed
-            Assert.That((double)accumField.GetValue(behavior)!, Is.EqualTo(0.0));
+            Assert.That(behavior._wheelDeltaAccum, Is.EqualTo(0.0));
             Assert.That(behavior.ZoomFactor, Is.EqualTo(1.0));
             Assert.That(args.Handled, Is.False);
         }

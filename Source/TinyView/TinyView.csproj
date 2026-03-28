@@ -13,6 +13,10 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="TinyView.Tests" />
+  </ItemGroup>
+
   <PropertyGroup>
     <Version>1.1.0</Version>
     <FileVersion>1.1.0.0</FileVersion>
