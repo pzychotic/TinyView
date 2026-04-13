@@ -117,6 +117,28 @@
                       ItemsSource="{Binding Palettes}"
                       SelectedItem="{Binding SelectedPalette, Mode=TwoWay}"
                       ToolTip="Select color palette for visualization" />
+            <Separator />
+            <TextBlock Text="Min:" VerticalAlignment="Center" Margin="4,0" />
+            <TextBox Width="60" VerticalContentAlignment="Center"
+                     Text="{Binding DisplayMin, StringFormat='{}{0:0.##}'}"
+                     IsEnabled="{Binding HasImage}"
+                     ToolTip="Display minimum value (commit with Enter or Tab)">
+                <i:Interaction.Behaviors>
+                    <behaviors:TextBoxCommitBehavior />
+                </i:Interaction.Behaviors>
+            </TextBox>
+            <TextBlock Text="Max:" VerticalAlignment="Center" Margin="4,0" />
+            <TextBox Width="60" VerticalContentAlignment="Center"
+                     Text="{Binding DisplayMax, StringFormat='{}{0:0.##}'}"
+                     IsEnabled="{Binding HasImage}"
+                     ToolTip="Display maximum value (commit with Enter or Tab)">
+                <i:Interaction.Behaviors>
+                    <behaviors:TextBoxCommitBehavior />
+                </i:Interaction.Behaviors>
+            </TextBox>
+            <Button Command="{Binding ResetMinMaxCommand}"
+                    ToolTip="Reset to original min/max values"
+                    Content="↺" FontSize="20" Padding="2,0" />
         </ToolBar>
 
         <!-- ScrollViewer ensures image fits and can be scrolled if large -->

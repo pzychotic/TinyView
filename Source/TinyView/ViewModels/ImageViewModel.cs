@@ -36,10 +36,12 @@ namespace TinyView.ViewModels
                     OnPropertyChanged(nameof(ImageSizeText));
                     OnPropertyChanged(nameof(ImageMinMaxText));
                     OnPropertyChanged(nameof(ImageFormatText));
+                    InitializeDisplayRange();
                     ApplyPalette();
                     ZoomInCommand.NotifyCanExecuteChanged();
                     ZoomOutCommand.NotifyCanExecuteChanged();
                     ZoomResetCommand.NotifyCanExecuteChanged();
+                    ResetMinMaxCommand.NotifyCanExecuteChanged();
                 }
             }
         }
@@ -60,6 +62,77 @@ namespace TinyView.ViewModels
         public string ImageSizeText => RawData != null ? $"{RawData.Width}x{RawData.Height}" : "0x0";
         public string ImageMinMaxText => RawData != null ? $"{RawData.Min:0.##}..{RawData.Max:0.##}" : "0..0";
         public string ImageFormatText => RawData?.DataFormat ?? "undefined";
+
+        // Display range for normalization (editable by the user via toolbar)
+        private float _displayMin;
+        public float DisplayMin
+        {
+            get => _displayMin;
+            set
+            {
+                if (SetProperty(ref _displayMin, value))
+                {
+                    ApplyDisplayRange();
+                    ResetMinMaxCommand.NotifyCanExecuteChanged();
+                }
+            }
+        }
+
+        private float _displayMax;
+        public float DisplayMax
+        {
+            get => _displayMax;
+            set
+            {
+                if (SetProperty(ref _displayMax, value))
+                {
+                    ApplyDisplayRange();
+                    ResetMinMaxCommand.NotifyCanExecuteChanged();
+                }
+            }
+        }
+
+        private bool CanResetMinMax() => HasImage && (_displayMin != RawData!.Min || _displayMax != RawData!.Max);
+
+        /// <summary>
+        /// Resets <see cref="DisplayMin"/> and <see cref="DisplayMax"/> to the
+        /// original values computed from the loaded image data.
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(CanResetMinMax))]
+        private void ResetMinMax()
+        {
+            _displayMin = RawData!.Min;
+            _displayMax = RawData!.Max;
+            OnPropertyChanged(nameof(DisplayMin));
+            OnPropertyChanged(nameof(DisplayMax));
+            ApplyDisplayRange();
+            ResetMinMaxCommand.NotifyCanExecuteChanged();
+        }
+
+        /// <summary>
+        /// Sets <see cref="DisplayMin"/> and <see cref="DisplayMax"/> to the
+        /// original min/max of the current image without triggering re-normalization.
+        /// Called when a new image is loaded.
+        /// </summary>
+        private void InitializeDisplayRange()
+        {
+            _displayMin = RawData?.Min ?? 0;
+            _displayMax = RawData?.Max ?? 0;
+            OnPropertyChanged(nameof(DisplayMin));
+            OnPropertyChanged(nameof(DisplayMax));
+        }
+
+        /// <summary>
+        /// Re-normalizes the raw data with the current display range and re-applies the palette.
+        /// </summary>
+        private void ApplyDisplayRange()
+        {
+            if (RawData == null)
+                return;
+
+            RawData.RegenerateIndexedData(_displayMin, _displayMax);
+            ApplyPalette();
+        }
 
         // Flip state (toggled via toolbar/menu, applied via LayoutTransform)
         [ObservableProperty]

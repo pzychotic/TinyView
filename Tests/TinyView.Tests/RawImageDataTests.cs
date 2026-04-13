@@ -104,5 +104,69 @@ namespace TinyView.Tests
             Assert.That(provider.GetValueString(0, 0), Is.EqualTo(data[0 * width + 0].ToString()));
             Assert.That(provider.GetValueString(2, 0), Is.EqualTo(data[0 * width + 2].ToString()));
         }
+
+        [Test]
+        public void RegenerateIndexedData_UsesCustomDisplayRange()
+        {
+            int width = 3, height = 1;
+            var data = new float[] { 0f, 50f, 100f };
+
+            var provider = new RawImageData<float>(width, height, data, "FLT_FMT");
+
+            // original range: 0..100 → indexed: 0, 127/128, 255
+            Assert.That(provider.Min, Is.EqualTo(0f));
+            Assert.That(provider.Max, Is.EqualTo(100f));
+
+            // narrow the display range to 25..75
+            provider.RegenerateIndexedData(25f, 75f);
+
+            // 0 is below 25 → clamped to 0
+            // 50 is mid-range: (50-25)*255/50 = 127.5 → 127
+            // 100 is above 75 → clamped to 255
+            Assert.That(provider.IndexedData[0], Is.EqualTo((byte)0));
+            Assert.That(provider.IndexedData[1], Is.EqualTo((byte)127));
+            Assert.That(provider.IndexedData[2], Is.EqualTo((byte)255));
+
+            // Min and Max properties remain unchanged (they reflect the original data)
+            Assert.That(provider.Min, Is.EqualTo(0f));
+            Assert.That(provider.Max, Is.EqualTo(100f));
+        }
+
+        [Test]
+        public void RegenerateIndexedData_EqualMinMax_AllZero()
+        {
+            int width = 2, height = 1;
+            var data = new float[] { 10f, 20f };
+
+            var provider = new RawImageData<float>(width, height, data, "FLT_FMT");
+
+            // when displayMin == displayMax, scale = 1, so (value - min) * 1
+            // both values become 0 and 10 respectively, clamped to byte
+            provider.RegenerateIndexedData(15f, 15f);
+
+            // (10 - 15) * 1 = -5 → clamped to 0
+            // (20 - 15) * 1 = 5 → clamped to 5
+            Assert.That(provider.IndexedData[0], Is.EqualTo((byte)0));
+            Assert.That(provider.IndexedData[1], Is.EqualTo((byte)5));
+        }
+
+        [Test]
+        public void RegenerateIndexedData_RevertToOriginalRange_RestoresInitialValues()
+        {
+            int width = 3, height = 1;
+            var data = new int[] { 0, 128, 255 };
+
+            var provider = new RawImageData<int>(width, height, data, "INT_FMT");
+
+            var originalIndexed = (byte[])provider.IndexedData.Clone();
+
+            // apply a custom range
+            provider.RegenerateIndexedData(50f, 200f);
+            Assert.That(provider.IndexedData, Is.Not.EqualTo(originalIndexed));
+
+            // revert to the original range
+            provider.RegenerateIndexedData(provider.Min, provider.Max);
+            Assert.That(provider.IndexedData, Is.EqualTo(originalIndexed));
+        }
     }
 }

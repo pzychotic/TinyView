@@ -199,6 +199,112 @@ namespace TinyView.Tests
             Assert.That(vm.ZoomResetCommand.CanExecute(null), Is.False);
         }
 
+        [Test]
+        public void DisplayMinMax_InitializedFromRawData()
+        {
+            var data = new float[] { -5f, 0f, 10f, 20f };
+            var provider = new RawImageData<float>(2, 2, data, "FLT_FMT");
+
+            var vm = new ImageViewModel();
+            vm.RawData = provider;
+
+            Assert.That(vm.DisplayMin, Is.EqualTo(provider.Min));
+            Assert.That(vm.DisplayMax, Is.EqualTo(provider.Max));
+        }
+
+        [Test]
+        public void DisplayMinMax_RaisesPropertyChanged_WhenRawDataSet()
+        {
+            var data = new float[] { 1f, 2f, 3f, 4f };
+            var provider = new RawImageData<float>(2, 2, data, "FLT_FMT");
+
+            var vm = new ImageViewModel();
+            var seen = new List<string>();
+            vm.PropertyChanged += (_, e) => seen.Add(e.PropertyName ?? string.Empty);
+
+            vm.RawData = provider;
+
+            Assert.That(seen, Does.Contain("DisplayMin"));
+            Assert.That(seen, Does.Contain("DisplayMax"));
+        }
+
+        [Test]
+        public void DisplayMin_Change_RegeneratesIndexedDataAndImage()
+        {
+            var data = new float[] { 0f, 50f, 100f, 200f };
+            var provider = new RawImageData<float>(2, 2, data, "FLT_FMT");
+
+            var vm = new ImageViewModel();
+            vm.RawData = provider;
+
+            var originalIndexed = (byte[])provider.IndexedData.Clone();
+
+            // changing DisplayMin should re-normalize
+            vm.DisplayMin = 50f;
+
+            Assert.That(provider.IndexedData, Is.Not.EqualTo(originalIndexed));
+            Assert.That(vm.ImageSource, Is.Not.Null);
+        }
+
+        [Test]
+        public void DisplayMax_Change_RegeneratesIndexedDataAndImage()
+        {
+            var data = new float[] { 0f, 50f, 100f, 200f };
+            var provider = new RawImageData<float>(2, 2, data, "FLT_FMT");
+
+            var vm = new ImageViewModel();
+            vm.RawData = provider;
+
+            var originalIndexed = (byte[])provider.IndexedData.Clone();
+
+            vm.DisplayMax = 100f;
+
+            Assert.That(provider.IndexedData, Is.Not.EqualTo(originalIndexed));
+            Assert.That(vm.ImageSource, Is.Not.Null);
+        }
+
+        [Test]
+        public void ResetMinMaxCommand_RevertsToOriginalValues()
+        {
+            var data = new float[] { 0f, 50f, 100f, 200f };
+            var provider = new RawImageData<float>(2, 2, data, "FLT_FMT");
+
+            var vm = new ImageViewModel();
+            vm.RawData = provider;
+
+            // change display range
+            vm.DisplayMin = 25f;
+            vm.DisplayMax = 150f;
+            Assert.That(vm.ResetMinMaxCommand.CanExecute(null), Is.True);
+
+            // reset
+            vm.ResetMinMaxCommand.Execute(null);
+
+            Assert.That(vm.DisplayMin, Is.EqualTo(provider.Min));
+            Assert.That(vm.DisplayMax, Is.EqualTo(provider.Max));
+            Assert.That(vm.ResetMinMaxCommand.CanExecute(null), Is.False);
+        }
+
+        [Test]
+        public void ResetMinMaxCommand_DisabledWhenNoImage()
+        {
+            var vm = new ImageViewModel();
+            Assert.That(vm.ResetMinMaxCommand.CanExecute(null), Is.False);
+        }
+
+        [Test]
+        public void ResetMinMaxCommand_DisabledWhenValuesMatchOriginal()
+        {
+            var data = new float[] { 0f, 100f, 50f, 75f };
+            var provider = new RawImageData<float>(2, 2, data, "FLT_FMT");
+
+            var vm = new ImageViewModel();
+            vm.RawData = provider;
+
+            // values should match original, so command is disabled
+            Assert.That(vm.ResetMinMaxCommand.CanExecute(null), Is.False);
+        }
+
         private sealed class SpyDialogService : IDialogService
         {
             public bool ShutdownRequested { get; private set; }

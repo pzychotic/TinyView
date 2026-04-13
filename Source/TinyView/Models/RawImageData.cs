@@ -25,25 +25,33 @@ namespace TinyView.Models
 
             _dataFormat = dataFormat;
 
-            GenerateIndexedData();
+            GenerateIndexedData(Min, Max);
         }
 
         /// <summary>
-        /// Generates indexed data by normalizing the raw data values between min and max to a byte range.
+        /// Generates indexed data by normalizing the raw data values between
+        /// <paramref name="min"/> and <paramref name="max"/> to a 0-255 byte range.
+        /// Values outside the range are clamped.
         /// </summary>
-        private void GenerateIndexedData()
+        private void GenerateIndexedData(float min, float max)
         {
-            float scale = Min == Max ? 1f : 255f / (Max - Min);
+            float scale = min == max ? 1f : 255f / (max - min);
             for (int y = 0; y < Height; ++y)
             {
                 int offset = y * Width;
                 for (int x = 0; x < Width; ++x)
                 {
-                    float norm = (Convert.ToSingle(_rawData[offset + x]) - Min) * scale;
+                    float norm = (Convert.ToSingle(_rawData[offset + x]) - min) * scale;
                     byte index = (byte)Math.Clamp(norm, 0, 255);
                     IndexedData[offset + x] = index;
                 }
             }
+        }
+
+        /// <inheritdoc />
+        public void RegenerateIndexedData(float displayMin, float displayMax)
+        {
+            GenerateIndexedData(displayMin, displayMax);
         }
 
         public int Width { get; }
