@@ -52,16 +52,16 @@ namespace TinyView.Behaviors
         protected override void OnAttached()
         {
             base.OnAttached();
-            AssociatedObject.PreviewMouseLeftButtonDown += OnPreviewMouseLeftButtonDown;
-            AssociatedObject.PreviewMouseLeftButtonUp += OnPreviewMouseLeftButtonUp;
+            AssociatedObject.PreviewMouseRightButtonDown += OnPreviewMouseRightButtonDown;
+            AssociatedObject.PreviewMouseRightButtonUp += OnPreviewMouseRightButtonUp;
             AssociatedObject.PreviewMouseMove += OnPreviewMouseMove;
             AssociatedObject.LostMouseCapture += OnLostMouseCapture;
         }
 
         protected override void OnDetaching()
         {
-            AssociatedObject.PreviewMouseLeftButtonDown -= OnPreviewMouseLeftButtonDown;
-            AssociatedObject.PreviewMouseLeftButtonUp -= OnPreviewMouseLeftButtonUp;
+            AssociatedObject.PreviewMouseRightButtonDown -= OnPreviewMouseRightButtonDown;
+            AssociatedObject.PreviewMouseRightButtonUp -= OnPreviewMouseRightButtonUp;
             AssociatedObject.PreviewMouseMove -= OnPreviewMouseMove;
             AssociatedObject.LostMouseCapture -= OnLostMouseCapture;
 
@@ -74,7 +74,7 @@ namespace TinyView.Behaviors
 
         private void OnResetRequested() => CancelPan();
 
-        private void OnPreviewMouseLeftButtonDown(object? sender, MouseButtonEventArgs e)
+        private void OnPreviewMouseRightButtonDown(object? sender, MouseButtonEventArgs e)
         {
             if (e.OriginalSource is DependencyObject dep && IsOverScrollbar(dep))
                 return;
@@ -91,7 +91,7 @@ namespace TinyView.Behaviors
             e.Handled = true;
         }
 
-        private void OnPreviewMouseLeftButtonUp(object? sender, MouseButtonEventArgs e)
+        private void OnPreviewMouseRightButtonUp(object? sender, MouseButtonEventArgs e)
         {
             if (_isPanning)
             {
