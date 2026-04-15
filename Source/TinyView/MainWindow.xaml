@@ -118,6 +118,10 @@
                       SelectedItem="{Binding SelectedPalette, Mode=TwoWay}"
                       ToolTip="Select color palette for visualization" />
             <Separator />
+            <ToggleButton IsChecked="{Binding IsRegionSelectActive, Mode=TwoWay}"
+                          IsEnabled="{Binding HasImage}"
+                          ToolTip="Select region to set display min/max (Escape to cancel)"
+                          Content="⬚" FontSize="16" Padding="2,0" />
             <TextBlock Text="Min:" VerticalAlignment="Center" Margin="4,0" />
             <TextBox Width="60" VerticalContentAlignment="Center"
                      Text="{Binding DisplayMin, StringFormat='{}{0:0.##}'}"
@@ -137,8 +141,9 @@
                 </i:Interaction.Behaviors>
             </TextBox>
             <Button Command="{Binding ResetMinMaxCommand}"
+                    IsEnabled="{Binding HasImage}"
                     ToolTip="Reset to original min/max values"
-                    Content="↺" FontSize="20" Padding="2,0" />
+                    Content="↺" FontSize="16" Padding="2,0" />
         </ToolBar>
 
         <!-- ScrollViewer ensures image fits and can be scrolled if large -->
@@ -151,19 +156,25 @@
                 <behaviors:ZoomCompensationBehavior ZoomFactor="{Binding Zoom.Factor}" ZoomAnchor="{Binding Zoom.Anchor, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
             <Grid x:Name="ImageWrapper">
-                <Image x:Name="PreviewImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
-                       RenderOptions.BitmapScalingMode="NearestNeighbor"
-                       Source="{Binding ImageSource}" Width="{Binding ImageSource.PixelWidth}" Height="{Binding ImageSource.PixelHeight}">
-                    <i:Interaction.Behaviors>
-                        <behaviors:ImageHoverBehavior HoverCommand="{Binding HoverCommand}" LeaveCommand="{Binding LeaveHoverCommand}" />
-                    </i:Interaction.Behaviors>
-                    <Image.LayoutTransform>
+                <Grid x:Name="ImageContainer" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Width="{Binding ImageSource.PixelWidth, FallbackValue=0}"
+                      Height="{Binding ImageSource.PixelHeight, FallbackValue=0}">
+                    <Grid.LayoutTransform>
                         <TransformGroup>
                             <ScaleTransform ScaleX="{Binding Zoom.Factor}" ScaleY="{Binding Zoom.Factor}" />
                             <ScaleTransform ScaleX="{Binding FlipScaleX}" ScaleY="{Binding FlipScaleY}" />
                         </TransformGroup>
-                    </Image.LayoutTransform>
-                </Image>
+                    </Grid.LayoutTransform>
+                    <Image x:Name="PreviewImage" Stretch="Fill"
+                           RenderOptions.BitmapScalingMode="NearestNeighbor"
+                           Source="{Binding ImageSource}">
+                        <i:Interaction.Behaviors>
+                            <behaviors:ImageHoverBehavior HoverCommand="{Binding HoverCommand}" LeaveCommand="{Binding LeaveHoverCommand}" />
+                            <behaviors:RegionSelectBehavior IsActive="{Binding IsRegionSelectActive, Mode=TwoWay}"
+                                                            SelectionCommand="{Binding ApplyRegionMinMaxCommand}" />
+                        </i:Interaction.Behaviors>
+                    </Image>
+                </Grid>
             </Grid>
         </ScrollViewer>
 

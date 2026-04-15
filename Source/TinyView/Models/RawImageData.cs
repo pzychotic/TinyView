@@ -54,6 +54,36 @@ namespace TinyView.Models
             GenerateIndexedData(displayMin, displayMax);
         }
 
+        /// <inheritdoc />
+        public (float Min, float Max) GetRegionMinMax(int x, int y, int width, int height)
+        {
+            // Clamp the rectangle to the image bounds
+            int x0 = Math.Max(0, x);
+            int y0 = Math.Max(0, y);
+            int x1 = Math.Min(Width, x + width);
+            int y1 = Math.Min(Height, y + height);
+
+            float min = float.MaxValue;
+            float max = float.MinValue;
+
+            for (int row = y0; row < y1; row++)
+            {
+                int offset = row * Width;
+                for (int col = x0; col < x1; col++)
+                {
+                    float val = Convert.ToSingle(_rawData[offset + col]);
+                    if (val < min) min = val;
+                    if (val > max) max = val;
+                }
+            }
+
+            // If the region was empty, fall back to global min/max
+            if (min > max)
+                return (Min, Max);
+
+            return (min, max);
+        }
+
         public int Width { get; }
         public int Height { get; }
 

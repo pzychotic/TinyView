@@ -20,6 +20,12 @@ namespace TinyView.ViewModels
         /// </summary>
         public ViewportResetNotifier PanResetNotifier { get; } = new();
 
+        /// <summary>
+        /// Whether the region-select tool is currently active (toggle button state).
+        /// </summary>
+        [ObservableProperty]
+        private bool _isRegionSelectActive;
+
         private IRawImageDataProvider? _rawData;
         public IRawImageDataProvider? RawData
         {
@@ -31,6 +37,7 @@ namespace TinyView.ViewModels
                     Zoom.Reset();
                     IsFlippedHorizontally = false;
                     IsFlippedVertically = false;
+                    IsRegionSelectActive = false;
                     PanResetNotifier.RequestReset();
                     OnPropertyChanged(nameof(HasImage));
                     OnPropertyChanged(nameof(ImageSizeText));
@@ -265,6 +272,21 @@ namespace TinyView.ViewModels
 
         [RelayCommand]
         private void LeaveHover() => ValueText = "0,0: undefined";
+
+        /// <summary>
+        /// Computes the min/max raw pixel values within the selected region
+        /// and applies them as the new display range.
+        /// </summary>
+        [RelayCommand]
+        private void ApplyRegionMinMax(PixelRect rect)
+        {
+            if (RawData == null || rect.Width <= 0 || rect.Height <= 0)
+                return;
+
+            var (min, max) = RawData.GetRegionMinMax(rect.X, rect.Y, rect.Width, rect.Height);
+            DisplayMin = min;
+            DisplayMax = max;
+        }
 
         private async Task LoadImageAsync(string path)
         {

@@ -168,5 +168,125 @@ namespace TinyView.Tests
             provider.RegenerateIndexedData(provider.Min, provider.Max);
             Assert.That(provider.IndexedData, Is.EqualTo(originalIndexed));
         }
+
+        [Test]
+        public void GetRegionMinMax_FullImage_ReturnsGlobalMinMax()
+        {
+            int width = 3, height = 3;
+            var data = new float[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
+            var provider = new RawImageData<float>(width, height, data, "FLT");
+
+            var (min, max) = provider.GetRegionMinMax(0, 0, width, height);
+
+            Assert.That(min, Is.EqualTo(10f));
+            Assert.That(max, Is.EqualTo(90f));
+        }
+
+        [Test]
+        public void GetRegionMinMax_SubRegion_ReturnsCorrectValues()
+        {
+            // Layout (3x3):
+            //  10  20  30
+            //  40  50  60
+            //  70  80  90
+            int width = 3, height = 3;
+            var data = new float[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
+            var provider = new RawImageData<float>(width, height, data, "FLT");
+
+            // select the center 2x2 region at (1,1)
+            var (min, max) = provider.GetRegionMinMax(1, 1, 2, 2);
+
+            Assert.That(min, Is.EqualTo(50f));
+            Assert.That(max, Is.EqualTo(90f));
+        }
+
+        [Test]
+        public void GetRegionMinMax_SinglePixel_ReturnsSameMinMax()
+        {
+            int width = 3, height = 3;
+            var data = new float[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
+            var provider = new RawImageData<float>(width, height, data, "FLT");
+
+            // single pixel at (1,1) = 50
+            var (min, max) = provider.GetRegionMinMax(1, 1, 1, 1);
+
+            Assert.That(min, Is.EqualTo(50f));
+            Assert.That(max, Is.EqualTo(50f));
+        }
+
+        [Test]
+        public void GetRegionMinMax_ClampsToImageBounds()
+        {
+            int width = 3, height = 3;
+            var data = new float[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
+            var provider = new RawImageData<float>(width, height, data, "FLT");
+
+            // region extends past the bottom-right corner
+            var (min, max) = provider.GetRegionMinMax(2, 2, 5, 5);
+
+            // only pixel at (2,2) = 90 is within bounds
+            Assert.That(min, Is.EqualTo(90f));
+            Assert.That(max, Is.EqualTo(90f));
+        }
+
+        [Test]
+        public void GetRegionMinMax_NegativeOrigin_ClampsToZero()
+        {
+            int width = 3, height = 3;
+            var data = new float[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
+            var provider = new RawImageData<float>(width, height, data, "FLT");
+
+            // region starts at (-1,-1) with size 2x2 → effective region is (0,0) to (1,1)
+            var (min, max) = provider.GetRegionMinMax(-1, -1, 2, 2);
+
+            // only pixel at (0,0) = 10 is within the effective region
+            Assert.That(min, Is.EqualTo(10f));
+            Assert.That(max, Is.EqualTo(10f));
+        }
+
+        [Test]
+        public void GetRegionMinMax_EmptyRegion_FallsBackToGlobalMinMax()
+        {
+            int width = 2, height = 2;
+            var data = new float[] { 5, 15, 25, 35 };
+            var provider = new RawImageData<float>(width, height, data, "FLT");
+
+            // zero-size region
+            var (min, max) = provider.GetRegionMinMax(0, 0, 0, 0);
+
+            Assert.That(min, Is.EqualTo(provider.Min));
+            Assert.That(max, Is.EqualTo(provider.Max));
+        }
+
+        [Test]
+        public void GetRegionMinMax_FirstRow_ReturnsRowMinMax()
+        {
+            // Layout (4x2):
+            //  100  200  300  400
+            //    5   10   15   20
+            int width = 4, height = 2;
+            var data = new float[] { 100, 200, 300, 400, 5, 10, 15, 20 };
+            var provider = new RawImageData<float>(width, height, data, "FLT");
+
+            // select first row only
+            var (min, max) = provider.GetRegionMinMax(0, 0, width, 1);
+
+            Assert.That(min, Is.EqualTo(100f));
+            Assert.That(max, Is.EqualTo(400f));
+        }
+
+        [Test]
+        public void GetRegionMinMax_WorksWithIntData()
+        {
+            int width = 2, height = 2;
+            var data = new int[] { -50, 0, 100, 200 };
+            var provider = new RawImageData<int>(width, height, data, "INT");
+
+            var (min, max) = provider.GetRegionMinMax(0, 0, 1, 2);
+
+            // column 0: -50, 100
+            Assert.That(min, Is.EqualTo(-50f));
+            Assert.That(max, Is.EqualTo(100f));
+        }
     }
 }

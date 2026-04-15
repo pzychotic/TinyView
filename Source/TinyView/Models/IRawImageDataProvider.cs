@@ -16,5 +16,11 @@ namespace TinyView.Models
         /// Values outside the range are clamped to 0 or 255.
         /// </summary>
         void RegenerateIndexedData(float displayMin, float displayMax);
+
+        /// <summary>
+        /// Computes the minimum and maximum raw pixel values within the
+        /// specified rectangular region. Coordinates are clamped to the image bounds.
+        /// </summary>
+        (float Min, float Max) GetRegionMinMax(int x, int y, int width, int height);
     }
 }
