@@ -1,6 +1,7 @@
 # TinyView
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![GitHub License](https://img.shields.io/github/license/pzychotic/TinyView?color=blue)](https://github.com/pzychotic/TinyView/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/pzychotic/TinyView)](https://github.com/pzychotic/TinyView/releases/latest)
 [![CI](https://github.com/pzychotic/TinyView/actions/workflows/ci.yml/badge.svg)](https://github.com/pzychotic/TinyView/actions/workflows/ci.yml)
 
 A specialized viewer for 16/32-bit single channel images.
