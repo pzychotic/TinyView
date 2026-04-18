@@ -27,15 +27,15 @@ namespace TinyView.Tests
         }
 
         [Test]
-        public void PreviewMouseLeftButtonDown_StartsPanning()
+        public void PreviewMouseRightButtonDown_StartsPanning()
         {
             var sv = CreateTestScrollViewer();
             var behavior = new Behaviors.ScrollViewerPanBehavior();
             Interaction.GetBehaviors(sv).Add(behavior);
 
-            var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Left)
+            var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Right)
             {
-                RoutedEvent = UIElement.PreviewMouseLeftButtonDownEvent
+                RoutedEvent = UIElement.PreviewMouseRightButtonDownEvent
             };
 
             sv.RaiseEvent(args);
@@ -46,7 +46,7 @@ namespace TinyView.Tests
         }
 
         [Test]
-        public void PreviewMouseLeftButtonUp_StopsPanning_ReleasesMouseAndRestoresCursor()
+        public void PreviewMouseRightButtonUp_StopsPanning_ReleasesMouseAndRestoresCursor()
         {
             var sv = CreateTestScrollViewer();
             var behavior = new Behaviors.ScrollViewerPanBehavior();
@@ -55,9 +55,9 @@ namespace TinyView.Tests
             behavior._isPanning = true;
             sv.CaptureMouse();
 
-            var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Left)
+            var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Right)
             {
-                RoutedEvent = UIElement.PreviewMouseLeftButtonUpEvent
+                RoutedEvent = UIElement.PreviewMouseRightButtonUpEvent
             };
             sv.RaiseEvent(args);
 

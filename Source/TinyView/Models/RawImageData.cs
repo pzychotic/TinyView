@@ -25,25 +25,63 @@ namespace TinyView.Models
 
             _dataFormat = dataFormat;
 
-            GenerateIndexedData();
+            GenerateIndexedData(Min, Max);
         }
 
         /// <summary>
-        /// Generates indexed data by normalizing the raw data values between min and max to a byte range.
+        /// Generates indexed data by normalizing the raw data values between
+        /// <paramref name="min"/> and <paramref name="max"/> to a 0-255 byte range.
+        /// Values outside the range are clamped.
         /// </summary>
-        private void GenerateIndexedData()
+        private void GenerateIndexedData(float min, float max)
         {
-            float scale = Min == Max ? 1f : 255f / (Max - Min);
+            float scale = min == max ? 1f : 255f / (max - min);
             for (int y = 0; y < Height; ++y)
             {
                 int offset = y * Width;
                 for (int x = 0; x < Width; ++x)
                 {
-                    float norm = (Convert.ToSingle(_rawData[offset + x]) - Min) * scale;
+                    float norm = (Convert.ToSingle(_rawData[offset + x]) - min) * scale;
                     byte index = (byte)Math.Clamp(norm, 0, 255);
                     IndexedData[offset + x] = index;
                 }
             }
+        }
+
+        /// <inheritdoc />
+        public void RegenerateIndexedData(float displayMin, float displayMax)
+        {
+            GenerateIndexedData(displayMin, displayMax);
+        }
+
+        /// <inheritdoc />
+        public (float Min, float Max) GetRegionMinMax(int x, int y, int width, int height)
+        {
+            // Clamp the rectangle to the image bounds
+            int x0 = Math.Max(0, x);
+            int y0 = Math.Max(0, y);
+            int x1 = Math.Min(Width, x + width);
+            int y1 = Math.Min(Height, y + height);
+
+            float min = float.MaxValue;
+            float max = float.MinValue;
+
+            for (int row = y0; row < y1; row++)
+            {
+                int offset = row * Width;
+                for (int col = x0; col < x1; col++)
+                {
+                    float val = Convert.ToSingle(_rawData[offset + col]);
+                    if (val < min) min = val;
+                    if (val > max) max = val;
+                }
+            }
+
+            // If the region was empty, fall back to global min/max
+            if (min > max)
+                return (Min, Max);
+
+            return (min, max);
         }
 
         public int Width { get; }
