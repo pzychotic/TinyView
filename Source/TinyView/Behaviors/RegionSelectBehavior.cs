@@ -79,12 +79,12 @@ namespace TinyView.Behaviors
 
             if ((bool)e.NewValue)
             {
-                behavior.AssociatedObject.Cursor = Cursors.Cross;
+                behavior.AssociatedObject?.Cursor = Cursors.Cross;
             }
             else
             {
                 behavior.CancelSelection();
-                behavior.AssociatedObject.Cursor = null;
+                behavior.AssociatedObject?.Cursor = null;
                 behavior.RemoveOverlay();
             }
         }
@@ -135,7 +135,11 @@ namespace TinyView.Behaviors
 
             var pixel = GetPixelPosition(e);
             if (pixel == null)
+            {
+                RemoveOverlay();
+                e.Handled = true;
                 return;
+            }
 
             var rect = MakePixelRect(_startPixel, pixel.Value);
             if (rect.Width > 0 && rect.Height > 0)
@@ -215,7 +219,7 @@ namespace TinyView.Behaviors
 
         /// <summary>
         /// Converts the mouse position to image-pixel coordinates, or null if
-        /// the image has no source / the position is out of bounds.
+        /// the image has no source.
         /// </summary>
         private Point? GetPixelPosition(MouseEventArgs e)
         {
