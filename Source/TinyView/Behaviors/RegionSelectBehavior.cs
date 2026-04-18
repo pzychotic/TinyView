@@ -53,7 +53,6 @@ namespace TinyView.Behaviors
         private Point _startPixel;
         private Rectangle? _selectionRect;
         private Canvas? _overlayCanvas;
-        private Window? _parentWindow;
 
         protected override void OnAttached()
         {
@@ -69,7 +68,6 @@ namespace TinyView.Behaviors
             AssociatedObject.RemoveHandler(UIElement.MouseMoveEvent, new MouseEventHandler(OnMouseMove));
             AssociatedObject.MouseLeftButtonUp -= OnMouseLeftButtonUp;
 
-            UnsubscribeEscapeKey();
             RemoveOverlay();
             base.OnDetaching();
         }
@@ -82,14 +80,12 @@ namespace TinyView.Behaviors
             if ((bool)e.NewValue)
             {
                 behavior.AssociatedObject.Cursor = Cursors.Cross;
-                behavior.SubscribeEscapeKey();
             }
             else
             {
                 behavior.CancelSelection();
                 behavior.AssociatedObject.Cursor = null;
                 behavior.RemoveOverlay();
-                behavior.UnsubscribeEscapeKey();
             }
         }
 
@@ -155,35 +151,6 @@ namespace TinyView.Behaviors
             }
 
             e.Handled = true;
-        }
-
-        #endregion
-
-        #region Escape Key
-
-        private void SubscribeEscapeKey()
-        {
-            _parentWindow = Window.GetWindow(AssociatedObject);
-            if (_parentWindow != null)
-                _parentWindow.PreviewKeyDown += OnPreviewKeyDown;
-        }
-
-        private void UnsubscribeEscapeKey()
-        {
-            if (_parentWindow != null)
-            {
-                _parentWindow.PreviewKeyDown -= OnPreviewKeyDown;
-                _parentWindow = null;
-            }
-        }
-
-        private void OnPreviewKeyDown(object? sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape && IsActive)
-            {
-                IsActive = false; // two-way binding updates the ViewModel
-                e.Handled = true;
-            }
         }
 
         #endregion

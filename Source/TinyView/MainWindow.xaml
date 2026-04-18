@@ -34,6 +34,12 @@
 
         <!-- Ctrl + '*' for Zoom reset (numpad) -->
         <KeyBinding Command="{Binding ZoomResetCommand}" Key="Multiply" Modifiers="Control" />
+
+        <!-- S for region selection toggle -->
+        <KeyBinding Command="{Binding ToggleRegionSelectCommand}" Key="S" />
+
+        <!-- R for reset min/max -->
+        <KeyBinding Command="{Binding ResetMinMaxCommand}" Key="R" />
     </Window.InputBindings>
 
     <Grid>
@@ -120,7 +126,7 @@
             <Separator />
             <ToggleButton IsChecked="{Binding IsRegionSelectActive, Mode=TwoWay}"
                           IsEnabled="{Binding HasImage}"
-                          ToolTip="Select region to set display min/max (Escape to cancel)"
+                          ToolTip="Select region to set display min/max (S to toggle)"
                           Content="⬚" FontSize="16" Padding="2,0" />
             <TextBlock Text="Min:" VerticalAlignment="Center" Margin="4,0" />
             <TextBox Width="60" VerticalContentAlignment="Center"
@@ -142,7 +148,7 @@
             </TextBox>
             <Button Command="{Binding ResetMinMaxCommand}"
                     IsEnabled="{Binding HasImage}"
-                    ToolTip="Reset to original min/max values"
+                    ToolTip="Reset to original min/max values (R)"
                     Content="↺" FontSize="16" Padding="2,0" />
         </ToolBar>
 

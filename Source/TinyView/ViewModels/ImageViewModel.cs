@@ -49,6 +49,7 @@ namespace TinyView.ViewModels
                     ZoomOutCommand.NotifyCanExecuteChanged();
                     ZoomResetCommand.NotifyCanExecuteChanged();
                     ResetMinMaxCommand.NotifyCanExecuteChanged();
+                    ToggleRegionSelectCommand.NotifyCanExecuteChanged();
                 }
             }
         }
@@ -99,17 +100,14 @@ namespace TinyView.ViewModels
             }
         }
 
-        private bool CanResetMinMax() => HasImage && (_displayMin != RawData!.Min || _displayMax != RawData!.Max);
-
         /// <summary>
-        /// Resets <see cref="DisplayMin"/> and <see cref="DisplayMax"/> to the
-        /// original values computed from the loaded image data.
+        /// Sets both <see cref="DisplayMin"/> and <see cref="DisplayMax"/> in a
+        /// single batch, re-normalizing and re-rendering only once.
         /// </summary>
-        [RelayCommand(CanExecute = nameof(CanResetMinMax))]
-        private void ResetMinMax()
+        private void SetDisplayRange(float min, float max)
         {
-            _displayMin = RawData!.Min;
-            _displayMax = RawData!.Max;
+            _displayMin = min;
+            _displayMax = max;
             OnPropertyChanged(nameof(DisplayMin));
             OnPropertyChanged(nameof(DisplayMax));
             ApplyDisplayRange();
@@ -119,7 +117,7 @@ namespace TinyView.ViewModels
         /// <summary>
         /// Sets <see cref="DisplayMin"/> and <see cref="DisplayMax"/> to the
         /// original min/max of the current image without triggering re-normalization.
-        /// Called when a new image is loaded.
+        /// Called once when a new image is loaded.
         /// </summary>
         private void InitializeDisplayRange()
         {
@@ -128,6 +126,15 @@ namespace TinyView.ViewModels
             OnPropertyChanged(nameof(DisplayMin));
             OnPropertyChanged(nameof(DisplayMax));
         }
+
+        private bool CanResetMinMax() => HasImage && (_displayMin != RawData!.Min || _displayMax != RawData!.Max);
+
+        /// <summary>
+        /// Resets <see cref="DisplayMin"/> and <see cref="DisplayMax"/> to the
+        /// original values computed from the loaded image data.
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(CanResetMinMax))]
+        private void ResetMinMax() => SetDisplayRange(RawData!.Min, RawData!.Max);
 
         /// <summary>
         /// Re-normalizes the raw data with the current display range and re-applies the palette.
@@ -139,6 +146,14 @@ namespace TinyView.ViewModels
 
             RawData.RegenerateIndexedData(_displayMin, _displayMax);
             ApplyPalette();
+        }
+
+        private bool CanToggleRegionSelect() => HasImage;
+
+        [RelayCommand(CanExecute = nameof(CanToggleRegionSelect))]
+        private void ToggleRegionSelect()
+        {
+            IsRegionSelectActive = !IsRegionSelectActive;
         }
 
         // Flip state (toggled via toolbar/menu, applied via LayoutTransform)
@@ -284,8 +299,7 @@ namespace TinyView.ViewModels
                 return;
 
             var (min, max) = RawData.GetRegionMinMax(rect.X, rect.Y, rect.Width, rect.Height);
-            DisplayMin = min;
-            DisplayMax = max;
+            SetDisplayRange(min, max);
         }
 
         private async Task LoadImageAsync(string path)
