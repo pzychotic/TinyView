@@ -126,8 +126,9 @@
             <Separator />
             <ToggleButton IsChecked="{Binding IsRegionSelectActive, Mode=TwoWay}"
                           IsEnabled="{Binding HasImage}"
-                          ToolTip="Select region to set display min/max (S to toggle)"
-                          Content="⬚" FontSize="16" Padding="2,0" />
+                          ToolTip="Select region to set display min/max (S to toggle)">
+                <Image Source="/Resources/Selection.png" Stretch="Fill" />
+            </ToggleButton>
             <TextBlock Text="Min:" VerticalAlignment="Center" Margin="4,0" />
             <TextBox Width="60" VerticalContentAlignment="Center"
                      Text="{Binding DisplayMin, StringFormat='{}{0:0.##}'}"
@@ -148,8 +149,9 @@
             </TextBox>
             <Button Command="{Binding ResetMinMaxCommand}"
                     IsEnabled="{Binding HasImage}"
-                    ToolTip="Reset to original min/max values (R)"
-                    Content="↺" FontSize="16" Padding="2,0" />
+                    ToolTip="Reset to original min/max values (R)">
+                <Image Source="/Resources/DisplayMinMaxReset.png" />
+            </Button>
         </ToolBar>
 
         <!-- ScrollViewer ensures image fits and can be scrolled if large -->

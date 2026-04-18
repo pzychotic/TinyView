@@ -27,11 +27,13 @@
   <ItemGroup>
     <None Remove="Resources\AppIcon.png" />
     <None Remove="Resources\Cursor.png" />
+    <None Remove="Resources\DisplayMinMaxReset.png" />
     <None Remove="Resources\FlipHorizontal.png" />
     <None Remove="Resources\FlipVertical.png" />
     <None Remove="Resources\ImageMinMax.png" />
     <None Remove="Resources\ImageSize.png" />
     <None Remove="Resources\OpenFile.png" />
+    <None Remove="Resources\Selection.png" />
     <None Remove="Resources\Zoom.png" />
     <None Remove="Resources\ZoomIn.png" />
     <None Remove="Resources\ZoomOut.png" />
@@ -49,11 +51,13 @@
   <ItemGroup>
     <Resource Include="Resources\AppIcon.png" />
     <Resource Include="Resources\Cursor.png" />
+    <Resource Include="Resources\DisplayMinMaxReset.png" />
     <Resource Include="Resources\FlipHorizontal.png" />
     <Resource Include="Resources\FlipVertical.png" />
     <Resource Include="Resources\ImageMinMax.png" />
     <Resource Include="Resources\ImageSize.png" />
     <Resource Include="Resources\OpenFile.png" />
+    <Resource Include="Resources\Selection.png" />
     <Resource Include="Resources\Zoom.png" />
     <Resource Include="Resources\ZoomIn.png" />
     <Resource Include="Resources\ZoomOut.png" />
