@@ -23,12 +23,26 @@ namespace TinyView.Tests
             return sv;
         }
 
+        private static (ScrollViewer Viewer, Behaviors.ZoomCompensationBehavior Behavior) CreateSubject()
+        {
+            var viewer = CreateTestScrollViewer();
+            var behavior = new Behaviors.ZoomCompensationBehavior();
+            Interaction.GetBehaviors(viewer).Add(behavior);
+            return (viewer, behavior);
+        }
+
+        private static Point GetImageCenterAnchor(ScrollViewer viewer)
+        {
+            var method = typeof(Behaviors.ZoomCompensationBehavior)
+                .GetMethod("GetImageCenterAnchor", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+
+            return (Point)method.Invoke(null, [viewer])!;
+        }
+
         [Test]
         public void DefaultZoomFactor_IsOne()
         {
-            var sv = CreateTestScrollViewer();
-            var behavior = new Behaviors.ZoomCompensationBehavior();
-            Interaction.GetBehaviors(sv).Add(behavior);
+            var (_, behavior) = CreateSubject();
 
             Assert.That(behavior.ZoomFactor, Is.EqualTo(1.0));
         }
@@ -36,9 +50,7 @@ namespace TinyView.Tests
         [Test]
         public void ZoomFactorChange_AdjustsScrollOffset()
         {
-            var sv = CreateTestScrollViewer();
-            var behavior = new Behaviors.ZoomCompensationBehavior();
-            Interaction.GetBehaviors(sv).Add(behavior);
+            var (sv, behavior) = CreateSubject();
 
             Assert.That(sv.ScrollableWidth, Is.GreaterThan(0));
 
@@ -54,9 +66,7 @@ namespace TinyView.Tests
         [Test]
         public void ZoomAnchor_IsCleared_AfterZoomFactorChange()
         {
-            var sv = CreateTestScrollViewer();
-            var behavior = new Behaviors.ZoomCompensationBehavior();
-            Interaction.GetBehaviors(sv).Add(behavior);
+            var (_, behavior) = CreateSubject();
 
             behavior.ZoomAnchor = new Point(50, 50);
             behavior.ZoomFactor = 2.0;
@@ -65,16 +75,24 @@ namespace TinyView.Tests
         }
 
         [Test]
-        public void ZoomFactorChange_WithNullAnchor_UsesViewportCenter()
+        public void ZoomFactorChange_WithNullAnchor_UsesImageCenter()
         {
-            var sv = CreateTestScrollViewer();
-            var behavior = new Behaviors.ZoomCompensationBehavior();
-            Interaction.GetBehaviors(sv).Add(behavior);
+            var (_, behavior) = CreateSubject();
 
             behavior.ZoomAnchor = null;
 
-            // should not throw when anchor is null (uses viewport center)
+            // should not throw when anchor is null (uses image center)
             Assert.DoesNotThrow(() => behavior.ZoomFactor = 2.0);
+        }
+
+        [Test]
+        public void ImageCenterFallback_IsBasedOnContentCenter()
+        {
+            var (sv, _) = CreateSubject();
+            var anchor = GetImageCenterAnchor(sv);
+
+            Assert.That(anchor.X, Is.EqualTo(250).Within(0.001));
+            Assert.That(anchor.Y, Is.EqualTo(250).Within(0.001));
         }
     }
 }

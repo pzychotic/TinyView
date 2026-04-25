@@ -6,7 +6,7 @@ namespace TinyView.Behaviors
 {
     /// <summary>
     /// Adjusts ScrollViewer offsets after a zoom factor change so that the anchor
-    /// point (cursor position or viewport center) remains at the same screen location.
+    /// point (cursor position or image center) remains at the same screen location.
     /// </summary>
     public class ZoomCompensationBehavior : Behavior<ScrollViewer>
     {
@@ -30,7 +30,7 @@ namespace TinyView.Behaviors
         /// <summary>
         /// Viewport-relative anchor point for the current zoom operation.
         /// Bound two-way to Zoom.Anchor.  Read and cleared each time
-        /// <see cref="ZoomFactor"/> changes; when null the viewport center is used.
+        /// <see cref="ZoomFactor"/> changes; when null the image center is used.
         /// </summary>
         public static readonly DependencyProperty ZoomAnchorProperty =
             DependencyProperty.Register(
@@ -64,8 +64,8 @@ namespace TinyView.Behaviors
             Point? explicitAnchor = ZoomAnchor;
             ZoomAnchor = null;
 
-            // Anchor in viewport coordinates (fallback to viewport center).
-            Point anchor = explicitAnchor ?? new Point(sv.ViewportWidth / 2.0, sv.ViewportHeight / 2.0);
+            // Anchor in viewport coordinates (fallback to image center).
+            Point anchor = explicitAnchor ?? GetImageCenterAnchor(sv);
 
             double ratio = newZoom / oldZoom;
 
@@ -86,6 +86,16 @@ namespace TinyView.Behaviors
 
             sv.ScrollToHorizontalOffset(targetH);
             sv.ScrollToVerticalOffset(targetV);
+        }
+
+        private static Point GetImageCenterAnchor(ScrollViewer sv)
+        {
+            if (sv.Content is not FrameworkElement wrapper || wrapper.ActualWidth <= 0 || wrapper.ActualHeight <= 0)
+                return new Point(sv.ViewportWidth / 2.0, sv.ViewportHeight / 2.0);
+
+            double centerX = wrapper.Margin.Left + (wrapper.ActualWidth / 2.0);
+            double centerY = wrapper.Margin.Top + (wrapper.ActualHeight / 2.0);
+            return new Point(centerX - sv.HorizontalOffset, centerY - sv.VerticalOffset);
         }
     }
 }
