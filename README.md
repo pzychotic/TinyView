@@ -23,9 +23,11 @@ Hovering over an area will display the raw pixel value under the cursor in the s
 
 - Open files by drag & drop
 - Zoom using keyboard shortcuts and mouse wheel
-- Pan around by holding the left mouse button
+- Pan around by holding the right mouse button
 - Flip the image horizontally and vertically
 - Automatic dynamic range scaling adjusts pixel values for screen display
+- Dynamic range scaling based on a rectangular selection
+- Manually define the display min/max range
 - Multiple color maps, including colorblind-friendly palettes
 - Pixel inspection shows raw pixel values in the status bar on mouse over
 

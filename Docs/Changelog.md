@@ -7,6 +7,27 @@ title: Changelog
 
 All notable changes to TinyView are documented in this file.
 
+## v1.3.0 - 2026-04-25
+
+### User-Visible Changes
+
+- Added dynamic range scaling based on a rectangular selection
+- Added inputs to manually define the display min/max values
+- Changed panning from left to right mouse button
+- Changed keyboard zoom commands to anchor at the image center
+- Updated README
+
+### Internal Changes
+
+- Removed unintended stretch property from button icon
+- Added a badge with link to the latest release
+- Added more tests
+
+### Dependency Updates
+
+- Bumped Magick.NET-Q16-AnyCPU from 14.11.1 to 14.12.0
+- Bumped Microsoft.NET.Test.Sdk from 18.3.0 to 18.4.0
+
 ## v1.2.0 - 2026-03-28
 
 ### User-Visible Changes
