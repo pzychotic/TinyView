@@ -127,7 +127,7 @@
             <ToggleButton IsChecked="{Binding IsRegionSelectActive, Mode=TwoWay}"
                           IsEnabled="{Binding HasImage}"
                           ToolTip="Select region to set display min/max (S to toggle)">
-                <Image Source="/Resources/Selection.png" Stretch="Fill" />
+                <Image Source="/Resources/Selection.png" />
             </ToggleButton>
             <TextBlock Text="Min:" VerticalAlignment="Center" Margin="4,0" />
             <TextBox Width="60" VerticalContentAlignment="Center"
