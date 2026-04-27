@@ -26,33 +26,12 @@ public partial class ImageViewModel : ObservableObject
     [ObservableProperty]
     private bool _isRegionSelectActive;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasImage))]
+    [NotifyPropertyChangedFor(nameof(ImageSizeText))]
+    [NotifyPropertyChangedFor(nameof(ImageMinMaxText))]
+    [NotifyPropertyChangedFor(nameof(ImageFormatText))]
     private IRawImageDataProvider? _rawData;
-    public IRawImageDataProvider? RawData
-    {
-        get => _rawData;
-        set
-        {
-            if (SetProperty(ref _rawData, value))
-            {
-                Zoom.Reset();
-                IsFlippedHorizontally = false;
-                IsFlippedVertically = false;
-                IsRegionSelectActive = false;
-                PanResetNotifier.RequestReset();
-                OnPropertyChanged(nameof(HasImage));
-                OnPropertyChanged(nameof(ImageSizeText));
-                OnPropertyChanged(nameof(ImageMinMaxText));
-                OnPropertyChanged(nameof(ImageFormatText));
-                InitializeDisplayRange();
-                ApplyPalette();
-                ZoomInCommand.NotifyCanExecuteChanged();
-                ZoomOutCommand.NotifyCanExecuteChanged();
-                ZoomResetCommand.NotifyCanExecuteChanged();
-                ResetMinMaxCommand.NotifyCanExecuteChanged();
-                ToggleRegionSelectCommand.NotifyCanExecuteChanged();
-            }
-        }
-    }
 
     public string WindowTitle => Filename.Length > 0 ? $"TinyView - {Filename}" : "TinyView";
 
@@ -72,33 +51,15 @@ public partial class ImageViewModel : ObservableObject
     public string ImageFormatText => RawData?.DataFormat ?? "undefined";
 
     // Display range for normalization (editable by the user via toolbar)
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ResetMinMaxCommand))]
     private float _displayMin;
-    public float DisplayMin
-    {
-        get => _displayMin;
-        set
-        {
-            if (SetProperty(ref _displayMin, value))
-            {
-                ApplyDisplayRange();
-                ResetMinMaxCommand.NotifyCanExecuteChanged();
-            }
-        }
-    }
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ResetMinMaxCommand))]
     private float _displayMax;
-    public float DisplayMax
-    {
-        get => _displayMax;
-        set
-        {
-            if (SetProperty(ref _displayMax, value))
-            {
-                ApplyDisplayRange();
-                ResetMinMaxCommand.NotifyCanExecuteChanged();
-            }
-        }
-    }
+
+    private bool _suppressDisplayRangeUpdates;
 
     /// <summary>
     /// Sets both <see cref="DisplayMin"/> and <see cref="DisplayMax"/> in a
@@ -106,10 +67,10 @@ public partial class ImageViewModel : ObservableObject
     /// </summary>
     private void SetDisplayRange(float min, float max)
     {
-        _displayMin = min;
-        _displayMax = max;
-        OnPropertyChanged(nameof(DisplayMin));
-        OnPropertyChanged(nameof(DisplayMax));
+        _suppressDisplayRangeUpdates = true;
+        DisplayMin = min;
+        DisplayMax = max;
+        _suppressDisplayRangeUpdates = false;
         ApplyDisplayRange();
         ResetMinMaxCommand.NotifyCanExecuteChanged();
     }
@@ -121,13 +82,13 @@ public partial class ImageViewModel : ObservableObject
     /// </summary>
     private void InitializeDisplayRange()
     {
-        _displayMin = RawData?.Min ?? 0;
-        _displayMax = RawData?.Max ?? 0;
-        OnPropertyChanged(nameof(DisplayMin));
-        OnPropertyChanged(nameof(DisplayMax));
+        _suppressDisplayRangeUpdates = true;
+        DisplayMin = RawData?.Min ?? 0;
+        DisplayMax = RawData?.Max ?? 0;
+        _suppressDisplayRangeUpdates = false;
     }
 
-    private bool CanResetMinMax() => HasImage && (_displayMin != RawData!.Min || _displayMax != RawData!.Max);
+    private bool CanResetMinMax() => HasImage && (DisplayMin != RawData!.Min || DisplayMax != RawData!.Max);
 
     /// <summary>
     /// Resets <see cref="DisplayMin"/> and <see cref="DisplayMax"/> to the
@@ -144,7 +105,7 @@ public partial class ImageViewModel : ObservableObject
         if (RawData == null)
             return;
 
-        RawData.RegenerateIndexedData(_displayMin, _displayMax);
+        RawData.RegenerateIndexedData(DisplayMin, DisplayMax);
         ApplyPalette();
     }
 
@@ -169,18 +130,8 @@ public partial class ImageViewModel : ObservableObject
     public double FlipScaleY => IsFlippedVertically ? -1.0 : 1.0;
 
     // Selected color palette from the UI (nullable because initially none may be selected)
+    [ObservableProperty]
     private ColorPalettes.PaletteEntry _selectedPalette;
-    public ColorPalettes.PaletteEntry SelectedPalette
-    {
-        get => _selectedPalette;
-        set
-        {
-            if (SetProperty(ref _selectedPalette, value))
-            {
-                ApplyPalette();
-            }
-        }
-    }
 
     // expose palettes to the view
     public IReadOnlyList<ColorPalettes.PaletteEntry> Palettes => ColorPalettes.Palettes;
@@ -217,6 +168,39 @@ public partial class ImageViewModel : ObservableObject
             SelectedPalette = ColorPalettes.Palettes[0];
         }
     }
+
+    partial void OnRawDataChanged(IRawImageDataProvider? value)
+    {
+        if (value == null)
+            return;
+
+        Zoom.Reset();
+        IsFlippedHorizontally = false;
+        IsFlippedVertically = false;
+        IsRegionSelectActive = false;
+        PanResetNotifier.RequestReset();
+        InitializeDisplayRange();
+        ApplyPalette();
+        ZoomInCommand.NotifyCanExecuteChanged();
+        ZoomOutCommand.NotifyCanExecuteChanged();
+        ZoomResetCommand.NotifyCanExecuteChanged();
+        ResetMinMaxCommand.NotifyCanExecuteChanged();
+        ToggleRegionSelectCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnDisplayMinChanged(float value)
+    {
+        if (!_suppressDisplayRangeUpdates)
+            ApplyDisplayRange();
+    }
+
+    partial void OnDisplayMaxChanged(float value)
+    {
+        if (!_suppressDisplayRangeUpdates)
+            ApplyDisplayRange();
+    }
+
+    partial void OnSelectedPaletteChanged(ColorPalettes.PaletteEntry value) => ApplyPalette();
 
     private bool CanExecuteWhenNotBusy() => !IsBusy;
 

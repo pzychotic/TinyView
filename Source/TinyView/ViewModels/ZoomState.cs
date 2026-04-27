@@ -16,26 +16,19 @@ public partial class ZoomState : ObservableObject
     /// the factor; consumed (read and cleared) by
     /// <see cref="Behaviors.ZoomCompensationBehavior"/> when it adjusts scroll offsets.
     /// </summary>
+    [ObservableProperty]
     private Point? _anchor;
-    public Point? Anchor
-    {
-        get => _anchor;
-        set => SetProperty(ref _anchor, value);
-    }
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanZoomIn))]
+    [NotifyPropertyChangedFor(nameof(CanZoomOut))]
     private double _factor = DefaultFactor;
-    public double Factor
+
+    partial void OnFactorChanged(double value)
     {
-        get => _factor;
-        set
-        {
-            var clamped = Math.Clamp(value, MinFactor, MaxFactor);
-            if (SetProperty(ref _factor, clamped))
-            {
-                OnPropertyChanged(nameof(CanZoomIn));
-                OnPropertyChanged(nameof(CanZoomOut));
-            }
-        }
+        var clamped = Math.Clamp(value, MinFactor, MaxFactor);
+        if (!double.IsNaN(value) && !EqualityComparer<double>.Default.Equals(value, clamped))
+            Factor = clamped;
     }
 
     public bool CanZoomIn => Factor < MaxFactor;
