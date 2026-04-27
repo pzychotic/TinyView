@@ -62,7 +62,7 @@ namespace TinyView.Tests
             Assert.That(loaded!.Width, Is.EqualTo(800));
             Assert.That(loaded.Height, Is.EqualTo(600));
             Assert.That(loaded.IsMaximized, Is.False);
-            Assert.That(loaded.SelectedPaletteName, Is.EqualTo(string.Empty));
+            Assert.That(loaded.SelectedPaletteName, Is.Null);
         }
 
         [Test]

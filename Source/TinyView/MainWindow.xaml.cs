@@ -35,7 +35,7 @@ namespace TinyView
                 }
 
                 // restore selected palette if present
-                if (!string.IsNullOrEmpty(settings.SelectedPaletteName))
+                if (!string.IsNullOrWhiteSpace(settings.SelectedPaletteName))
                 {
                     var palettes = Models.ColorPalettes.Palettes;
                     var match = palettes.FirstOrDefault(p => p.Name == settings.SelectedPaletteName);

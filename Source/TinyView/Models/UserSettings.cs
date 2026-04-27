@@ -12,6 +12,6 @@ namespace TinyView.Models
         public bool IsMaximized { get; set; } = false;
 
         // Name of the selected color palette
-        public string SelectedPaletteName { get; set; } = string.Empty;
+        public string? SelectedPaletteName { get; set; }
     }
 }
