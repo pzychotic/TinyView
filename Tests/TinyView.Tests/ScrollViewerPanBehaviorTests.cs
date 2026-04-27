@@ -5,153 +5,152 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using TinyView.Models;
 
-namespace TinyView.Tests
+namespace TinyView.Tests;
+
+[TestFixture]
+[Apartment(ApartmentState.STA)]
+public class ScrollViewerPanBehaviorTests
 {
-    [TestFixture]
-    [Apartment(ApartmentState.STA)]
-    public class ScrollViewerPanBehaviorTests
+    private static ScrollViewer CreateTestScrollViewer()
     {
-        private static ScrollViewer CreateTestScrollViewer()
+        var sv = new ScrollViewer();
+        sv.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
+        sv.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+        sv.Content = new Border { Width = 500, Height = 500 };
+        sv.Width = 100;
+        sv.Height = 100;
+        sv.Measure(new Size(100, 100));
+        sv.Arrange(new Rect(0, 0, 100, 100));
+        sv.UpdateLayout();
+
+        return sv;
+    }
+
+    [Test]
+    public void PreviewMouseRightButtonDown_StartsPanning()
+    {
+        var sv = CreateTestScrollViewer();
+        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        Interaction.GetBehaviors(sv).Add(behavior);
+
+        var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Right)
         {
-            var sv = new ScrollViewer();
-            sv.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
-            sv.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            sv.Content = new Border { Width = 500, Height = 500 };
-            sv.Width = 100;
-            sv.Height = 100;
-            sv.Measure(new Size(100, 100));
-            sv.Arrange(new Rect(0, 0, 100, 100));
-            sv.UpdateLayout();
+            RoutedEvent = UIElement.PreviewMouseRightButtonDownEvent
+        };
 
-            return sv;
-        }
+        sv.RaiseEvent(args);
 
-        [Test]
-        public void PreviewMouseRightButtonDown_StartsPanning()
+        // In headless test environments IsMouseOver may be false so handlers may not start panning.
+        // Verify the behavior is attached.
+        Assert.That(Interaction.GetBehaviors(sv).Contains(behavior), Is.True);
+    }
+
+    [Test]
+    public void PreviewMouseRightButtonUp_StopsPanning_ReleasesMouseAndRestoresCursor()
+    {
+        var sv = CreateTestScrollViewer();
+        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        Interaction.GetBehaviors(sv).Add(behavior);
+
+        behavior._isPanning = true;
+        sv.CaptureMouse();
+
+        var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Right)
         {
-            var sv = CreateTestScrollViewer();
-            var behavior = new Behaviors.ScrollViewerPanBehavior();
-            Interaction.GetBehaviors(sv).Add(behavior);
+            RoutedEvent = UIElement.PreviewMouseRightButtonUpEvent
+        };
+        sv.RaiseEvent(args);
 
-            var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Right)
-            {
-                RoutedEvent = UIElement.PreviewMouseRightButtonDownEvent
-            };
+        Assert.That(sv.IsMouseCaptured, Is.False);
+        Assert.That(sv.Cursor, Is.Null);
+        Assert.That(args.Handled, Is.True);
+    }
 
-            sv.RaiseEvent(args);
+    [Test]
+    public void LostMouseCapture_ClearsCursor_WhenPanning()
+    {
+        var sv = CreateTestScrollViewer();
+        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        Interaction.GetBehaviors(sv).Add(behavior);
 
-            // In headless test environments IsMouseOver may be false so handlers may not start panning.
-            // Verify the behavior is attached.
-            Assert.That(Interaction.GetBehaviors(sv).Contains(behavior), Is.True);
-        }
+        behavior._isPanning = true;
+        sv.CaptureMouse();
 
-        [Test]
-        public void PreviewMouseRightButtonUp_StopsPanning_ReleasesMouseAndRestoresCursor()
+        var lost = new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, 0)
         {
-            var sv = CreateTestScrollViewer();
-            var behavior = new Behaviors.ScrollViewerPanBehavior();
-            Interaction.GetBehaviors(sv).Add(behavior);
+            RoutedEvent = UIElement.LostMouseCaptureEvent
+        };
+        sv.RaiseEvent(lost);
 
-            behavior._isPanning = true;
-            sv.CaptureMouse();
+        Assert.That(sv.Cursor, Is.Null);
+    }
 
-            var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Right)
-            {
-                RoutedEvent = UIElement.PreviewMouseRightButtonUpEvent
-            };
-            sv.RaiseEvent(args);
+    [Test]
+    public void OnPreviewMouseMove_PansScrollViewer_UpdatesOffsets()
+    {
+        var sv = CreateTestScrollViewer();
+        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        Interaction.GetBehaviors(sv).Add(behavior);
 
-            Assert.That(sv.IsMouseCaptured, Is.False);
-            Assert.That(sv.Cursor, Is.Null);
-            Assert.That(args.Handled, Is.True);
-        }
+        Assert.That(sv.ScrollableWidth, Is.GreaterThan(0), "ScrollableWidth should be > 0 for the test layout");
+        Assert.That(sv.ScrollableHeight, Is.GreaterThan(0), "ScrollableHeight should be > 0 for the test layout");
 
-        [Test]
-        public void LostMouseCapture_ClearsCursor_WhenPanning()
+        behavior._isPanning = true;
+        behavior._panStartPoint = new Point(50, 50);
+        behavior._panStartOffset = new Point(10, 20);
+
+        var args = new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, 0)
         {
-            var sv = CreateTestScrollViewer();
-            var behavior = new Behaviors.ScrollViewerPanBehavior();
-            Interaction.GetBehaviors(sv).Add(behavior);
+            RoutedEvent = UIElement.PreviewMouseMoveEvent
+        };
 
-            behavior._isPanning = true;
-            sv.CaptureMouse();
+        sv.RaiseEvent(args);
 
-            var lost = new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, 0)
-            {
-                RoutedEvent = UIElement.LostMouseCaptureEvent
-            };
-            sv.RaiseEvent(lost);
+        Assert.That(sv.HorizontalOffset, Is.Not.EqualTo(10));
+        Assert.That(sv.VerticalOffset, Is.Not.EqualTo(20));
+        Assert.That(args.Handled, Is.True);
+    }
 
-            Assert.That(sv.Cursor, Is.Null);
-        }
+    [Test]
+    public void IsOverScrollbar_WorksForScrollBarAndNonScrollBar()
+    {
+        var sb = new ScrollBar();
+        var btn = new Button();
 
-        [Test]
-        public void OnPreviewMouseMove_PansScrollViewer_UpdatesOffsets()
-        {
-            var sv = CreateTestScrollViewer();
-            var behavior = new Behaviors.ScrollViewerPanBehavior();
-            Interaction.GetBehaviors(sv).Add(behavior);
+        Assert.That(Behaviors.ScrollViewerPanBehavior.IsOverScrollbar(sb), Is.True);
+        Assert.That(Behaviors.ScrollViewerPanBehavior.IsOverScrollbar(btn), Is.False);
+    }
 
-            Assert.That(sv.ScrollableWidth, Is.GreaterThan(0), "ScrollableWidth should be > 0 for the test layout");
-            Assert.That(sv.ScrollableHeight, Is.GreaterThan(0), "ScrollableHeight should be > 0 for the test layout");
+    [Test]
+    public void CancelPan_ClearsPanState()
+    {
+        var sv = CreateTestScrollViewer();
+        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        Interaction.GetBehaviors(sv).Add(behavior);
 
-            behavior._isPanning = true;
-            behavior._panStartPoint = new Point(50, 50);
-            behavior._panStartOffset = new Point(10, 20);
+        behavior._isPanning = true;
+        sv.CaptureMouse();
 
-            var args = new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, 0)
-            {
-                RoutedEvent = UIElement.PreviewMouseMoveEvent
-            };
+        behavior.CancelPan();
 
-            sv.RaiseEvent(args);
+        Assert.That(behavior._isPanning, Is.False);
+    }
 
-            Assert.That(sv.HorizontalOffset, Is.Not.EqualTo(10));
-            Assert.That(sv.VerticalOffset, Is.Not.EqualTo(20));
-            Assert.That(args.Handled, Is.True);
-        }
+    [Test]
+    public void ResetNotifier_CancelsPan_WhenFired()
+    {
+        var sv = CreateTestScrollViewer();
+        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        Interaction.GetBehaviors(sv).Add(behavior);
 
-        [Test]
-        public void IsOverScrollbar_WorksForScrollBarAndNonScrollBar()
-        {
-            var sb = new ScrollBar();
-            var btn = new Button();
+        var notifier = new ViewportResetNotifier();
+        behavior.ResetNotifier = notifier;
 
-            Assert.That(Behaviors.ScrollViewerPanBehavior.IsOverScrollbar(sb), Is.True);
-            Assert.That(Behaviors.ScrollViewerPanBehavior.IsOverScrollbar(btn), Is.False);
-        }
+        behavior._isPanning = true;
+        sv.CaptureMouse();
 
-        [Test]
-        public void CancelPan_ClearsPanState()
-        {
-            var sv = CreateTestScrollViewer();
-            var behavior = new Behaviors.ScrollViewerPanBehavior();
-            Interaction.GetBehaviors(sv).Add(behavior);
+        notifier.RequestReset();
 
-            behavior._isPanning = true;
-            sv.CaptureMouse();
-
-            behavior.CancelPan();
-
-            Assert.That(behavior._isPanning, Is.False);
-        }
-
-        [Test]
-        public void ResetNotifier_CancelsPan_WhenFired()
-        {
-            var sv = CreateTestScrollViewer();
-            var behavior = new Behaviors.ScrollViewerPanBehavior();
-            Interaction.GetBehaviors(sv).Add(behavior);
-
-            var notifier = new ViewportResetNotifier();
-            behavior.ResetNotifier = notifier;
-
-            behavior._isPanning = true;
-            sv.CaptureMouse();
-
-            notifier.RequestReset();
-
-            Assert.That(behavior._isPanning, Is.False);
-        }
+        Assert.That(behavior._isPanning, Is.False);
     }
 }

@@ -1,12 +1,11 @@
 using System.Windows;
 
-namespace TinyView.Views
+namespace TinyView.Views;
+
+public partial class AboutWindow : Window
 {
-    public partial class AboutWindow : Window
+    public AboutWindow()
     {
-        public AboutWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

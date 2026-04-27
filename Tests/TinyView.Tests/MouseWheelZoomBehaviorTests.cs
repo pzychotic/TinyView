@@ -4,60 +4,59 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace TinyView.Tests
+namespace TinyView.Tests;
+
+[TestFixture]
+[Apartment(ApartmentState.STA)]
+public class MouseWheelZoomBehaviorTests
 {
-    [TestFixture]
-    [Apartment(ApartmentState.STA)]
-    public class MouseWheelZoomBehaviorTests
+    [Test]
+    public void DefaultZoomFactor_IsOne()
     {
-        [Test]
-        public void DefaultZoomFactor_IsOne()
+        var element = new Border();
+        var behavior = new Behaviors.MouseWheelZoomBehavior();
+        Interaction.GetBehaviors(element).Add(behavior);
+        Assert.That(behavior.ZoomFactor, Is.EqualTo(1.0));
+    }
+
+    [Test]
+    public void SetZoomFactor_Works()
+    {
+        var element = new Border();
+        var behavior = new Behaviors.MouseWheelZoomBehavior();
+        Interaction.GetBehaviors(element).Add(behavior);
+        behavior.ZoomFactor = 2.5;
+        Assert.That(behavior.ZoomFactor, Is.EqualTo(2.5));
+    }
+
+    [Test]
+    public void DefaultZoomAnchor_IsNull()
+    {
+        var element = new Border();
+        var behavior = new Behaviors.MouseWheelZoomBehavior();
+        Interaction.GetBehaviors(element).Add(behavior);
+        Assert.That(behavior.ZoomAnchor, Is.Null);
+    }
+
+    [Test]
+    public void OnPreviewMouseWheel_NoCtrl_DoesNothing()
+    {
+        var element = new Border();
+        var behavior = new Behaviors.MouseWheelZoomBehavior();
+        Interaction.GetBehaviors(element).Add(behavior);
+
+        Assert.That(behavior._wheelDeltaAccum, Is.EqualTo(0.0));
+
+        var mi = typeof(Behaviors.MouseWheelZoomBehavior).GetMethod("OnPreviewMouseWheel", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var args = new MouseWheelEventArgs(InputManager.Current.PrimaryMouseDevice, 0, 120)
         {
-            var element = new Border();
-            var behavior = new Behaviors.MouseWheelZoomBehavior();
-            Interaction.GetBehaviors(element).Add(behavior);
-            Assert.That(behavior.ZoomFactor, Is.EqualTo(1.0));
-        }
+            RoutedEvent = UIElement.PreviewMouseWheelEvent
+        };
 
-        [Test]
-        public void SetZoomFactor_Works()
-        {
-            var element = new Border();
-            var behavior = new Behaviors.MouseWheelZoomBehavior();
-            Interaction.GetBehaviors(element).Add(behavior);
-            behavior.ZoomFactor = 2.5;
-            Assert.That(behavior.ZoomFactor, Is.EqualTo(2.5));
-        }
+        mi.Invoke(behavior, [element, args]);
 
-        [Test]
-        public void DefaultZoomAnchor_IsNull()
-        {
-            var element = new Border();
-            var behavior = new Behaviors.MouseWheelZoomBehavior();
-            Interaction.GetBehaviors(element).Add(behavior);
-            Assert.That(behavior.ZoomAnchor, Is.Null);
-        }
-
-        [Test]
-        public void OnPreviewMouseWheel_NoCtrl_DoesNothing()
-        {
-            var element = new Border();
-            var behavior = new Behaviors.MouseWheelZoomBehavior();
-            Interaction.GetBehaviors(element).Add(behavior);
-
-            Assert.That(behavior._wheelDeltaAccum, Is.EqualTo(0.0));
-
-            var mi = typeof(Behaviors.MouseWheelZoomBehavior).GetMethod("OnPreviewMouseWheel", BindingFlags.NonPublic | BindingFlags.Instance)!;
-            var args = new MouseWheelEventArgs(InputManager.Current.PrimaryMouseDevice, 0, 120)
-            {
-                RoutedEvent = UIElement.PreviewMouseWheelEvent
-            };
-
-            mi.Invoke(behavior, [element, args]);
-
-            Assert.That(behavior._wheelDeltaAccum, Is.EqualTo(0.0));
-            Assert.That(behavior.ZoomFactor, Is.EqualTo(1.0));
-            Assert.That(args.Handled, Is.False);
-        }
+        Assert.That(behavior._wheelDeltaAccum, Is.EqualTo(0.0));
+        Assert.That(behavior.ZoomFactor, Is.EqualTo(1.0));
+        Assert.That(args.Handled, Is.False);
     }
 }

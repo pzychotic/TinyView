@@ -2,98 +2,97 @@ using BitMiracle.LibTiff.Classic;
 using System.Runtime.InteropServices;
 using TinyView.Models;
 
-namespace TinyView.Services
+namespace TinyView.Services;
+
+public class TiffImageLoader : IImageLoader
 {
-    public class TiffImageLoader : IImageLoader
-    {
-        public bool CanLoad(string extension) => extension.Equals(".tif", StringComparison.OrdinalIgnoreCase) || extension.Equals(".tiff", StringComparison.OrdinalIgnoreCase);
+    public bool CanLoad(string extension) => extension.Equals(".tif", StringComparison.OrdinalIgnoreCase) || extension.Equals(".tiff", StringComparison.OrdinalIgnoreCase);
 
-        public Task<IRawImageDataProvider> LoadImageAsync(string path)
-            => Task.Run<IRawImageDataProvider>(() =>
+    public Task<IRawImageDataProvider> LoadImageAsync(string path)
+        => Task.Run<IRawImageDataProvider>(() =>
+        {
+            using var tiff = Tiff.Open(path, "r")
+                ?? throw new InvalidOperationException("Unable to open TIFF image.");
+
+            static int GetRequiredInt(Tiff tiff, TiffTag tag)
             {
-                using var tiff = Tiff.Open(path, "r")
-                    ?? throw new InvalidOperationException("Unable to open TIFF image.");
+                var field = tiff.GetField(tag)
+                    ?? throw new InvalidOperationException($"Missing required TIFF tag '{tag}'.");
+                return field[0].ToInt();
+            }
 
-                static int GetRequiredInt(Tiff tiff, TiffTag tag)
+            static short GetShortOrDefault(Tiff tiff, TiffTag tag, short defaultValue)
+                => tiff.GetField(tag) is { } field ? field[0].ToShort() : defaultValue;
+
+            int width = GetRequiredInt(tiff, TiffTag.IMAGEWIDTH);
+            int height = GetRequiredInt(tiff, TiffTag.IMAGELENGTH);
+
+            var samplesPerPixel = GetShortOrDefault(tiff, TiffTag.SAMPLESPERPIXEL, 1);
+            var bitsPerSample = GetShortOrDefault(tiff, TiffTag.BITSPERSAMPLE, 1);
+            var sampleFormat = (SampleFormat)GetShortOrDefault(tiff, TiffTag.SAMPLEFORMAT, (short)SampleFormat.UINT);
+            var photometric = (Photometric)GetShortOrDefault(tiff, TiffTag.PHOTOMETRIC, (short)Photometric.MINISBLACK);
+
+            if (samplesPerPixel != 1)
+                throw new InvalidOperationException("Expected a single-channel grayscale image.");
+
+            bool isUInt16 = bitsPerSample == 16 && sampleFormat == SampleFormat.UINT;
+            bool isUInt32 = bitsPerSample == 32 && sampleFormat == SampleFormat.UINT;
+            bool isFloat16 = bitsPerSample == 16 && sampleFormat == SampleFormat.IEEEFP;
+            bool isFloat32 = bitsPerSample == 32 && sampleFormat == SampleFormat.IEEEFP;
+
+            if (!isUInt16 && !isUInt32 && !isFloat16 && !isFloat32)
+                throw new InvalidOperationException("Expected a 16/32-bit grayscale TIFF (uint or float).");
+
+            if (photometric != Photometric.MINISBLACK && photometric != Photometric.MINISWHITE)
+                throw new InvalidOperationException("Expected a grayscale TIFF (Photometric MINISBLACK/MINISWHITE).");
+
+            int scanlineSize = tiff.ScanlineSize();
+            int bytesPerPixel = bitsPerSample / 8;
+            int expectedBytesPerScanline = width * bytesPerPixel;
+            if (scanlineSize < expectedBytesPerScanline || scanlineSize % bytesPerPixel != 0)
+                throw new InvalidOperationException("Unsupported TIFF scanline layout.");
+
+            var scanline = new byte[scanlineSize];
+
+            // Generic reader: read scanlines as TElement (blittable/unmanaged) and convert to TTarget (INumber)
+            IRawImageDataProvider ReadAs<TElement, TTarget>(Func<TElement, TTarget> convert, string format)
+                where TElement : unmanaged
+                where TTarget : System.Numerics.INumber<TTarget>
+            {
+                var pixelData = new TTarget[width * height];
+
+                for (int y = 0; y < height; ++y)
                 {
-                    var field = tiff.GetField(tag)
-                        ?? throw new InvalidOperationException($"Missing required TIFF tag '{tag}'.");
-                    return field[0].ToInt();
-                }
+                    if (!tiff.ReadScanline(scanline, y))
+                        throw new InvalidOperationException("Failed to read TIFF scanline.");
 
-                static short GetShortOrDefault(Tiff tiff, TiffTag tag, short defaultValue)
-                    => tiff.GetField(tag) is { } field ? field[0].ToShort() : defaultValue;
-
-                int width = GetRequiredInt(tiff, TiffTag.IMAGEWIDTH);
-                int height = GetRequiredInt(tiff, TiffTag.IMAGELENGTH);
-
-                var samplesPerPixel = GetShortOrDefault(tiff, TiffTag.SAMPLESPERPIXEL, 1);
-                var bitsPerSample = GetShortOrDefault(tiff, TiffTag.BITSPERSAMPLE, 1);
-                var sampleFormat = (SampleFormat)GetShortOrDefault(tiff, TiffTag.SAMPLEFORMAT, (short)SampleFormat.UINT);
-                var photometric = (Photometric)GetShortOrDefault(tiff, TiffTag.PHOTOMETRIC, (short)Photometric.MINISBLACK);
-
-                if (samplesPerPixel != 1)
-                    throw new InvalidOperationException("Expected a single-channel grayscale image.");
-
-                bool isUInt16 = bitsPerSample == 16 && sampleFormat == SampleFormat.UINT;
-                bool isUInt32 = bitsPerSample == 32 && sampleFormat == SampleFormat.UINT;
-                bool isFloat16 = bitsPerSample == 16 && sampleFormat == SampleFormat.IEEEFP;
-                bool isFloat32 = bitsPerSample == 32 && sampleFormat == SampleFormat.IEEEFP;
-
-                if (!isUInt16 && !isUInt32 && !isFloat16 && !isFloat32)
-                    throw new InvalidOperationException("Expected a 16/32-bit grayscale TIFF (uint or float).");
-
-                if (photometric != Photometric.MINISBLACK && photometric != Photometric.MINISWHITE)
-                    throw new InvalidOperationException("Expected a grayscale TIFF (Photometric MINISBLACK/MINISWHITE).");
-
-                int scanlineSize = tiff.ScanlineSize();
-                int bytesPerPixel = bitsPerSample / 8;
-                int expectedBytesPerScanline = width * bytesPerPixel;
-                if (scanlineSize < expectedBytesPerScanline || scanlineSize % bytesPerPixel != 0)
-                    throw new InvalidOperationException("Unsupported TIFF scanline layout.");
-
-                var scanline = new byte[scanlineSize];
-
-                // Generic reader: read scanlines as TElement (blittable/unmanaged) and convert to TTarget (INumber)
-                IRawImageDataProvider ReadAs<TElement, TTarget>(Func<TElement, TTarget> convert, string format)
-                    where TElement : unmanaged
-                    where TTarget : System.Numerics.INumber<TTarget>
-                {
-                    var pixelData = new TTarget[width * height];
-
-                    for (int y = 0; y < height; ++y)
+                    var values = MemoryMarshal.Cast<byte, TElement>(scanline.AsSpan());
+                    int offset = y * width;
+                    for (int x = 0; x < width; ++x)
                     {
-                        if (!tiff.ReadScanline(scanline, y))
-                            throw new InvalidOperationException("Failed to read TIFF scanline.");
-
-                        var values = MemoryMarshal.Cast<byte, TElement>(scanline.AsSpan());
-                        int offset = y * width;
-                        for (int x = 0; x < width; ++x)
-                        {
-                            pixelData[offset + x] = convert(values[x]);
-                        }
+                        pixelData[offset + x] = convert(values[x]);
                     }
-
-                    return new RawImageData<TTarget>(width, height, pixelData, format);
                 }
 
-                if (isUInt16)
-                {
-                    return ReadAs<ushort, ushort>(v => (photometric == Photometric.MINISWHITE) ? (ushort)(ushort.MaxValue - v) : v, "Gray16 (ushort)");
-                }
+                return new RawImageData<TTarget>(width, height, pixelData, format);
+            }
 
-                if (isUInt32)
-                {
-                    return ReadAs<uint, uint>(v => (photometric == Photometric.MINISWHITE) ? uint.MaxValue - v : v, "Gray32 (uint)");
-                }
+            if (isUInt16)
+            {
+                return ReadAs<ushort, ushort>(v => (photometric == Photometric.MINISWHITE) ? (ushort)(ushort.MaxValue - v) : v, "Gray16 (ushort)");
+            }
 
-                if (isFloat16)
-                {
-                    return ReadAs<Half, float>(v => (float)v, "Gray16 (half)");
-                }
+            if (isUInt32)
+            {
+                return ReadAs<uint, uint>(v => (photometric == Photometric.MINISWHITE) ? uint.MaxValue - v : v, "Gray32 (uint)");
+            }
 
-                // isFloat32
-                return ReadAs<float, float>(v => v, "Gray32 (float)");
-            });
-    }
+            if (isFloat16)
+            {
+                return ReadAs<Half, float>(v => (float)v, "Gray16 (half)");
+            }
+
+            // isFloat32
+            return ReadAs<float, float>(v => v, "Gray32 (float)");
+        });
 }

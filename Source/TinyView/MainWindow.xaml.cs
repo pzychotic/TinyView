@@ -3,78 +3,77 @@ using System.Windows;
 using TinyView.Services;
 using TinyView.ViewModels;
 
-namespace TinyView
+namespace TinyView;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    private readonly ImageViewModel _viewModel = new(new WpfDialogService());
+
+    public MainWindow()
     {
-        private readonly ImageViewModel _viewModel = new(new WpfDialogService());
+        InitializeComponent();
 
-        public MainWindow()
+        // restore window geometry from app resources if available
+        if (Application.Current.Resources.Contains("UserSettings") &&
+            Application.Current.Resources["UserSettings"] is Models.UserSettings settings)
         {
-            InitializeComponent();
-
-            // restore window geometry from app resources if available
-            if (Application.Current.Resources.Contains("UserSettings") &&
-                Application.Current.Resources["UserSettings"] is Models.UserSettings settings)
+            // apply size if present
+            if (!double.IsNaN(settings.Width) && !double.IsNaN(settings.Height))
             {
-                // apply size if present
-                if (!double.IsNaN(settings.Width) && !double.IsNaN(settings.Height))
-                {
-                    Width = settings.Width;
-                    Height = settings.Height;
-                }
+                Width = settings.Width;
+                Height = settings.Height;
+            }
 
-                // apply position if present
-                if (!double.IsNaN(settings.Left) && !double.IsNaN(settings.Top))
-                {
-                    Left = settings.Left;
-                    Top = settings.Top;
-                }
+            // apply position if present
+            if (!double.IsNaN(settings.Left) && !double.IsNaN(settings.Top))
+            {
+                Left = settings.Left;
+                Top = settings.Top;
+            }
 
-                // restore selected palette if present
-                if (!string.IsNullOrWhiteSpace(settings.SelectedPaletteName))
+            // restore selected palette if present
+            if (!string.IsNullOrWhiteSpace(settings.SelectedPaletteName))
+            {
+                var palettes = Models.ColorPalettes.Palettes;
+                var match = palettes.FirstOrDefault(p => p.Name == settings.SelectedPaletteName);
+                if (!string.IsNullOrEmpty(match.Name))
                 {
-                    var palettes = Models.ColorPalettes.Palettes;
-                    var match = palettes.FirstOrDefault(p => p.Name == settings.SelectedPaletteName);
-                    if (!string.IsNullOrEmpty(match.Name))
-                    {
-                        _viewModel.SelectedPalette = match;
-                    }
-                }
-
-                // if the saved state was maximized, defer applying until window is shown
-                if (settings.IsMaximized)
-                {
-                    Loaded += (_, __) => WindowState = WindowState.Maximized;
+                    _viewModel.SelectedPalette = match;
                 }
             }
 
-            DataContext = _viewModel;
-
-            // when closing, persist window state
-            Closing += MainWindow_Closing;
+            // if the saved state was maximized, defer applying until window is shown
+            if (settings.IsMaximized)
+            {
+                Loaded += (_, __) => WindowState = WindowState.Maximized;
+            }
         }
 
-        private void MainWindow_Closing(object? sender, CancelEventArgs e)
-        {
-            var settings = new Models.UserSettings
-            {
-                IsMaximized = WindowState == WindowState.Maximized,
-                Width = Width,
-                Height = Height,
-                Left = Left,
-                Top = Top,
-                SelectedPaletteName = _viewModel.SelectedPalette.Name
-            };
+        DataContext = _viewModel;
 
-            if (Application.Current.Resources.Contains("SettingsService") &&
-                Application.Current.Resources["SettingsService"] is ISettingsService service)
-            {
-                service.Save(settings);
-            }
+        // when closing, persist window state
+        Closing += MainWindow_Closing;
+    }
+
+    private void MainWindow_Closing(object? sender, CancelEventArgs e)
+    {
+        var settings = new Models.UserSettings
+        {
+            IsMaximized = WindowState == WindowState.Maximized,
+            Width = Width,
+            Height = Height,
+            Left = Left,
+            Top = Top,
+            SelectedPaletteName = _viewModel.SelectedPalette.Name
+        };
+
+        if (Application.Current.Resources.Contains("SettingsService") &&
+            Application.Current.Resources["SettingsService"] is ISettingsService service)
+        {
+            service.Save(settings);
         }
     }
 }

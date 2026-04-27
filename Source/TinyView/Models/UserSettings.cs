@@ -1,17 +1,16 @@
-namespace TinyView.Models
+namespace TinyView.Models;
+
+public sealed class UserSettings
 {
-    public sealed class UserSettings
-    {
-        // Window size and position
-        public double Width { get; set; } = 800;
-        public double Height { get; set; } = 600;
-        public double Left { get; set; } = double.NaN;
-        public double Top { get; set; } = double.NaN;
+    // Window size and position
+    public double Width { get; set; } = 800;
+    public double Height { get; set; } = 600;
+    public double Left { get; set; } = double.NaN;
+    public double Top { get; set; } = double.NaN;
 
-        // Whether the window was maximized when the app exited
-        public bool IsMaximized { get; set; } = false;
+    // Whether the window was maximized when the app exited
+    public bool IsMaximized { get; set; } = false;
 
-        // Name of the selected color palette
-        public string? SelectedPaletteName { get; set; }
-    }
+    // Name of the selected color palette
+    public string? SelectedPaletteName { get; set; }
 }

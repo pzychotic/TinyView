@@ -1,10 +1,9 @@
 using TinyView.Models;
 
-namespace TinyView.Services
+namespace TinyView.Services;
+
+public interface ISettingsService
 {
-    public interface ISettingsService
-    {
-        UserSettings? Load();
-        void Save(UserSettings settings);
-    }
+    UserSettings? Load();
+    void Save(UserSettings settings);
 }

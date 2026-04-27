@@ -1,10 +1,9 @@
-namespace TinyView.Services
+namespace TinyView.Services;
+
+public interface IDialogService
 {
-    public interface IDialogService
-    {
-        string? ShowOpenFileDialog(string filter);
-        void ShowError(string title, string message);
-        void ShowAbout();
-        void RequestShutdown();
-    }
+    string? ShowOpenFileDialog(string filter);
+    void ShowError(string title, string message);
+    void ShowAbout();
+    void RequestShutdown();
 }
