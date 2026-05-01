@@ -12,36 +12,35 @@ $mapNames = @{
 }
 
 $filename  = "./ColorMaps.cs"
-$namespace = "TinyView"
+$namespace = "TinyView.Models"
 $classname = "ColorMaps"
 
 $fileHeader = `
 "// Automatically generated from https://github.com/sjmgarnier/viridisLite/tree/master/data-raw/option*.csv
 
-namespace $namespace
-{
-    static class $classname
-    {"
-$fileFooter = `"    }
-}"
+namespace $namespace;
+
+static class $classname
+{"
+$fileFooter = `"}"
 
 
 Set-Content -Path $filename -Value $fileHeader
 
 $mapNames.GetEnumerator() | ForEach-Object {
 
-    "        public static readonly byte[,] $($_.Value) ="
-    "        {"
+    "    public static readonly byte[,] $($_.Value) ="
+    "    {"
 
     Import-Csv -Path $_.Key |
         ForEach-Object {
             $r = [math]::Round( ([double] $_.R) * 255.0 )
             $g = [math]::Round( ([double] $_.G) * 255.0 )
             $b = [math]::Round( ([double] $_.B) * 255.0 )
-            "            {$r, $g, $b},"
+            "        {$r, $g, $b},"
         }
 
-    "        };"
+    "    };"
     ""
 } | Add-Content -Path $filename
 

@@ -2,7 +2,7 @@
 
 namespace TinyView.Models;
 
-public static class ColorMaps
+static class ColorMaps
 {
     public static readonly byte[,] Mako =
     {
@@ -2083,4 +2083,5 @@ public static class ColorMaps
         {250, 233, 218},
         {250, 235, 221},
     };
+
 }
