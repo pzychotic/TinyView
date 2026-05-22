@@ -5,7 +5,7 @@ using TinyView.Models;
 
 namespace TinyView.Services;
 
-public sealed class JsonSettingsService : ISettingsService
+public sealed class JsonSettingsService(string settingsDir) : ISettingsService
 {
     private static readonly string DefaultSettingsDir =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TinyView");
@@ -15,18 +15,12 @@ public sealed class JsonSettingsService : ISettingsService
         NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
     };
 
-    private readonly string _settingsDir;
-    private readonly string _settingsPath;
+    private readonly string _settingsDir = settingsDir;
+    private readonly string _settingsPath = Path.Combine(settingsDir, "UserSettings.json");
 
     public JsonSettingsService()
         : this(DefaultSettingsDir)
     {
-    }
-
-    public JsonSettingsService(string settingsDir)
-    {
-        _settingsDir = settingsDir;
-        _settingsPath = Path.Combine(settingsDir, "UserSettings.json");
     }
 
     public UserSettings? Load()
