@@ -30,8 +30,22 @@ public partial class MainWindow : Window
             // apply position if present
             if (!double.IsNaN(settings.Left) && !double.IsNaN(settings.Top))
             {
-                Left = settings.Left;
-                Top = settings.Top;
+                // ensure coordinates are within the virtual screen bounds to prevent off-screen windows
+                double virtualLeft = SystemParameters.VirtualScreenLeft;
+                double virtualTop = SystemParameters.VirtualScreenTop;
+                double virtualWidth = SystemParameters.VirtualScreenWidth;
+                double virtualHeight = SystemParameters.VirtualScreenHeight;
+
+                bool isWithinBounds = settings.Left >= virtualLeft &&
+                                      settings.Top >= virtualTop &&
+                                      settings.Left < (virtualLeft + virtualWidth) &&
+                                      settings.Top < (virtualTop + virtualHeight);
+
+                if (isWithinBounds)
+                {
+                    Left = settings.Left;
+                    Top = settings.Top;
+                }
             }
 
             // restore selected palette if present
