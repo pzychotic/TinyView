@@ -132,4 +132,35 @@ public class JsonSettingsServiceTests
         Assert.That(Directory.Exists(nested), Is.True);
         Assert.That(service.Load()?.Width, Is.EqualTo(500));
     }
+
+    [Test]
+    public void Load_WhenIOErrorOccurs_ReturnsNullGracefully()
+    {
+        Directory.CreateDirectory(_tempDir);
+        var settingsPath = Path.Combine(_tempDir, "UserSettings.json");
+
+        // Create an exclusive lock on the file so an IOException is thrown on read attempts
+        using var fs = new FileStream(settingsPath, FileMode.Create, FileAccess.Write, FileShare.None);
+        fs.Write([1, 2, 3]);
+
+        var service = new JsonSettingsService(_tempDir);
+        var result = service.Load();
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public void Save_WhenIOErrorOccurs_HandlesExceptionGracefully()
+    {
+        Directory.CreateDirectory(_tempDir);
+        var settingsPath = Path.Combine(_tempDir, "UserSettings.json");
+
+        // Prevent writing to settings by creating a directory where the file should be
+        Directory.CreateDirectory(settingsPath);
+
+        var service = new JsonSettingsService(_tempDir);
+        var original = new UserSettings { Width = 1024 };
+
+        Assert.DoesNotThrow(() => service.Save(original));
+    }
 }
