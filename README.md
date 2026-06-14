@@ -7,6 +7,7 @@
 A specialized viewer for 16/32-bit single channel images.
 
 - **DDS:** R16F, R32F
+- **EXR:** 16/32-bit float and uint
 - **PNG:** 16-bit grayscale
 - **TIFF:** 16/32-bit uint and float
 
@@ -65,6 +66,7 @@ Just open ```TinyView.slnx``` build and run.
 ## Dependencies
 
 - [Pfim](https://github.com/nickbabcock/Pfim) for DDS file loading
+- [TinyEXR.Net](https://github.com/ksgfk/TinyEXR.NET) for EXR file loading
 - [Magick.Net](https://github.com/dlemstra/Magick.NET) for PNG file loading
 - [LibTiff.Net](https://github.com/BitMiracle/libtiff.net) for TIFF file loading
 - [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet)

@@ -7,6 +7,29 @@ title: Changelog
 
 All notable changes to TinyView are documented in this file.
 
+## v1.4.0 - 2026-06-14
+
+### User-Visible Changes
+
+- Added support for EXR files through TinyEXR.NET
+- Optimized DDS and TIFF image loaders
+- Fixed window might be off-screen on startup
+- Fixed display and precision issues with extreme image values
+- Updated README
+
+### Internal Changes
+
+- Modernize C# code
+- Changed badges from shields.io to badgen.net
+- Added more tests
+
+### Dependency Updates
+
+- Added TinyEXR.NET 1.0.0
+- Bumped Magick.NET-Q16-AnyCPU from 14.12.0 to 14.14.0
+- Bumped Microsoft.NET.Test.Sdk from 18.4.0 to 18.6.0
+- Bumped NUnit from 4.5.1 to 4.6.1
+
 ## v1.3.0 - 2026-04-25
 
 ### User-Visible Changes
