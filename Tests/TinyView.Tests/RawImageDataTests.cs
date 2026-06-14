@@ -42,13 +42,8 @@ public class RawImageDataTests
     public void Constructor_MinEqualsMax_AllIndexedValuesZero_ForFloat()
     {
         int width = 2, height = 2;
-        var data = new float[width * height];
-
         // all entries the same -> Min == Max branch taken
-        for (int i = 0; i < data.Length; ++i)
-        {
-            data[i] = 5.0f;
-        }
+        var data = new float[] { 5.0f, 5.0f, 5.0f, 5.0f };
 
         var provider = new RawImageData<float>(width, height, data, "FLT_FMT");
 
@@ -65,6 +60,25 @@ public class RawImageDataTests
         // GetValueString() should return the ToString() of the raw value
         Assert.That(provider.GetValueString(0, 0), Is.EqualTo("5"));
         Assert.That(provider.GetValueString(1, 1), Is.EqualTo("5"));
+    }
+
+    [Test]
+    public void RawImageData_WorksWithExtremeValues()
+    {
+        int width = 3, height = 1;
+        var data = new float[] { float.MinValue, 0.0f, float.MaxValue };
+
+        var provider = new RawImageData<float>(width, height, data, "FLT_FMT");
+
+        var expected = new byte[] { (byte)0, (byte)127, (byte)255 };
+
+        Assert.That(provider.Min, Is.EqualTo(float.MinValue));
+        Assert.That(provider.Max, Is.EqualTo(float.MaxValue));
+        Assert.That(provider.IndexedData, Is.EqualTo(expected));
+
+        // GetValueString() should return the ToString() of the raw value
+        Assert.That(provider.GetValueString(0, 0), Is.EqualTo(data[0 * width + 0].ToString()));
+        Assert.That(provider.GetValueString(2, 0), Is.EqualTo(data[0 * width + 2].ToString()));
     }
 
     [Test]
