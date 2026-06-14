@@ -18,26 +18,16 @@ public class PfimImageLoader : IImageLoader
 
             int width = image.Width;
             int height = image.Height;
-            bool isHalf = image.Format == ImageFormat.R16f;
 
-            // extract raw data
-            var pixelData = new float[width * height];
-
-            if (isHalf)
+            if (image.Format == ImageFormat.R32f)
             {
-                var halfData = MemoryMarshal.Cast<byte, Half>(image.Data);
-                for (int i = 0; i < pixelData.Length; i++)
-                {
-                    pixelData[i] = (float)halfData[i];
-                }
+                var floatData = MemoryMarshal.Cast<byte, float>(image.Data).ToArray();
+                return new RawImageData<float>(width, height, floatData, "R32F (float)");
             }
             else
             {
-                var floatData = MemoryMarshal.Cast<byte, float>(image.Data);
-                floatData.CopyTo(pixelData);
+                var halfData = MemoryMarshal.Cast<byte, Half>(image.Data).ToArray();
+                return new RawImageData<Half>(width, height, halfData, "R16F (half)");
             }
-
-            string format = isHalf ? "R16F (half)" : "R32F (float)";
-            return new RawImageData<float>(width, height, pixelData, format);
         });
 }

@@ -54,19 +54,18 @@ public class TiffImageLoader : IImageLoader
 
             var scanline = new byte[scanlineSize];
 
-            // Generic reader: read scanlines as TElement (blittable/unmanaged) and convert to TTarget (INumber)
-            IRawImageDataProvider ReadAs<TElement, TTarget>(Func<TElement, TTarget> convert, string format)
-                where TElement : unmanaged
-                where TTarget : System.Numerics.INumber<TTarget>
+            // Generic reader: read scanlines as T (blittable/unmanaged and INumber)
+            IRawImageDataProvider ReadAs<T>(Func<T, T> convert, string format)
+                where T : unmanaged, System.Numerics.INumber<T>
             {
-                var pixelData = new TTarget[width * height];
+                var pixelData = new T[width * height];
 
                 for (int y = 0; y < height; ++y)
                 {
                     if (!tiff.ReadScanline(scanline, y))
                         throw new InvalidOperationException("Failed to read TIFF scanline.");
 
-                    var values = MemoryMarshal.Cast<byte, TElement>(scanline.AsSpan());
+                    var values = MemoryMarshal.Cast<byte, T>(scanline.AsSpan());
                     int offset = y * width;
                     for (int x = 0; x < width; ++x)
                     {
@@ -74,25 +73,25 @@ public class TiffImageLoader : IImageLoader
                     }
                 }
 
-                return new RawImageData<TTarget>(width, height, pixelData, format);
+                return new RawImageData<T>(width, height, pixelData, format);
             }
 
             if (isUInt16)
             {
-                return ReadAs<ushort, ushort>(v => (photometric == Photometric.MINISWHITE) ? (ushort)(ushort.MaxValue - v) : v, "Gray16 (ushort)");
+                return ReadAs<ushort>(v => (photometric == Photometric.MINISWHITE) ? (ushort)(ushort.MaxValue - v) : v, "Gray16 (ushort)");
             }
 
             if (isUInt32)
             {
-                return ReadAs<uint, uint>(v => (photometric == Photometric.MINISWHITE) ? uint.MaxValue - v : v, "Gray32 (uint)");
+                return ReadAs<uint>(v => (photometric == Photometric.MINISWHITE) ? uint.MaxValue - v : v, "Gray32 (uint)");
             }
 
             if (isFloat16)
             {
-                return ReadAs<Half, float>(v => (float)v, "Gray16 (half)");
+                return ReadAs<Half>(v => v, "Gray16 (half)");
             }
 
             // isFloat32
-            return ReadAs<float, float>(v => v, "Gray32 (float)");
+            return ReadAs<float>(v => v, "Gray32 (float)");
         });
 }
