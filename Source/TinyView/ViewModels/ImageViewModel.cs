@@ -53,11 +53,11 @@ public partial class ImageViewModel : ObservableObject
     // Display range for normalization (editable by the user via toolbar)
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ResetMinMaxCommand))]
-    private float _displayMin;
+    private double _displayMin;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ResetMinMaxCommand))]
-    private float _displayMax;
+    private double _displayMax;
 
     private bool _suppressDisplayRangeUpdates;
 
@@ -65,7 +65,7 @@ public partial class ImageViewModel : ObservableObject
     /// Sets both <see cref="DisplayMin"/> and <see cref="DisplayMax"/> in a
     /// single batch, re-normalizing and re-rendering only once.
     /// </summary>
-    private void SetDisplayRange(float min, float max)
+    private void SetDisplayRange(double min, double max)
     {
         _suppressDisplayRangeUpdates = true;
         DisplayMin = min;
@@ -188,13 +188,13 @@ public partial class ImageViewModel : ObservableObject
         ToggleRegionSelectCommand.NotifyCanExecuteChanged();
     }
 
-    partial void OnDisplayMinChanged(float value)
+    partial void OnDisplayMinChanged(double value)
     {
         if (!_suppressDisplayRangeUpdates)
             ApplyDisplayRange();
     }
 
-    partial void OnDisplayMaxChanged(float value)
+    partial void OnDisplayMaxChanged(double value)
     {
         if (!_suppressDisplayRangeUpdates)
             ApplyDisplayRange();

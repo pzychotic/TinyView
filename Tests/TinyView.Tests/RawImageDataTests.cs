@@ -20,8 +20,8 @@ public class RawImageDataTests
 
         Assert.That(provider.Width, Is.EqualTo(width));
         Assert.That(provider.Height, Is.EqualTo(height));
-        Assert.That(provider.Min, Is.EqualTo(0f));
-        Assert.That(provider.Max, Is.EqualTo(255f));
+        Assert.That(provider.Min, Is.EqualTo(0.0));
+        Assert.That(provider.Max, Is.EqualTo(255.0));
         Assert.That(provider.DataFormat, Is.EqualTo("INT_FMT"));
 
         // expected bytes at index = y * width + x
@@ -49,8 +49,8 @@ public class RawImageDataTests
 
         Assert.That(provider.Width, Is.EqualTo(width));
         Assert.That(provider.Height, Is.EqualTo(height));
-        Assert.That(provider.Min, Is.EqualTo(5f));
-        Assert.That(provider.Max, Is.EqualTo(5f));
+        Assert.That(provider.Min, Is.EqualTo(5.0));
+        Assert.That(provider.Max, Is.EqualTo(5.0));
         Assert.That(provider.DataFormat, Is.EqualTo("FLT_FMT"));
 
         // when Min == Max the implementation sets scale = 1f,
@@ -111,8 +111,8 @@ public class RawImageDataTests
         var provider = new RawImageData<double>(width, height, data, "DBL_FMT");
 
         // manual computation of min/max and expected indices
-        float min = float.CreateTruncating(data.Min());
-        float max = float.CreateTruncating(data.Max());
+        double min = double.CreateTruncating(data.Min());
+        double max = double.CreateTruncating(data.Max());
         double scale = min == max ? 1.0 : 255.0 / (max - min);
 
         var expected = new byte[width * height];
@@ -145,11 +145,11 @@ public class RawImageDataTests
         var provider = new RawImageData<float>(width, height, data, "FLT_FMT");
 
         // original range: 0..100 → indexed: 0, 127/128, 255
-        Assert.That(provider.Min, Is.EqualTo(0f));
-        Assert.That(provider.Max, Is.EqualTo(100f));
+        Assert.That(provider.Min, Is.EqualTo(0.0));
+        Assert.That(provider.Max, Is.EqualTo(100.0));
 
         // narrow the display range to 25..75
-        provider.RegenerateIndexedData(25f, 75f);
+        provider.RegenerateIndexedData(25.0, 75.0);
 
         // 0 is below 25 → clamped to 0
         // 50 is mid-range: (50-25)*255/50 = 127.5 → 127
@@ -159,8 +159,8 @@ public class RawImageDataTests
         Assert.That(provider.IndexedData[2], Is.EqualTo((byte)255));
 
         // Min and Max properties remain unchanged (they reflect the original data)
-        Assert.That(provider.Min, Is.EqualTo(0f));
-        Assert.That(provider.Max, Is.EqualTo(100f));
+        Assert.That(provider.Min, Is.EqualTo(0.0));
+        Assert.That(provider.Max, Is.EqualTo(100.0));
     }
 
     [Test]
@@ -173,7 +173,7 @@ public class RawImageDataTests
 
         // when displayMin == displayMax, scale = 1, so (value - min) * 1
         // both values become 0 and 10 respectively, clamped to byte
-        provider.RegenerateIndexedData(15f, 15f);
+        provider.RegenerateIndexedData(15.0, 15.0);
 
         // (10 - 15) * 1 = -5 → clamped to 0
         // (20 - 15) * 1 = 5 → clamped to 5
@@ -192,7 +192,7 @@ public class RawImageDataTests
         var originalIndexed = (byte[])provider.IndexedData.Clone();
 
         // apply a custom range
-        provider.RegenerateIndexedData(50f, 200f);
+        provider.RegenerateIndexedData(50.0, 200.0);
         Assert.That(provider.IndexedData, Is.Not.EqualTo(originalIndexed));
 
         // revert to the original range
@@ -209,8 +209,8 @@ public class RawImageDataTests
 
         var (min, max) = provider.GetRegionMinMax(0, 0, width, height);
 
-        Assert.That(min, Is.EqualTo(10f));
-        Assert.That(max, Is.EqualTo(90f));
+        Assert.That(min, Is.EqualTo(10.0));
+        Assert.That(max, Is.EqualTo(90.0));
     }
 
     [Test]
@@ -227,8 +227,8 @@ public class RawImageDataTests
         // select the center 2x2 region at (1,1)
         var (min, max) = provider.GetRegionMinMax(1, 1, 2, 2);
 
-        Assert.That(min, Is.EqualTo(50f));
-        Assert.That(max, Is.EqualTo(90f));
+        Assert.That(min, Is.EqualTo(50.0));
+        Assert.That(max, Is.EqualTo(90.0));
     }
 
     [Test]
@@ -241,8 +241,8 @@ public class RawImageDataTests
         // single pixel at (1,1) = 50
         var (min, max) = provider.GetRegionMinMax(1, 1, 1, 1);
 
-        Assert.That(min, Is.EqualTo(50f));
-        Assert.That(max, Is.EqualTo(50f));
+        Assert.That(min, Is.EqualTo(50.0));
+        Assert.That(max, Is.EqualTo(50.0));
     }
 
     [Test]
@@ -256,8 +256,8 @@ public class RawImageDataTests
         var (min, max) = provider.GetRegionMinMax(2, 2, 5, 5);
 
         // only pixel at (2,2) = 90 is within bounds
-        Assert.That(min, Is.EqualTo(90f));
-        Assert.That(max, Is.EqualTo(90f));
+        Assert.That(min, Is.EqualTo(90.0));
+        Assert.That(max, Is.EqualTo(90.0));
     }
 
     [Test]
@@ -271,8 +271,8 @@ public class RawImageDataTests
         var (min, max) = provider.GetRegionMinMax(-1, -1, 2, 2);
 
         // only pixel at (0,0) = 10 is within the effective region
-        Assert.That(min, Is.EqualTo(10f));
-        Assert.That(max, Is.EqualTo(10f));
+        Assert.That(min, Is.EqualTo(10.0));
+        Assert.That(max, Is.EqualTo(10.0));
     }
 
     [Test]
@@ -302,8 +302,8 @@ public class RawImageDataTests
         // select first row only
         var (min, max) = provider.GetRegionMinMax(0, 0, width, 1);
 
-        Assert.That(min, Is.EqualTo(100f));
-        Assert.That(max, Is.EqualTo(400f));
+        Assert.That(min, Is.EqualTo(100.0));
+        Assert.That(max, Is.EqualTo(400.0));
     }
 
     [Test]
@@ -316,7 +316,7 @@ public class RawImageDataTests
         var (min, max) = provider.GetRegionMinMax(0, 0, 1, 2);
 
         // column 0: -50, 100
-        Assert.That(min, Is.EqualTo(-50f));
-        Assert.That(max, Is.EqualTo(100f));
+        Assert.That(min, Is.EqualTo(-50.0));
+        Assert.That(max, Is.EqualTo(100.0));
     }
 }

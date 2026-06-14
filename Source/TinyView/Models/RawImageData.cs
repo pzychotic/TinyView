@@ -17,8 +17,8 @@ public class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         Width = width;
         Height = height;
 
-        Min = float.CreateTruncating(data.Min()!);
-        Max = float.CreateTruncating(data.Max()!);
+        Min = double.CreateTruncating(data.Min()!);
+        Max = double.CreateTruncating(data.Max()!);
 
         _rawData = data;
         IndexedData = new byte[Width * Height];
@@ -49,13 +49,13 @@ public class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
     }
 
     /// <inheritdoc />
-    public void RegenerateIndexedData(float displayMin, float displayMax)
+    public void RegenerateIndexedData(double displayMin, double displayMax)
     {
         GenerateIndexedData(displayMin, displayMax);
     }
 
     /// <inheritdoc />
-    public (float Min, float Max) GetRegionMinMax(int x, int y, int width, int height)
+    public (double Min, double Max) GetRegionMinMax(int x, int y, int width, int height)
     {
         // Clamp the rectangle to the image bounds
         int x0 = Math.Max(0, x);
@@ -63,15 +63,15 @@ public class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         int x1 = Math.Min(Width, x + width);
         int y1 = Math.Min(Height, y + height);
 
-        float min = float.MaxValue;
-        float max = float.MinValue;
+        double min = double.MaxValue;
+        double max = double.MinValue;
 
         for (int row = y0; row < y1; row++)
         {
             int offset = row * Width;
             for (int col = x0; col < x1; col++)
             {
-                float val = float.CreateTruncating(_rawData[offset + col]);
+                double val = double.CreateTruncating(_rawData[offset + col]);
                 if (val < min) min = val;
                 if (val > max) max = val;
             }
@@ -87,8 +87,8 @@ public class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
     public int Width { get; }
     public int Height { get; }
 
-    public float Min { get; }
-    public float Max { get; }
+    public double Min { get; }
+    public double Max { get; }
 
     public byte[] IndexedData { get; }
 
