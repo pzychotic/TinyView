@@ -82,30 +82,47 @@ public class RawImageDataTests
     }
 
     [Test]
+    public void RawImageData_WorksWithHalfType()
+    {
+        int width = 3, height = 1;
+        var data = new Half[] { Half.MinValue, (Half)0.0f, Half.MaxValue };
+
+        var provider = new RawImageData<Half>(width, height, data, "HALF_FMT");
+
+        var expected = new byte[] { (byte)0, (byte)127, (byte)255 };
+
+        Assert.That(provider.Min, Is.EqualTo((float)Half.MinValue));
+        Assert.That(provider.Max, Is.EqualTo((float)Half.MaxValue));
+        Assert.That(provider.IndexedData, Is.EqualTo(expected));
+
+        // GetValueString() should return the ToString() of the raw value
+        // correctly display Half values, see: https://github.com/dotnet/runtime/issues/75204
+        Assert.That(provider.GetValueString(0, 0), Is.EqualTo(((float)data[0 * width + 0]).ToString()));
+        Assert.That(provider.GetValueString(2, 0), Is.EqualTo(((float)data[0 * width + 2]).ToString()));
+    }
+
+    [Test]
     public void IndexedData_Calculation_MatchesManualComputation_ForMixedValues()
     {
         int width = 3, height = 1;
-        var data = new double[width * height];
         // use values that test normalization and rounding behavior
-        data[0 * width + 0] = -10.0;
-        data[0 * width + 1] = 0.0;
-        data[0 * width + 2] = 10.0;
+        var data = new double[] { -10.0, 0.0, 10.0 };
 
         var provider = new RawImageData<double>(width, height, data, "DBL_FMT");
 
         // manual computation of min/max and expected indices
-        float min = Convert.ToSingle(data.Min());
-        float max = Convert.ToSingle(data.Max());
-        float scale = min == max ? 1f : 255f / (max - min);
+        float min = float.CreateTruncating(data.Min());
+        float max = float.CreateTruncating(data.Max());
+        double scale = min == max ? 1.0 : 255.0 / (max - min);
 
         var expected = new byte[width * height];
         for (int y = 0; y < height; ++y)
         {
             for (int x = 0; x < width; ++x)
             {
-                float norm = (Convert.ToSingle(data[y * width + x]) - min) * scale;
-                byte idx = (byte)Math.Clamp(norm, 0, 255);
-                expected[y * width + x] = idx;
+                double norm = (double.CreateTruncating(data[y * width + x]) - min) * scale;
+                byte index = (byte)Math.Clamp(norm, 0, 255);
+                expected[y * width + x] = index;
             }
         }
 

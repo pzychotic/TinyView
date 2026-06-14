@@ -17,8 +17,8 @@ public class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         Width = width;
         Height = height;
 
-        Min = Convert.ToSingle(data.Min());
-        Max = Convert.ToSingle(data.Max());
+        Min = float.CreateTruncating(data.Min()!);
+        Max = float.CreateTruncating(data.Max()!);
 
         _rawData = data;
         IndexedData = new byte[Width * Height];
@@ -41,7 +41,7 @@ public class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
             int offset = y * Width;
             for (int x = 0; x < Width; ++x)
             {
-                double norm = (Convert.ToDouble(_rawData[offset + x]) - min) * scale;
+                double norm = (double.CreateTruncating(_rawData[offset + x]) - min) * scale;
                 byte index = (byte)Math.Clamp(norm, 0, 255);
                 IndexedData[offset + x] = index;
             }
@@ -71,7 +71,7 @@ public class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
             int offset = row * Width;
             for (int col = x0; col < x1; col++)
             {
-                float val = Convert.ToSingle(_rawData[offset + col]);
+                float val = float.CreateTruncating(_rawData[offset + col]);
                 if (val < min) min = val;
                 if (val > max) max = val;
             }
@@ -97,7 +97,17 @@ public class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
     public string? GetValueString(int x, int y)
     {
         Debug.Assert(x >= 0 && x < Width && y >= 0 && y < Height);
-        return _rawData[y * Width + x].ToString();
+        return GetValueStringPrecise(_rawData[y * Width + x]);
+    }
+
+    private string GetValueStringPrecise(T value)
+    {
+        return value switch
+        {
+            // correctly display Half values, see: https://github.com/dotnet/runtime/issues/75204
+            Half h => ((float)h).ToString(),
+            _ => value.ToString() ?? string.Empty
+        };
     }
 
     private readonly T[] _rawData;
