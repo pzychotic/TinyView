@@ -151,7 +151,7 @@ public partial class ImageViewModel : ObservableObject
         _dialogService = dialogService ?? new NullDialogService();
 
         // initialize image loader implementations
-        _imageLoaders = [new MagickImageLoader(), new PfimImageLoader(), new TiffImageLoader()];
+        _imageLoaders = [new MagickImageLoader(), new PfimImageLoader(), new TiffImageLoader(), new TinyExrImageLoader()];
 
         Zoom.PropertyChanged += (_, e) =>
         {
@@ -207,7 +207,13 @@ public partial class ImageViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanExecuteWhenNotBusy))]
     private async Task OpenAsync()
     {
-        const string filter = "Image Files (*.dds;*.png;*.tif;*.tiff)|*.dds;*.png;*.tif;*.tiff|DDS Files (*.dds)|*.dds|PNG Files (*.png)|*.png|TIFF Files (*.tif;*.tiff)|*.tif;*.tiff|All Files (*.*)|*.*";
+        const string filter = "Image Files (*.dds;*.exr;*.png;*.tif;*.tiff)|*.dds;*.exr;*.png;*.tif;*.tiff|" +
+            "DDS Files (*.dds)|*.dds|" +
+            "EXR Files (*.exr)|*.exr|" +
+            "PNG Files (*.png)|*.png|" +
+            "TIFF Files (*.tif;*.tiff)|*.tif;*.tiff|" +
+            "All Files (*.*)|*.*";
+
         var path = _dialogService.ShowOpenFileDialog(filter);
         if (path != null)
             await LoadImageAsync(path);
