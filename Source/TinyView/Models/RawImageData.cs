@@ -32,9 +32,9 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
     /// Computes the minimum and maximum of <paramref name="data"/> in a single pass.
     /// Returns (0, 0) for an empty buffer.
     /// </summary>
-    private static (double Min, double Max) ComputeMinMax(T[] data)
+    private static (double Min, double Max) ComputeMinMax(ReadOnlySpan<T> data)
     {
-        if (data.Length == 0)
+        if (data.IsEmpty)
             return (0, 0);
 
         T min = data[0];
@@ -57,15 +57,12 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
     private void GenerateIndexedData(double min, double max)
     {
         double scale = min == max ? 1.0 : 255.0 / (max - min);
-        for (int y = 0; y < Height; ++y)
+        ReadOnlySpan<T> rawSpan = _rawData;
+        Span<byte> indexedSpan = IndexedData;
+        for (int i = 0; i < rawSpan.Length; ++i)
         {
-            int offset = y * Width;
-            for (int x = 0; x < Width; ++x)
-            {
-                double norm = (double.CreateTruncating(_rawData[offset + x]) - min) * scale;
-                byte index = (byte)Math.Clamp(norm, 0, 255);
-                IndexedData[offset + x] = index;
-            }
+            double norm = (double.CreateTruncating(rawSpan[i]) - min) * scale;
+            indexedSpan[i] = (byte)Math.Clamp(norm, 0, 255);
         }
     }
 
@@ -87,12 +84,14 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         double min = double.MaxValue;
         double max = double.MinValue;
 
+        ReadOnlySpan<T> rawSpan = _rawData;
+        int colCount = x1 - x0;
         for (int row = y0; row < y1; row++)
         {
-            int offset = row * Width;
-            for (int col = x0; col < x1; col++)
+            ReadOnlySpan<T> rowSlice = rawSpan.Slice(row * Width + x0, colCount);
+            for (int i = 0; i < colCount; i++)
             {
-                double val = double.CreateTruncating(_rawData[offset + col]);
+                double val = double.CreateTruncating(rowSlice[i]);
                 if (val < min) min = val;
                 if (val > max) max = val;
             }
