@@ -7,8 +7,8 @@ public interface IRawImageDataProvider
     double Min { get; }
     double Max { get; }
     byte[] IndexedData { get; }
-    string? DataFormat { get; }
-    string? GetValueString(int x, int y);
+    string DataFormat { get; }
+    string GetValueString(int x, int y);
 
     /// <summary>
     /// Re-normalizes the raw pixel data to <see cref="IndexedData"/> using

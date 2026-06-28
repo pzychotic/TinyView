@@ -10,6 +10,7 @@ namespace TinyView.Models;
 /// <typeparam name="T">The type of the pixel data stored as the raw image data.</typeparam>
 public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
 {
+    private readonly T[] _rawData;
     private readonly string _dataFormat;
 
     public RawImageData(int width, int height, T[] data, string dataFormat)
@@ -112,9 +113,9 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
 
     public byte[] IndexedData { get; }
 
-    public string? DataFormat => _dataFormat;
+    public string DataFormat => _dataFormat;
 
-    public string? GetValueString(int x, int y)
+    public string GetValueString(int x, int y)
     {
         Debug.Assert(x >= 0 && x < Width && y >= 0 && y < Height);
         return GetValueStringPrecise(_rawData[y * Width + x]);
@@ -129,6 +130,4 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
             _ => value.ToString() ?? string.Empty
         };
     }
-
-    private readonly T[] _rawData;
 }

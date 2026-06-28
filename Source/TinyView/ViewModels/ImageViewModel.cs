@@ -270,7 +270,7 @@ public partial class ImageViewModel : ObservableObject
                 return;
             }
 
-            string? value = RawData.GetValueString(x, y);
+            string value = RawData.GetValueString(x, y);
             ValueText = $"{x},{y}: {value}";
         }
     }
