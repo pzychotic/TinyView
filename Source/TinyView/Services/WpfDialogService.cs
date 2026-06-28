@@ -2,7 +2,7 @@ using System.Windows;
 
 namespace TinyView.Services;
 
-public class WpfDialogService : IDialogService
+public sealed class WpfDialogService : IDialogService
 {
     public string? ShowOpenFileDialog(string filter)
     {

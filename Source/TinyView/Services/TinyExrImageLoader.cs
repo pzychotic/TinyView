@@ -6,7 +6,7 @@ using TinyView.Models;
 
 namespace TinyView.Services;
 
-public class TinyExrImageLoader : IImageLoader
+public sealed class TinyExrImageLoader : IImageLoader
 {
     public bool CanLoad(string extension) => extension.Equals(".exr", StringComparison.OrdinalIgnoreCase);
 

@@ -14,7 +14,7 @@ namespace TinyView.Behaviors;
 /// compensation and overpan margin management are handled by
 /// <see cref="ZoomCompensationBehavior"/> and <see cref="OverpanBehavior"/>.
 /// </summary>
-public class ScrollViewerPanBehavior : Behavior<ScrollViewer>
+public sealed class ScrollViewerPanBehavior : Behavior<ScrollViewer>
 {
     /// <summary>
     /// Optional notifier that signals a viewport reset (e.g. when a new image is loaded).

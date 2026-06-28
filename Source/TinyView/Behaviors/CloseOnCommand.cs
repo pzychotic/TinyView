@@ -9,7 +9,7 @@ namespace TinyView.Behaviors;
 /// Behavior that exposes a window-scoped proxy command which executes a target ICommand
 /// and then closes the window. The behavior also wires the Escape key to the proxy command.
 /// </summary>
-public class CloseOnCommand : Behavior<Window>
+public sealed class CloseOnCommand : Behavior<Window>
 {
     public static readonly DependencyProperty CommandProperty =
         DependencyProperty.Register(nameof(Command), typeof(ICommand), typeof(CloseOnCommand), new PropertyMetadata(null, OnCommandChanged));

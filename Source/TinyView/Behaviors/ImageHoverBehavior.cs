@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 
 namespace TinyView.Behaviors;
 
-public class ImageHoverBehavior : Behavior<Image>
+public sealed class ImageHoverBehavior : Behavior<Image>
 {
     public static readonly DependencyProperty HoverCommandProperty =
         DependencyProperty.Register(

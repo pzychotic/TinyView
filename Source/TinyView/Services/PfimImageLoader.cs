@@ -4,7 +4,7 @@ using TinyView.Models;
 
 namespace TinyView.Services;
 
-public class PfimImageLoader : IImageLoader
+public sealed class PfimImageLoader : IImageLoader
 {
     public bool CanLoad(string extension) => extension.Equals(".dds", StringComparison.OrdinalIgnoreCase);
 

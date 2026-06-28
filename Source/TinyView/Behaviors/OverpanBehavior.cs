@@ -11,7 +11,7 @@ namespace TinyView.Behaviors;
 /// be panned until it is just outside the visible area.  Compensates scroll offsets
 /// when the viewport is resized and re-centers content on reset.
 /// </summary>
-public class OverpanBehavior : Behavior<ScrollViewer>
+public sealed class OverpanBehavior : Behavior<ScrollViewer>
 {
     /// <summary>
     /// When true the overpan margin is applied; when false it is removed.

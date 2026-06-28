@@ -4,7 +4,7 @@ using System.Windows.Input;
 
 namespace TinyView.Behaviors;
 
-public class DropBehavior : Behavior<UIElement>
+public sealed class DropBehavior : Behavior<UIElement>
 {
     public static readonly DependencyProperty CommandProperty =
         DependencyProperty.Register(

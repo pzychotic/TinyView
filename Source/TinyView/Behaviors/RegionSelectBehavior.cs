@@ -15,7 +15,7 @@ namespace TinyView.Behaviors;
 /// coordinates and a command is invoked with a <see cref="PixelRect"/> on completion.
 /// A dashed rectangle overlay is shown in the image's coordinate space.
 /// </summary>
-public class RegionSelectBehavior : Behavior<Image>
+public sealed class RegionSelectBehavior : Behavior<Image>
 {
     #region Dependency Properties
 

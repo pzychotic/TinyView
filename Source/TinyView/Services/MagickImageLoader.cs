@@ -3,7 +3,7 @@ using TinyView.Models;
 
 namespace TinyView.Services;
 
-public class MagickImageLoader : IImageLoader
+public sealed class MagickImageLoader : IImageLoader
 {
     public bool CanLoad(string extension) => extension.Equals(".png", StringComparison.OrdinalIgnoreCase);
 

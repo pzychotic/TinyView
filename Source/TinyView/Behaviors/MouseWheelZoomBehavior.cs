@@ -11,7 +11,7 @@ namespace TinyView.Behaviors;
 /// so that <see cref="ZoomCompensationBehavior"/> can keep the cursor
 /// position stable.
 /// </summary>
-public class MouseWheelZoomBehavior : Behavior<UIElement>
+public sealed class MouseWheelZoomBehavior : Behavior<UIElement>
 {
     private const int WheelDeltaPerNotch = 120; // Win32 WHEEL_DELTA
     private const double DefaultZoomStep = 1.1; // 10% per notch

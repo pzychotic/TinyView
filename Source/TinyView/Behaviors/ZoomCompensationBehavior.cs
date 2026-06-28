@@ -8,7 +8,7 @@ namespace TinyView.Behaviors;
 /// Adjusts ScrollViewer offsets after a zoom factor change so that the anchor
 /// point (cursor position or image center) remains at the same screen location.
 /// </summary>
-public class ZoomCompensationBehavior : Behavior<ScrollViewer>
+public sealed class ZoomCompensationBehavior : Behavior<ScrollViewer>
 {
     /// <summary>
     /// Current zoom factor, bound to the ViewModel's Zoom.Factor.

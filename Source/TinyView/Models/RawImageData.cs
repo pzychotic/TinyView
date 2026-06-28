@@ -8,7 +8,7 @@ namespace TinyView.Models;
 /// WriteableBitmap from.
 /// </summary>
 /// <typeparam name="T">The type of the pixel data stored as the raw image data.</typeparam>
-public class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
+public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
 {
     private readonly string _dataFormat;
 

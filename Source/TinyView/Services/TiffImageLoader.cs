@@ -4,7 +4,7 @@ using TinyView.Models;
 
 namespace TinyView.Services;
 
-public class TiffImageLoader : IImageLoader
+public sealed class TiffImageLoader : IImageLoader
 {
     public bool CanLoad(string extension) => extension.Equals(".tif", StringComparison.OrdinalIgnoreCase) || extension.Equals(".tiff", StringComparison.OrdinalIgnoreCase);
 
