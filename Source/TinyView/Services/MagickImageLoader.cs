@@ -12,7 +12,8 @@ public sealed class MagickImageLoader : IImageLoader
         {
             using var image = new MagickImage(path);
 
-            if (image.ChannelCount != 1 && image.ColorType != ColorType.Grayscale)
+            // The loader only reads channel 0, so require a single grayscale channel.
+            if (image.ChannelCount != 1 || image.ColorType != ColorType.Grayscale)
                 throw new InvalidOperationException("Expected a 16-bit grayscale image.");
 
             int width = (int)image.Width;
