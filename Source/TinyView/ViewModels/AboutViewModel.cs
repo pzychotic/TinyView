@@ -21,7 +21,17 @@ public partial class AboutViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void OpenRepo() => Process.Start(new ProcessStartInfo(RepoUrl) { UseShellExecute = true });
+    private void OpenRepo()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(RepoUrl) { UseShellExecute = true });
+        }
+        catch
+        {
+            // no browser / shell handler available — nothing useful to do
+        }
+    }
 
     // close command is a no-op in the VM, the CloseOnCommand behavior will invoke it and then close the window
     [RelayCommand]
