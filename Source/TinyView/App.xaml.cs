@@ -21,15 +21,13 @@ public partial class App : Application
         CultureInfo.DefaultThreadCurrentCulture = invariant;
         CultureInfo.DefaultThreadCurrentUICulture = invariant;
 
-        // attempt to restore last window state (if available)
+        base.OnStartup(e);
+
+        // composition root: construct services and inject them into the main window
         var settingsService = new JsonSettingsService();
         var settings = settingsService.Load();
-        if (settings != null)
-            Resources["UserSettings"] = settings;
 
-        // make settings service available to the window
-        Resources["SettingsService"] = settingsService;
-
-        base.OnStartup(e);
+        var window = new MainWindow(settingsService, settings);
+        window.Show();
     }
 }

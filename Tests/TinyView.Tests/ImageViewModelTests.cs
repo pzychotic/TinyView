@@ -306,6 +306,31 @@ public class ImageViewModelTests
     }
 
     [Test]
+    public void RestorePalette_SelectsMatchingPaletteByName()
+    {
+        var vm = new ImageViewModel();
+        var target = vm.Palettes[2];
+
+        vm.RestorePalette(target.Name);
+
+        Assert.That(vm.SelectedPalette.Name, Is.EqualTo(target.Name));
+        Assert.That(vm.SelectedPaletteName, Is.EqualTo(target.Name));
+    }
+
+    [Test]
+    public void RestorePalette_LeavesSelectionUnchanged_ForUnknownOrNullName()
+    {
+        var vm = new ImageViewModel();
+        var original = vm.SelectedPalette.Name;
+
+        vm.RestorePalette("does-not-exist");
+        Assert.That(vm.SelectedPalette.Name, Is.EqualTo(original));
+
+        vm.RestorePalette(null);
+        Assert.That(vm.SelectedPalette.Name, Is.EqualTo(original));
+    }
+
+    [Test]
     public async Task OpenCommand_UsesInjectedImageLoader()
     {
         var provider = new RawImageData<int>(2, 2, new int[4], "FAKE_FMT");

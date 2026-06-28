@@ -136,6 +136,25 @@ public partial class ImageViewModel : ObservableObject
     // expose palettes to the view
     public IReadOnlyList<ColorPalettes.PaletteEntry> Palettes => ColorPalettes.Palettes;
 
+    /// <summary>
+    /// Name of the currently selected palette, used to persist the user's choice.
+    /// </summary>
+    public string? SelectedPaletteName => SelectedPalette.Name;
+
+    /// <summary>
+    /// Restores the selected palette by name (e.g. from saved user settings).
+    /// Unknown or empty names leave the current selection unchanged.
+    /// </summary>
+    public void RestorePalette(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return;
+
+        var match = ColorPalettes.Palettes.FirstOrDefault(p => p.Name == name);
+        if (!string.IsNullOrEmpty(match.Name))
+            SelectedPalette = match;
+    }
+
     // image loader services (instance-based)
     private readonly IReadOnlyList<IImageLoader> _imageLoaders;
 

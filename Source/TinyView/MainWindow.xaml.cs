@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows;
+using TinyView.Models;
 using TinyView.Services;
 using TinyView.ViewModels;
 
@@ -11,14 +12,16 @@ namespace TinyView;
 public partial class MainWindow : Window
 {
     private readonly ImageViewModel _viewModel = new(new WpfDialogService());
+    private readonly ISettingsService _settingsService;
 
-    public MainWindow()
+    public MainWindow(ISettingsService settingsService, UserSettings? settings)
     {
+        _settingsService = settingsService;
+
         InitializeComponent();
 
-        // restore window geometry from app resources if available
-        if (Application.Current.Resources.Contains("UserSettings") &&
-            Application.Current.Resources["UserSettings"] is Models.UserSettings settings)
+        // restore window geometry and view state from the injected settings (if any)
+        if (settings != null)
         {
             // apply size if present
             if (!double.IsNaN(settings.Width) && !double.IsNaN(settings.Height))
@@ -49,15 +52,7 @@ public partial class MainWindow : Window
             }
 
             // restore selected palette if present
-            if (!string.IsNullOrWhiteSpace(settings.SelectedPaletteName))
-            {
-                var palettes = Models.ColorPalettes.Palettes;
-                var match = palettes.FirstOrDefault(p => p.Name == settings.SelectedPaletteName);
-                if (!string.IsNullOrEmpty(match.Name))
-                {
-                    _viewModel.SelectedPalette = match;
-                }
-            }
+            _viewModel.RestorePalette(settings.SelectedPaletteName);
 
             // if the saved state was maximized, defer applying until window is shown
             if (settings.IsMaximized)
@@ -74,20 +69,16 @@ public partial class MainWindow : Window
 
     private void MainWindow_Closing(object? sender, CancelEventArgs e)
     {
-        var settings = new Models.UserSettings
+        var settings = new UserSettings
         {
             IsMaximized = WindowState == WindowState.Maximized,
             Width = Width,
             Height = Height,
             Left = Left,
             Top = Top,
-            SelectedPaletteName = _viewModel.SelectedPalette.Name
+            SelectedPaletteName = _viewModel.SelectedPaletteName
         };
 
-        if (Application.Current.Resources.Contains("SettingsService") &&
-            Application.Current.Resources["SettingsService"] is ISettingsService service)
-        {
-            service.Save(settings);
-        }
+        _settingsService.Save(settings);
     }
 }
