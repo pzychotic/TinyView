@@ -142,8 +142,8 @@ public partial class ImageViewModel : ObservableObject
     private readonly IDialogService _dialogService;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor("OpenCommand")]
-    [NotifyCanExecuteChangedFor("DropCommand")]
+    [NotifyCanExecuteChangedFor(nameof(OpenCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DropCommand))]
     private bool _isBusy;
 
     public ImageViewModel(IDialogService? dialogService = null)
