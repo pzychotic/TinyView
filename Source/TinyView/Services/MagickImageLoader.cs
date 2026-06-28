@@ -16,26 +16,18 @@ public sealed class MagickImageLoader : IImageLoader
             if (image.ChannelCount != 1 || image.ColorType != ColorType.Grayscale)
                 throw new InvalidOperationException("Expected a 16-bit grayscale image.");
 
-            int width = (int)image.Width;
-            int height = (int)image.Height;
+            uint width = image.Width;
+            uint height = image.Height;
 
-            // extract raw 16-bit data
-            var pixelData = new ushort[width * height];
-
+            // extract raw 16-bit data (bulk read – single channel, so one value per pixel)
+            ushort[] pixelData;
             using (var pixels = image.GetPixels())
             {
-                for (int y = 0; y < height; ++y)
-                {
-                    int offset = y * width;
-                    for (int x = 0; x < width; ++x)
-                    {
-                        ushort value = pixels.GetPixel(x, y).GetChannel(0);
-                        pixelData[offset + x] = value;
-                    }
-                }
+                pixelData = pixels.GetArea(0, 0, width, height)
+                    ?? throw new InvalidOperationException("Failed to read pixel data.");
             }
 
             string format = "Gray16 (ushort)";
-            return new RawImageData<ushort>(width, height, pixelData, format);
+            return new RawImageData<ushort>((int)width, (int)height, pixelData, format);
         });
 }
