@@ -246,17 +246,6 @@ public partial class ImageViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanZoomReset))]
     private void ZoomReset() => Zoom.Reset();
 
-    /// <summary>
-    /// Resets zoom to 1× and re-centers the viewport.
-    /// Ready to bind to a toolbar/menu button.
-    /// </summary>
-    [RelayCommand(CanExecute = nameof(CanZoomReset))]
-    private void ResetView()
-    {
-        Zoom.Reset();
-        PanResetNotifier.RequestReset();
-    }
-
     [RelayCommand]
     private void Hover(PixelPosition p)
     {
