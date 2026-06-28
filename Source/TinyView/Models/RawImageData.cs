@@ -17,8 +17,7 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         Width = width;
         Height = height;
 
-        Min = double.CreateTruncating(data.Min()!);
-        Max = double.CreateTruncating(data.Max()!);
+        (Min, Max) = ComputeMinMax(data);
 
         _rawData = data;
         IndexedData = new byte[Width * Height];
@@ -26,6 +25,27 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         _dataFormat = dataFormat;
 
         GenerateIndexedData(Min, Max);
+    }
+
+    /// <summary>
+    /// Computes the minimum and maximum of <paramref name="data"/> in a single pass.
+    /// Returns (0, 0) for an empty buffer.
+    /// </summary>
+    private static (double Min, double Max) ComputeMinMax(T[] data)
+    {
+        if (data.Length == 0)
+            return (0, 0);
+
+        T min = data[0];
+        T max = data[0];
+        for (int i = 1; i < data.Length; ++i)
+        {
+            T value = data[i];
+            if (value < min) min = value;
+            if (value > max) max = value;
+        }
+
+        return (double.CreateTruncating(min), double.CreateTruncating(max));
     }
 
     /// <summary>
