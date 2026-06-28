@@ -137,7 +137,7 @@ public partial class ImageViewModel : ObservableObject
     public IReadOnlyList<ColorPalettes.PaletteEntry> Palettes => ColorPalettes.Palettes;
 
     // image loader services (instance-based)
-    private readonly IImageLoader[] _imageLoaders;
+    private readonly IReadOnlyList<IImageLoader> _imageLoaders;
 
     private readonly IDialogService _dialogService;
 
@@ -146,12 +146,13 @@ public partial class ImageViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(DropCommand))]
     private bool _isBusy;
 
-    public ImageViewModel(IDialogService? dialogService = null)
+    public ImageViewModel(IDialogService? dialogService = null, IEnumerable<IImageLoader>? imageLoaders = null)
     {
         _dialogService = dialogService ?? new NullDialogService();
 
-        // initialize image loader implementations
-        _imageLoaders = [new MagickImageLoader(), new PfimImageLoader(), new TiffImageLoader(), new TinyExrImageLoader()];
+        // initialize image loader implementations (overridable for testing)
+        _imageLoaders = imageLoaders?.ToArray()
+            ?? [new MagickImageLoader(), new PfimImageLoader(), new TiffImageLoader(), new TinyExrImageLoader()];
 
         Zoom.PropertyChanged += (_, e) =>
         {

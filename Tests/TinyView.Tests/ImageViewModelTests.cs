@@ -305,13 +305,46 @@ public class ImageViewModelTests
         Assert.That(vm.ResetMinMaxCommand.CanExecute(null), Is.False);
     }
 
+    [Test]
+    public async Task OpenCommand_UsesInjectedImageLoader()
+    {
+        var provider = new RawImageData<int>(2, 2, new int[4], "FAKE_FMT");
+        var loader = new FakeImageLoader(provider);
+        var dialog = new SpyDialogService { OpenFilePath = "C:/fake/image.fake" };
+
+        var vm = new ImageViewModel(dialog, [loader]);
+
+        await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand)vm.OpenCommand).ExecuteAsync(null);
+
+        Assert.That(loader.LoadCount, Is.EqualTo(1));
+        Assert.That(vm.RawData, Is.SameAs(provider));
+        Assert.That(vm.Filename, Is.EqualTo("image.fake"));
+    }
+
     private sealed class SpyDialogService : IDialogService
     {
         public bool ShutdownRequested { get; private set; }
         public bool AboutShown { get; private set; }
-        public string? ShowOpenFileDialog(string filter) => null;
+        public string? OpenFilePath { get; set; }
+        public string? ShowOpenFileDialog(string filter) => OpenFilePath;
         public void ShowError(string title, string message) { }
         public void ShowAbout() => AboutShown = true;
         public void RequestShutdown() => ShutdownRequested = true;
+    }
+
+    private sealed class FakeImageLoader : IImageLoader
+    {
+        private readonly IRawImageDataProvider _provider;
+        public int LoadCount { get; private set; }
+
+        public FakeImageLoader(IRawImageDataProvider provider) => _provider = provider;
+
+        public bool CanLoad(string extension) => extension.Equals(".fake", StringComparison.OrdinalIgnoreCase);
+
+        public Task<IRawImageDataProvider> LoadImageAsync(string path)
+        {
+            LoadCount++;
+            return Task.FromResult(_provider);
+        }
     }
 }
