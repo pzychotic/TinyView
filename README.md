@@ -49,7 +49,7 @@ Build and run:
    ```
    dotnet test
    ```
-4. Run:
+3. Run:
    ```
    dotnet run --project Source\TinyView\TinyView.csproj
    ```
