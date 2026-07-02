@@ -1,3 +1,4 @@
+using System.Windows.Media.Imaging;
 using TinyView.Models;
 using TinyView.Services;
 using TinyView.ViewModels;
@@ -346,12 +347,63 @@ public class ImageViewModelTests
         Assert.That(vm.Filename, Is.EqualTo("image.fake"));
     }
 
+    [Test]
+    public void ExportCommand_DisabledWhenNoImage()
+    {
+        var vm = new ImageViewModel();
+        Assert.That(vm.ExportCommand.CanExecute(null), Is.False);
+    }
+
+    [Test]
+    public async Task ExportCommand_WritesColorizedImageToDisk()
+    {
+        int width = 2, height = 2;
+        var data = new int[] { 0, 255, 128, 64 };
+        var provider = new RawImageData<int>(width, height, data, "INT_FMT");
+
+        string path = Path.Combine(Path.GetTempPath(), $"tinyview_export_{Guid.NewGuid():N}.png");
+        TestContext.Out.WriteLine($"Export test file: {path}");
+        var dialog = new SpyDialogService { SaveFilePath = path };
+
+        var vm = new ImageViewModel(dialog);
+        vm.RawData = provider;
+
+        Assert.That(vm.ExportCommand.CanExecute(null), Is.True);
+
+        await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand)vm.ExportCommand).ExecuteAsync(null);
+
+        Assert.That(File.Exists(path), Is.True);
+
+        var decoder = new PngBitmapDecoder(new Uri(path), BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+        Assert.That(decoder.Frames[0].PixelWidth, Is.EqualTo(width));
+        Assert.That(decoder.Frames[0].PixelHeight, Is.EqualTo(height));
+        Assert.That(vm.IsBusy, Is.False);
+    }
+
+    [Test]
+    public async Task ExportCommand_DoesNothing_WhenSaveDialogCancelled()
+    {
+        var provider = new RawImageData<int>(1, 1, new int[] { 1 }, "INT_FMT");
+        string path = Path.Combine(Path.GetTempPath(), $"tinyview_export_{Guid.NewGuid():N}.png");
+        var dialog = new SpyDialogService { SaveFilePath = null };
+
+        var vm = new ImageViewModel(dialog);
+        vm.RawData = provider;
+
+        await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand)vm.ExportCommand).ExecuteAsync(null);
+
+        Assert.That(File.Exists(path), Is.False);
+        Assert.That(vm.IsBusy, Is.False);
+    }
+
     private sealed class SpyDialogService : IDialogService
     {
         public bool ShutdownRequested { get; private set; }
         public bool AboutShown { get; private set; }
         public string? OpenFilePath { get; set; }
+        public string? SaveFilePath { get; set; }
         public string? ShowOpenFileDialog(string filter) => OpenFilePath;
+        public string? ShowSaveFileDialog(string filter, string defaultFileName) => SaveFilePath;
         public void ShowError(string title, string message) { }
         public void ShowAbout() => AboutShown = true;
         public void RequestShutdown() => ShutdownRequested = true;

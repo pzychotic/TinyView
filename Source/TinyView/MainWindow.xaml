@@ -24,6 +24,9 @@
         <!-- Ctrl + 'O' for Open -->
         <KeyBinding Command="{Binding OpenCommand}" Key="O" Modifiers="Control" />
 
+        <!-- Ctrl + 'E' for Export -->
+        <KeyBinding Command="{Binding ExportCommand}" Key="E" Modifiers="Control" />
+
         <!-- Ctrl + '+' for Zoom in (main keyboard and numpad) -->
         <KeyBinding Command="{Binding ZoomInCommand}" Key="OemPlus" Modifiers="Control" />
         <KeyBinding Command="{Binding ZoomInCommand}" Key="Add" Modifiers="Control" />
@@ -57,6 +60,7 @@
                         <Image Source="/Resources/OpenFile.png"/>
                     </MenuItem.Icon>
                 </MenuItem>
+                <MenuItem Header="_Export" Command="{Binding ExportCommand}" InputGestureText="Ctrl+E" IsEnabled="{Binding HasImage}" />
                 <Separator />
                 <MenuItem Header="E_xit" Command="{Binding ExitCommand}" InputGestureText="Alt+F4" />
             </MenuItem>

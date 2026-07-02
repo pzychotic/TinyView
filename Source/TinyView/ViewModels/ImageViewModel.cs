@@ -163,6 +163,7 @@ public partial class ImageViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(OpenCommand))]
     [NotifyCanExecuteChangedFor(nameof(DropCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ExportCommand))]
     private bool _isBusy;
 
     public ImageViewModel(IDialogService? dialogService = null, IEnumerable<IImageLoader>? imageLoaders = null)
@@ -206,6 +207,7 @@ public partial class ImageViewModel : ObservableObject
         ZoomResetCommand.NotifyCanExecuteChanged();
         ResetMinMaxCommand.NotifyCanExecuteChanged();
         ToggleRegionSelectCommand.NotifyCanExecuteChanged();
+        ExportCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnDisplayMinChanged(double value)
@@ -237,6 +239,52 @@ public partial class ImageViewModel : ObservableObject
         var path = _dialogService.ShowOpenFileDialog(filter);
         if (path != null)
             await LoadImageAsync(path);
+    }
+
+    private bool CanExport() => HasImage && !IsBusy;
+
+    /// <summary>
+    /// Exports the currently displayed (colorized) image to disk exactly as
+    /// it is rendered, i.e. the palette-mapped <see cref="ImageSource"/> bitmap.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanExport))]
+    private async Task ExportAsync()
+    {
+        if (ImageSource == null)
+            return;
+
+        const string filter = "PNG Files (*.png)|*.png";
+        string defaultFileName = Path.ChangeExtension(string.IsNullOrEmpty(Filename) ? "export" : Filename, ".png");
+
+        var path = _dialogService.ShowSaveFileDialog(filter, defaultFileName);
+        if (path == null)
+            return;
+
+        // Snapshot the bitmap as a frozen (thread-safe) copy so the encode/write
+        // can happen off the UI thread without touching the live ImageSource.
+        var snapshot = new WriteableBitmap(ImageSource);
+        snapshot.Freeze();
+
+        IsBusy = true;
+        try
+        {
+            await Task.Run(() =>
+            {
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(snapshot));
+
+                using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
+                encoder.Save(stream);
+            });
+        }
+        catch (Exception ex)
+        {
+            _dialogService.ShowError("Error", $"Error exporting image:\n{ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]
@@ -348,6 +396,7 @@ public partial class ImageViewModel : ObservableObject
     private sealed class NullDialogService : IDialogService
     {
         public string? ShowOpenFileDialog(string filter) => null;
+        public string? ShowSaveFileDialog(string filter, string defaultFileName) => null;
         public void ShowError(string title, string message) { }
         public void ShowAbout() { }
         public void RequestShutdown() { }

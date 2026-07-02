@@ -10,6 +10,12 @@ public sealed class WpfDialogService : IDialogService
         return dialog.ShowDialog() == true ? dialog.FileName : null;
     }
 
+    public string? ShowSaveFileDialog(string filter, string defaultFileName)
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = filter, FileName = defaultFileName };
+        return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
+
     public void ShowError(string title, string message)
     {
         MessageBox.Show(Application.Current.MainWindow, message, title, MessageBoxButton.OK, MessageBoxImage.Error);
