@@ -348,6 +348,27 @@ public class ImageViewModelTests
     }
 
     [Test]
+    public void ApplyPalette_ReusesBitmap_WhenSizeAndPaletteUnchanged()
+    {
+        var data = new float[] { 0f, 50f, 100f, 200f };
+        var provider = new RawImageData<float>(2, 2, data, "FLT_FMT");
+
+        var vm = new ImageViewModel();
+        vm.RawData = provider;
+
+        var firstBitmap = vm.ImageSource;
+        Assert.That(firstBitmap, Is.Not.Null);
+
+        // Display-range change keeps size and palette → same bitmap instance
+        vm.DisplayMin = 25f;
+        Assert.That(vm.ImageSource, Is.SameAs(firstBitmap));
+
+        // Palette change requires a new bitmap (palette is immutable)
+        vm.SelectedPalette = vm.Palettes[1];
+        Assert.That(vm.ImageSource, Is.Not.SameAs(firstBitmap));
+    }
+
+    [Test]
     public void ExportCommand_DisabledWhenNoImage()
     {
         var vm = new ImageViewModel();

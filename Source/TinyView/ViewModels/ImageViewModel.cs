@@ -380,15 +380,31 @@ public partial class ImageViewModel : ObservableObject
         }
     }
 
+    // Palette the current ImageSource bitmap was created with; a WriteableBitmap's
+    // palette is immutable, so a palette change forces a new bitmap.
+    private BitmapPalette? _appliedPalette;
+
     /// <summary>
     /// Apply the currently-selected palette to the current RawData.
+    /// Reuses the existing bitmap when size and palette are unchanged (e.g. while
+    /// dragging the display-range controls) to avoid re-allocating a full-size
+    /// bitmap on every change.
     /// </summary>
     private void ApplyPalette()
     {
         if (RawData == null)
             return;
 
-        var bitmap = new WriteableBitmap(RawData.Width, RawData.Height, 96, 96, PixelFormats.Indexed8, SelectedPalette.Palette);
+        var bitmap = ImageSource;
+        if (bitmap == null
+            || bitmap.PixelWidth != RawData.Width
+            || bitmap.PixelHeight != RawData.Height
+            || _appliedPalette != SelectedPalette.Palette)
+        {
+            bitmap = new WriteableBitmap(RawData.Width, RawData.Height, 96, 96, PixelFormats.Indexed8, SelectedPalette.Palette);
+            _appliedPalette = SelectedPalette.Palette;
+        }
+
         bitmap.WritePixels(new Int32Rect(0, 0, RawData.Width, RawData.Height), RawData.IndexedData, RawData.Width, 0);
         ImageSource = bitmap;
     }
