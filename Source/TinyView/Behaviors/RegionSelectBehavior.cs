@@ -223,23 +223,13 @@ public sealed class RegionSelectBehavior : Behavior<Image>
     /// </summary>
     private Point? GetPixelPosition(MouseEventArgs e)
     {
-        if (AssociatedObject.Source is not BitmapSource bmp)
+        if (ImagePixelHelper.GetPixelPosition(AssociatedObject, e) is not var (pos, bmp))
             return null;
-
-        double displayWidth = AssociatedObject.ActualWidth;
-        double displayHeight = AssociatedObject.ActualHeight;
-        if (displayWidth <= 0 || displayHeight <= 0)
-            return null;
-
-        var pos = e.GetPosition(AssociatedObject);
-        double px = pos.X * bmp.PixelWidth / displayWidth;
-        double py = pos.Y * bmp.PixelHeight / displayHeight;
 
         // Clamp to image bounds
-        px = Math.Clamp(px, 0, bmp.PixelWidth);
-        py = Math.Clamp(py, 0, bmp.PixelHeight);
-
-        return new Point(px, py);
+        return new Point(
+            Math.Clamp(pos.X, 0, bmp.PixelWidth),
+            Math.Clamp(pos.Y, 0, bmp.PixelHeight));
     }
 
     private static PixelRect MakePixelRect(Point a, Point b)

@@ -48,30 +48,27 @@ public sealed class ImageHoverBehavior : Behavior<Image>
         base.OnDetaching();
     }
 
+    // Tracks whether the cursor is currently over the bitmap, so LeaveCommand
+    // fires once per inside→outside transition instead of on every MouseMove.
+    private bool _isInsideImage;
+
     private void OnMouseMove(object? sender, MouseEventArgs e)
     {
         if (HoverCommand == null) return;
 
-        if (AssociatedObject.Source is not BitmapSource bmp)
+        if (ImagePixelHelper.GetPixelPosition(AssociatedObject, e) is not var (pos, bmp))
             return;
 
-        double displayWidth = AssociatedObject.ActualWidth;
-        double displayHeight = AssociatedObject.ActualHeight;
-        if (displayWidth <= 0 || displayHeight <= 0)
-            return;
-
-        var pos = e.GetPosition(AssociatedObject);
-
-        int x = (int)(pos.X * bmp.PixelWidth / displayWidth);
-        int y = (int)(pos.Y * bmp.PixelHeight / displayHeight);
+        int x = (int)pos.X;
+        int y = (int)pos.Y;
 
         if (x < 0 || x >= bmp.PixelWidth || y < 0 || y >= bmp.PixelHeight)
         {
-            if (LeaveCommand != null && LeaveCommand.CanExecute(null))
-                LeaveCommand.Execute(null);
+            NotifyLeave();
             return;
         }
 
+        _isInsideImage = true;
         var pixel = new ViewModels.PixelPosition(x, y);
         if (HoverCommand.CanExecute(pixel))
             HoverCommand.Execute(pixel);
@@ -81,9 +78,20 @@ public sealed class ImageHoverBehavior : Behavior<Image>
 
     private void OnMouseLeave(object? sender, MouseEventArgs e)
     {
+        _isInsideImage = false;
         if (LeaveCommand != null && LeaveCommand.CanExecute(null))
             LeaveCommand.Execute(null);
 
         e.Handled = true;
+    }
+
+    private void NotifyLeave()
+    {
+        if (!_isInsideImage)
+            return;
+
+        _isInsideImage = false;
+        if (LeaveCommand != null && LeaveCommand.CanExecute(null))
+            LeaveCommand.Execute(null);
     }
 }
