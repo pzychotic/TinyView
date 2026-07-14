@@ -26,8 +26,10 @@ public partial class ZoomState : ObservableObject
 
     partial void OnFactorChanged(double value)
     {
-        var clamped = Math.Clamp(value, MinFactor, MaxFactor);
-        if (!double.IsNaN(value) && !EqualityComparer<double>.Default.Equals(value, clamped))
+        // NaN must not persist: it would poison all subsequent zoom math,
+        // so treat it as invalid and fall back to the default factor.
+        var clamped = double.IsNaN(value) ? DefaultFactor : Math.Clamp(value, MinFactor, MaxFactor);
+        if (!EqualityComparer<double>.Default.Equals(value, clamped))
             Factor = clamped;
     }
 

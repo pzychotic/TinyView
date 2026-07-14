@@ -55,6 +55,14 @@ public class ZoomStateTests
     }
 
     [Test]
+    public void Factor_NaN_FallsBackToDefault()
+    {
+        var zoom = new ZoomState();
+        zoom.Factor = double.NaN;
+        Assert.That(zoom.Factor, Is.EqualTo(ZoomState.DefaultFactor));
+    }
+
+    [Test]
     public void CanZoomIn_FalseAtMaxFactor()
     {
         var zoom = new ZoomState();
