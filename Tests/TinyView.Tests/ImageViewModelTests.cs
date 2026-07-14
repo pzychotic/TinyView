@@ -348,6 +348,21 @@ public class ImageViewModelTests
     }
 
     [Test]
+    public async Task OpenCommand_BuildsFileFilterFromRegisteredLoaders()
+    {
+        var provider = new RawImageData<int>(1, 1, new int[1], "FAKE_FMT");
+        var loader = new FakeImageLoader(provider);
+        var dialog = new SpyDialogService { OpenFilePath = null };
+
+        var vm = new ImageViewModel(dialog, [loader]);
+
+        await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand)vm.OpenCommand).ExecuteAsync(null);
+
+        Assert.That(dialog.LastOpenFilter, Is.EqualTo(
+            "Image Files (*.fake)|*.fake|Fake Files (*.fake)|*.fake|All Files (*.*)|*.*"));
+    }
+
+    [Test]
     public void ApplyPalette_ReusesBitmap_WhenSizeAndPaletteUnchanged()
     {
         var data = new float[] { 0f, 50f, 100f, 200f };
@@ -423,7 +438,13 @@ public class ImageViewModelTests
         public bool AboutShown { get; private set; }
         public string? OpenFilePath { get; set; }
         public string? SaveFilePath { get; set; }
-        public string? ShowOpenFileDialog(string filter) => OpenFilePath;
+        public string? LastOpenFilter { get; private set; }
+
+        public string? ShowOpenFileDialog(string filter)
+        {
+            LastOpenFilter = filter;
+            return OpenFilePath;
+        }
         public string? ShowSaveFileDialog(string filter, string defaultFileName) => SaveFilePath;
         public void ShowError(string title, string message) { }
         public void ShowAbout() => AboutShown = true;
@@ -437,7 +458,9 @@ public class ImageViewModelTests
 
         public FakeImageLoader(IRawImageDataProvider provider) => _provider = provider;
 
-        public bool CanLoad(string extension) => extension.Equals(".fake", StringComparison.OrdinalIgnoreCase);
+        public string Description => "Fake Files";
+
+        public IReadOnlyList<string> Extensions { get; } = [".fake"];
 
         public Task<IRawImageDataProvider> LoadImageAsync(string path)
         {

@@ -229,16 +229,25 @@ public partial class ImageViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanExecuteWhenNotBusy))]
     private async Task OpenAsync()
     {
-        const string filter = "Image Files (*.dds;*.exr;*.png;*.tif;*.tiff)|*.dds;*.exr;*.png;*.tif;*.tiff|" +
-            "DDS Files (*.dds)|*.dds|" +
-            "EXR Files (*.exr)|*.exr|" +
-            "PNG Files (*.png)|*.png|" +
-            "TIFF Files (*.tif;*.tiff)|*.tif;*.tiff|" +
-            "All Files (*.*)|*.*";
-
-        var path = _dialogService.ShowOpenFileDialog(filter);
+        var path = _dialogService.ShowOpenFileDialog(BuildOpenFileFilter());
         if (path != null)
             await LoadImageAsync(path);
+    }
+
+    /// <summary>
+    /// Builds the open-dialog filter from the registered image loaders, so
+    /// supported formats are defined in exactly one place (the loaders).
+    /// </summary>
+    private string BuildOpenFileFilter()
+    {
+        static string Pattern(IEnumerable<string> extensions) => string.Join(";", extensions.Select(e => $"*{e}"));
+
+        string allPattern = Pattern(_imageLoaders.SelectMany(l => l.Extensions).Order());
+        var perLoader = _imageLoaders
+            .OrderBy(l => l.Description)
+            .Select(l => $"{l.Description} ({Pattern(l.Extensions)})|{Pattern(l.Extensions)}");
+
+        return $"Image Files ({allPattern})|{allPattern}|{string.Join("|", perLoader)}|All Files (*.*)|*.*";
     }
 
     private bool CanExport() => HasImage && !IsBusy;

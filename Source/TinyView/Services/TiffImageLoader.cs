@@ -6,7 +6,9 @@ namespace TinyView.Services;
 
 public sealed class TiffImageLoader : IImageLoader
 {
-    public bool CanLoad(string extension) => extension.Equals(".tif", StringComparison.OrdinalIgnoreCase) || extension.Equals(".tiff", StringComparison.OrdinalIgnoreCase);
+    public string Description => "TIFF Files";
+
+    public IReadOnlyList<string> Extensions { get; } = [".tif", ".tiff"];
 
     public Task<IRawImageDataProvider> LoadImageAsync(string path)
         => Task.Run<IRawImageDataProvider>(() =>

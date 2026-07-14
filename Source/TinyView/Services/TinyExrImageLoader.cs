@@ -6,7 +6,9 @@ namespace TinyView.Services;
 
 public sealed class TinyExrImageLoader : IImageLoader
 {
-    public bool CanLoad(string extension) => extension.Equals(".exr", StringComparison.OrdinalIgnoreCase);
+    public string Description => "EXR Files";
+
+    public IReadOnlyList<string> Extensions { get; } = [".exr"];
 
     public Task<IRawImageDataProvider> LoadImageAsync(string path)
         => Task.Run<IRawImageDataProvider>(() =>
