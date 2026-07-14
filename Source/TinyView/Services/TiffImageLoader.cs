@@ -48,6 +48,14 @@ public sealed class TiffImageLoader : IImageLoader
 
             int scanlineSize = tiff.ScanlineSize();
             int bytesPerPixel = bitsPerSample / 8;
+
+            // Header values are untrusted; reject dimensions whose scanline or
+            // pixel-count math would overflow int before it silently wraps.
+            if (width <= 0 || height <= 0
+                || (long)width * bytesPerPixel > int.MaxValue
+                || (long)width * height > int.MaxValue)
+                throw new InvalidOperationException("Invalid TIFF dimensions.");
+
             int expectedBytesPerScanline = width * bytesPerPixel;
             if (scanlineSize < expectedBytesPerScanline || scanlineSize % bytesPerPixel != 0)
                 throw new InvalidOperationException("Unsupported TIFF scanline layout.");
