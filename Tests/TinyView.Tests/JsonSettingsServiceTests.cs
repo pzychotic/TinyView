@@ -26,7 +26,7 @@ public class JsonSettingsServiceTests
     {
         var service = new JsonSettingsService(_tempDir);
 
-        var original = new UserSettings
+        var original = new AppSettings
         {
             Width = 1024,
             Height = 768,
@@ -53,7 +53,7 @@ public class JsonSettingsServiceTests
     {
         var service = new JsonSettingsService(_tempDir);
 
-        var original = new UserSettings();
+        var original = new AppSettings();
 
         service.Save(original);
         var loaded = service.Load();
@@ -70,7 +70,7 @@ public class JsonSettingsServiceTests
     {
         var service = new JsonSettingsService(_tempDir);
 
-        var original = new UserSettings
+        var original = new AppSettings
         {
             Left = double.NaN,
             Top = double.NaN
@@ -99,8 +99,8 @@ public class JsonSettingsServiceTests
     {
         var service = new JsonSettingsService(_tempDir);
 
-        service.Save(new UserSettings { Width = 640, SelectedPaletteName = "Gray" });
-        service.Save(new UserSettings { Width = 1920, SelectedPaletteName = "Turbo" });
+        service.Save(new AppSettings { Width = 640, SelectedPaletteName = "Gray" });
+        service.Save(new AppSettings { Width = 1920, SelectedPaletteName = "Turbo" });
 
         var loaded = service.Load();
 
@@ -113,7 +113,7 @@ public class JsonSettingsServiceTests
     public void Load_ReturnsNull_WhenFileContainsInvalidJson()
     {
         Directory.CreateDirectory(_tempDir);
-        File.WriteAllText(Path.Combine(_tempDir, "UserSettings.json"), "not valid json{{{");
+        File.WriteAllText(Path.Combine(_tempDir, "Settings.json"), "not valid json{{{");
 
         var service = new JsonSettingsService(_tempDir);
         var result = service.Load();
@@ -127,7 +127,7 @@ public class JsonSettingsServiceTests
         var nested = Path.Combine(_tempDir, "sub", "folder");
         var service = new JsonSettingsService(nested);
 
-        service.Save(new UserSettings { Width = 500 });
+        service.Save(new AppSettings { Width = 500 });
 
         Assert.That(Directory.Exists(nested), Is.True);
         Assert.That(service.Load()?.Width, Is.EqualTo(500));
@@ -137,7 +137,7 @@ public class JsonSettingsServiceTests
     public void Load_WhenIOErrorOccurs_ReturnsNullGracefully()
     {
         Directory.CreateDirectory(_tempDir);
-        var settingsPath = Path.Combine(_tempDir, "UserSettings.json");
+        var settingsPath = Path.Combine(_tempDir, "Settings.json");
 
         // Create an exclusive lock on the file so an IOException is thrown on read attempts
         using var fs = new FileStream(settingsPath, FileMode.Create, FileAccess.Write, FileShare.None);
@@ -153,13 +153,13 @@ public class JsonSettingsServiceTests
     public void Save_WhenIOErrorOccurs_HandlesExceptionGracefully()
     {
         Directory.CreateDirectory(_tempDir);
-        var settingsPath = Path.Combine(_tempDir, "UserSettings.json");
+        var settingsPath = Path.Combine(_tempDir, "Settings.json");
 
         // Prevent writing to settings by creating a directory where the file should be
         Directory.CreateDirectory(settingsPath);
 
         var service = new JsonSettingsService(_tempDir);
-        var original = new UserSettings { Width = 1024 };
+        var original = new AppSettings { Width = 1024 };
 
         Assert.DoesNotThrow(() => service.Save(original));
     }

@@ -14,7 +14,7 @@ public partial class MainWindow : Window
     private readonly ImageViewModel _viewModel = new(new WpfDialogService());
     private readonly ISettingsService _settingsService;
 
-    public MainWindow(ISettingsService settingsService, UserSettings? settings)
+    public MainWindow(ISettingsService settingsService, AppSettings? settings)
     {
         _settingsService = settingsService;
 
@@ -33,18 +33,12 @@ public partial class MainWindow : Window
             // apply position if present
             if (!double.IsNaN(settings.Left) && !double.IsNaN(settings.Top))
             {
-                // ensure coordinates are within the virtual screen bounds to prevent off-screen windows
-                double virtualLeft = SystemParameters.VirtualScreenLeft;
-                double virtualTop = SystemParameters.VirtualScreenTop;
-                double virtualWidth = SystemParameters.VirtualScreenWidth;
-                double virtualHeight = SystemParameters.VirtualScreenHeight;
+                // Ignore stale bounds that no longer touch any monitor (e.g. a display was unplugged).
+                var virtualScreen = new Rect(
+                    SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop,
+                    SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight);
 
-                bool isWithinBounds = settings.Left >= virtualLeft &&
-                                      settings.Top >= virtualTop &&
-                                      settings.Left < (virtualLeft + virtualWidth) &&
-                                      settings.Top < (virtualTop + virtualHeight);
-
-                if (isWithinBounds)
+                if (virtualScreen.IntersectsWith(new Rect(settings.Left, settings.Top, Width, Height)))
                 {
                     Left = settings.Left;
                     Top = settings.Top;
@@ -69,13 +63,18 @@ public partial class MainWindow : Window
 
     private void MainWindow_Closing(object? sender, CancelEventArgs e)
     {
-        var settings = new UserSettings
+        // When maximized or minimized, RestoreBounds holds the normal-state geometry.
+        var bounds = WindowState == WindowState.Normal
+            ? new Rect(Left, Top, Width, Height)
+            : RestoreBounds;
+
+        var settings = new AppSettings
         {
             IsMaximized = WindowState == WindowState.Maximized,
-            Width = Width,
-            Height = Height,
-            Left = Left,
-            Top = Top,
+            Width = bounds.Width,
+            Height = bounds.Height,
+            Left = bounds.Left,
+            Top = bounds.Top,
             SelectedPaletteName = _viewModel.SelectedPaletteName
         };
 

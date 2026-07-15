@@ -8,29 +8,30 @@ namespace TinyView.Services;
 public sealed class JsonSettingsService(string settingsDir) : ISettingsService
 {
     private static readonly string DefaultSettingsDir =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TinyView");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TinyView");
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
+        NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
+        WriteIndented = true
     };
 
     private readonly string _settingsDir = settingsDir;
-    private readonly string _settingsPath = Path.Combine(settingsDir, "UserSettings.json");
+    private readonly string _settingsPath = Path.Combine(settingsDir, "Settings.json");
 
     public JsonSettingsService()
         : this(DefaultSettingsDir)
     {
     }
 
-    public UserSettings? Load()
+    public AppSettings? Load()
     {
         try
         {
             if (File.Exists(_settingsPath))
             {
                 var txt = File.ReadAllText(_settingsPath);
-                return JsonSerializer.Deserialize<UserSettings>(txt, JsonOptions);
+                return JsonSerializer.Deserialize<AppSettings>(txt, JsonOptions);
             }
         }
         catch
@@ -41,7 +42,7 @@ public sealed class JsonSettingsService(string settingsDir) : ISettingsService
         return null;
     }
 
-    public void Save(UserSettings settings)
+    public void Save(AppSettings settings)
     {
         try
         {

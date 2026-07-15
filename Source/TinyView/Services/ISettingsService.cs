@@ -4,6 +4,6 @@ namespace TinyView.Services;
 
 public interface ISettingsService
 {
-    UserSettings? Load();
-    void Save(UserSettings settings);
+    AppSettings? Load();
+    void Save(AppSettings settings);
 }

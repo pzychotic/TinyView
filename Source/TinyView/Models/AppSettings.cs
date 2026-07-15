@@ -1,6 +1,6 @@
 namespace TinyView.Models;
 
-public sealed class UserSettings
+public sealed class AppSettings
 {
     // Window size and position
     public double Width { get; set; } = 800;
