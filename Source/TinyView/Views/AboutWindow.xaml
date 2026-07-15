@@ -7,7 +7,7 @@
         SnapsToDevicePixels="True" UseLayoutRounding="True"
         Title="About"
         Width="400" Height="180"
-        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False">
     <i:Interaction.Behaviors>
         <behaviors:CloseOnCommand Command="{Binding CloseCommand}" />
     </i:Interaction.Behaviors>
