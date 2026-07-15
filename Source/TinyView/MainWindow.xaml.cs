@@ -11,7 +11,7 @@ namespace TinyView;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private readonly ImageViewModel _viewModel = new(new WpfDialogService());
+    private readonly ImageViewModel _viewModel;
     private readonly ISettingsService _settingsService;
 
     public MainWindow(ISettingsService settingsService, AppSettings? settings)
@@ -19,6 +19,8 @@ public partial class MainWindow : Window
         _settingsService = settingsService;
 
         InitializeComponent();
+
+        _viewModel = new(new WpfDialogService(this));
 
         // restore window geometry and view state from the injected settings (if any)
         if (settings != null)
