@@ -24,19 +24,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\AppIcon.png" />
-    <None Remove="Resources\Cursor.png" />
-    <None Remove="Resources\DisplayMinMaxReset.png" />
-    <None Remove="Resources\FlipHorizontal.png" />
-    <None Remove="Resources\FlipVertical.png" />
-    <None Remove="Resources\ImageMinMax.png" />
-    <None Remove="Resources\ImageSize.png" />
-    <None Remove="Resources\OpenFile.png" />
-    <None Remove="Resources\Selection.png" />
-    <None Remove="Resources\Zoom.png" />
-    <None Remove="Resources\ZoomIn.png" />
-    <None Remove="Resources\ZoomOut.png" />
-    <None Remove="Resources\ZoomReset.png" />
+    <None Remove="Resources\*.png" />
+    <Resource Include="Resources\*.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,22 +35,6 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.142" />
     <PackageReference Include="Pfim" Version="0.11.4" />
     <PackageReference Include="TinyEXR.NET" Version="1.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Resources\AppIcon.png" />
-    <Resource Include="Resources\Cursor.png" />
-    <Resource Include="Resources\DisplayMinMaxReset.png" />
-    <Resource Include="Resources\FlipHorizontal.png" />
-    <Resource Include="Resources\FlipVertical.png" />
-    <Resource Include="Resources\ImageMinMax.png" />
-    <Resource Include="Resources\ImageSize.png" />
-    <Resource Include="Resources\OpenFile.png" />
-    <Resource Include="Resources\Selection.png" />
-    <Resource Include="Resources\Zoom.png" />
-    <Resource Include="Resources\ZoomIn.png" />
-    <Resource Include="Resources\ZoomOut.png" />
-    <Resource Include="Resources\ZoomReset.png" />
   </ItemGroup>
 
 </Project>
