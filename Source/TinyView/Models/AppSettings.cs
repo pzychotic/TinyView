@@ -1,16 +1,17 @@
 namespace TinyView.Models;
 
+/// <summary>
+/// State remembered between application runs (window placement, selected palette).
+/// Null properties mean "never saved" and leave the built-in defaults in effect.
+/// </summary>
 public sealed class AppSettings
 {
-    // Window size and position
-    public double Width { get; set; } = 800;
-    public double Height { get; set; } = 600;
-    public double Left { get; set; } = double.NaN;
-    public double Top { get; set; } = double.NaN;
+    public double? WindowLeft { get; set; }
+    public double? WindowTop { get; set; }
+    public double? WindowWidth { get; set; }
+    public double? WindowHeight { get; set; }
+    public bool WindowMaximized { get; set; }
 
-    // Whether the window was maximized when the app exited
-    public bool IsMaximized { get; set; } = false;
-
-    // Name of the selected color palette
+    /// <summary>Name of the selected color palette.</summary>
     public string? SelectedPaletteName { get; set; }
 }

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Windows;
+using TinyView.Models;
 using TinyView.Services;
 
 namespace TinyView;
@@ -25,7 +26,7 @@ public partial class App : Application
 
         // composition root: construct services and inject them into the main window
         var settingsService = new JsonSettingsService();
-        var settings = settingsService.Load();
+        var settings = settingsService.Load() ?? new AppSettings();
 
         var window = new MainWindow(settingsService, settings);
         window.Show();

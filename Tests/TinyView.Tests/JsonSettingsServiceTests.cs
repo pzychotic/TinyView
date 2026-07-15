@@ -28,11 +28,11 @@ public class JsonSettingsServiceTests
 
         var original = new AppSettings
         {
-            Width = 1024,
-            Height = 768,
-            Left = 100,
-            Top = 200,
-            IsMaximized = true,
+            WindowLeft = 100,
+            WindowTop = 200,
+            WindowWidth = 1024,
+            WindowHeight = 768,
+            WindowMaximized = true,
             SelectedPaletteName = "Viridis"
         };
 
@@ -40,11 +40,11 @@ public class JsonSettingsServiceTests
         var loaded = service.Load();
 
         Assert.That(loaded, Is.Not.Null);
-        Assert.That(loaded!.Width, Is.EqualTo(original.Width));
-        Assert.That(loaded.Height, Is.EqualTo(original.Height));
-        Assert.That(loaded.Left, Is.EqualTo(original.Left));
-        Assert.That(loaded.Top, Is.EqualTo(original.Top));
-        Assert.That(loaded.IsMaximized, Is.EqualTo(original.IsMaximized));
+        Assert.That(loaded!.WindowLeft, Is.EqualTo(original.WindowLeft));
+        Assert.That(loaded.WindowTop, Is.EqualTo(original.WindowTop));
+        Assert.That(loaded.WindowWidth, Is.EqualTo(original.WindowWidth));
+        Assert.That(loaded.WindowHeight, Is.EqualTo(original.WindowHeight));
+        Assert.That(loaded.WindowMaximized, Is.EqualTo(original.WindowMaximized));
         Assert.That(loaded.SelectedPaletteName, Is.EqualTo(original.SelectedPaletteName));
     }
 
@@ -59,29 +59,12 @@ public class JsonSettingsServiceTests
         var loaded = service.Load();
 
         Assert.That(loaded, Is.Not.Null);
-        Assert.That(loaded!.Width, Is.EqualTo(800));
-        Assert.That(loaded.Height, Is.EqualTo(600));
-        Assert.That(loaded.IsMaximized, Is.False);
+        Assert.That(loaded!.WindowLeft, Is.Null);
+        Assert.That(loaded.WindowTop, Is.Null);
+        Assert.That(loaded.WindowWidth, Is.Null);
+        Assert.That(loaded.WindowHeight, Is.Null);
+        Assert.That(loaded.WindowMaximized, Is.False);
         Assert.That(loaded.SelectedPaletteName, Is.Null);
-    }
-
-    [Test]
-    public void SaveAndLoad_RoundTripsNaNPositionValues()
-    {
-        var service = new JsonSettingsService(_tempDir);
-
-        var original = new AppSettings
-        {
-            Left = double.NaN,
-            Top = double.NaN
-        };
-
-        service.Save(original);
-        var loaded = service.Load();
-
-        Assert.That(loaded, Is.Not.Null);
-        Assert.That(double.IsNaN(loaded!.Left), Is.True);
-        Assert.That(double.IsNaN(loaded.Top), Is.True);
     }
 
     [Test]
@@ -99,13 +82,13 @@ public class JsonSettingsServiceTests
     {
         var service = new JsonSettingsService(_tempDir);
 
-        service.Save(new AppSettings { Width = 640, SelectedPaletteName = "Gray" });
-        service.Save(new AppSettings { Width = 1920, SelectedPaletteName = "Turbo" });
+        service.Save(new AppSettings { WindowWidth = 640, SelectedPaletteName = "Gray" });
+        service.Save(new AppSettings { WindowWidth = 1920, SelectedPaletteName = "Turbo" });
 
         var loaded = service.Load();
 
         Assert.That(loaded, Is.Not.Null);
-        Assert.That(loaded!.Width, Is.EqualTo(1920));
+        Assert.That(loaded!.WindowWidth, Is.EqualTo(1920));
         Assert.That(loaded.SelectedPaletteName, Is.EqualTo("Turbo"));
     }
 
@@ -127,10 +110,10 @@ public class JsonSettingsServiceTests
         var nested = Path.Combine(_tempDir, "sub", "folder");
         var service = new JsonSettingsService(nested);
 
-        service.Save(new AppSettings { Width = 500 });
+        service.Save(new AppSettings { WindowWidth = 500 });
 
         Assert.That(Directory.Exists(nested), Is.True);
-        Assert.That(service.Load()?.Width, Is.EqualTo(500));
+        Assert.That(service.Load()?.WindowWidth, Is.EqualTo(500));
     }
 
     [Test]
@@ -159,7 +142,7 @@ public class JsonSettingsServiceTests
         Directory.CreateDirectory(settingsPath);
 
         var service = new JsonSettingsService(_tempDir);
-        var original = new AppSettings { Width = 1024 };
+        var original = new AppSettings { WindowWidth = 1024 };
 
         Assert.DoesNotThrow(() => service.Save(original));
     }

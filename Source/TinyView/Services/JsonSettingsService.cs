@@ -1,20 +1,19 @@
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using TinyView.Models;
 
 namespace TinyView.Services;
 
+/// <summary>
+/// Loads and saves <see cref="AppSettings"/> as JSON in the user's roaming profile.
+/// Persistence is best-effort: any I/O or parse failure falls back to defaults silently.
+/// </summary>
 public sealed class JsonSettingsService(string settingsDir) : ISettingsService
 {
     private static readonly string DefaultSettingsDir =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TinyView");
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
-        WriteIndented = true
-    };
+    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
     private readonly string _settingsDir = settingsDir;
     private readonly string _settingsPath = Path.Combine(settingsDir, "Settings.json");
@@ -52,7 +51,7 @@ public sealed class JsonSettingsService(string settingsDir) : ISettingsService
         }
         catch
         {
-            // ignore save errors
+            // Losing the saved state must never break the application.
         }
     }
 }

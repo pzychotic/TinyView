@@ -13,73 +13,67 @@ public partial class MainWindow : Window
 {
     private readonly ImageViewModel _viewModel;
     private readonly ISettingsService _settingsService;
+    private readonly AppSettings _settings;
 
-    public MainWindow(ISettingsService settingsService, AppSettings? settings)
+    public MainWindow(ISettingsService settingsService, AppSettings settings)
     {
         _settingsService = settingsService;
+        _settings = settings;
 
         InitializeComponent();
 
         _viewModel = new(new WpfDialogService(this));
-
-        // restore window geometry and view state from the injected settings (if any)
-        if (settings != null)
-        {
-            // apply size if present
-            if (!double.IsNaN(settings.Width) && !double.IsNaN(settings.Height))
-            {
-                Width = settings.Width;
-                Height = settings.Height;
-            }
-
-            // apply position if present
-            if (!double.IsNaN(settings.Left) && !double.IsNaN(settings.Top))
-            {
-                // Ignore stale bounds that no longer touch any monitor (e.g. a display was unplugged).
-                var virtualScreen = new Rect(
-                    SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop,
-                    SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight);
-
-                if (virtualScreen.IntersectsWith(new Rect(settings.Left, settings.Top, Width, Height)))
-                {
-                    Left = settings.Left;
-                    Top = settings.Top;
-                }
-            }
-
-            // restore selected palette if present
-            _viewModel.RestorePalette(settings.SelectedPaletteName);
-
-            // if the saved state was maximized, defer applying until window is shown
-            if (settings.IsMaximized)
-            {
-                Loaded += (_, __) => WindowState = WindowState.Maximized;
-            }
-        }
-
+        _viewModel.RestorePalette(settings.SelectedPaletteName);
         DataContext = _viewModel;
 
-        // when closing, persist window state
-        Closing += MainWindow_Closing;
+        RestorePlacement(settings);
     }
 
-    private void MainWindow_Closing(object? sender, CancelEventArgs e)
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        base.OnClosing(e);
+        if (!e.Cancel)
+        {
+            SavePlacement(_settings);
+            _settings.SelectedPaletteName = _viewModel.SelectedPaletteName;
+            _settingsService.Save(_settings);
+        }
+    }
+
+    private void RestorePlacement(AppSettings settings)
+    {
+        if (settings.WindowLeft is not double left || settings.WindowTop is not double top ||
+            settings.WindowWidth is not double width || settings.WindowHeight is not double height)
+            return;
+
+        // Ignore stale bounds that no longer touch any monitor (e.g. a display was unplugged).
+        var virtualScreen = new Rect(
+            SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop,
+            SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight);
+        if (!virtualScreen.IntersectsWith(new Rect(left, top, width, height)))
+            return;
+
+        WindowStartupLocation = WindowStartupLocation.Manual;
+        Left = left;
+        Top = top;
+        Width = width;
+        Height = height;
+
+        if (settings.WindowMaximized)
+            WindowState = WindowState.Maximized;
+    }
+
+    private void SavePlacement(AppSettings settings)
     {
         // When maximized or minimized, RestoreBounds holds the normal-state geometry.
         var bounds = WindowState == WindowState.Normal
             ? new Rect(Left, Top, Width, Height)
             : RestoreBounds;
 
-        var settings = new AppSettings
-        {
-            IsMaximized = WindowState == WindowState.Maximized,
-            Width = bounds.Width,
-            Height = bounds.Height,
-            Left = bounds.Left,
-            Top = bounds.Top,
-            SelectedPaletteName = _viewModel.SelectedPaletteName
-        };
-
-        _settingsService.Save(settings);
+        settings.WindowLeft = bounds.Left;
+        settings.WindowTop = bounds.Top;
+        settings.WindowWidth = bounds.Width;
+        settings.WindowHeight = bounds.Height;
+        settings.WindowMaximized = WindowState == WindowState.Maximized;
     }
 }
