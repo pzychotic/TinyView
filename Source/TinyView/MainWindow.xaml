@@ -100,24 +100,30 @@
         </Menu>
 
         <ToolBar Height="32" VerticalAlignment="Top" Grid.Row="1" >
-            <Button Command="{Binding OpenCommand}" ToolTip="Open File (Ctrl+O)">
+            <Button Command="{Binding OpenCommand}" ToolTip="Open File (Ctrl+O)"
+                    AutomationProperties.Name="Open File">
                 <Image Source="/Resources/OpenFile.png" />
             </Button>
             <Separator />
-            <Button Command="{Binding ZoomInCommand}" ToolTip="Zoom In (Ctrl++)">
+            <Button Command="{Binding ZoomInCommand}" ToolTip="Zoom In (Ctrl++)"
+                    AutomationProperties.Name="Zoom In">
                 <Image Source="/Resources/ZoomIn.png" />
             </Button>
-            <Button Command="{Binding ZoomOutCommand}" ToolTip="Zoom Out (Ctrl+-)">
+            <Button Command="{Binding ZoomOutCommand}" ToolTip="Zoom Out (Ctrl+-)"
+                    AutomationProperties.Name="Zoom Out">
                 <Image Source="/Resources/ZoomOut.png" />
             </Button>
-            <Button Command="{Binding ZoomResetCommand}" ToolTip="Reset Zoom (Ctrl+*)">
+            <Button Command="{Binding ZoomResetCommand}" ToolTip="Reset Zoom (Ctrl+*)"
+                    AutomationProperties.Name="Reset Zoom">
                 <Image Source="/Resources/ZoomReset.png" />
             </Button>
             <Separator />
-            <ToggleButton IsChecked="{Binding IsFlippedHorizontally}" IsEnabled="{Binding HasImage}" ToolTip="Flip Horizontal">
+            <ToggleButton IsChecked="{Binding IsFlippedHorizontally}" IsEnabled="{Binding HasImage}" ToolTip="Flip Horizontal"
+                          AutomationProperties.Name="Flip Horizontal">
                 <Image Source="/Resources/FlipHorizontal.png" />
             </ToggleButton>
-            <ToggleButton IsChecked="{Binding IsFlippedVertically}" IsEnabled="{Binding HasImage}" ToolTip="Flip Vertical">
+            <ToggleButton IsChecked="{Binding IsFlippedVertically}" IsEnabled="{Binding HasImage}" ToolTip="Flip Vertical"
+                          AutomationProperties.Name="Flip Vertical">
                 <Image Source="/Resources/FlipVertical.png" />
             </ToggleButton>
             <Separator />
@@ -126,18 +132,21 @@
                       IsEnabled="{Binding HasImage}"
                       ItemsSource="{Binding Palettes}"
                       SelectedItem="{Binding SelectedPalette, Mode=TwoWay}"
-                      ToolTip="Select color palette for visualization" />
+                      ToolTip="Select color palette for visualization"
+                      AutomationProperties.Name="Color Palette" />
             <Separator />
             <ToggleButton IsChecked="{Binding IsRegionSelectActive, Mode=TwoWay}"
                           IsEnabled="{Binding HasImage}"
-                          ToolTip="Select region to set display min/max (S to toggle)">
+                          ToolTip="Select region to set display min/max (S to toggle)"
+                          AutomationProperties.Name="Select Region">
                 <Image Source="/Resources/Selection.png" />
             </ToggleButton>
             <TextBlock Text="Min:" VerticalAlignment="Center" Margin="4,0" />
             <TextBox Width="60" VerticalContentAlignment="Center"
                      Text="{Binding DisplayMin, StringFormat='{}{0:0.##}'}"
                      IsEnabled="{Binding HasImage}"
-                     ToolTip="Display minimum value (commit with Enter or Tab)">
+                     ToolTip="Display minimum value (commit with Enter or Tab)"
+                     AutomationProperties.Name="Display Minimum">
                 <i:Interaction.Behaviors>
                     <behaviors:TextBoxCommitBehavior />
                 </i:Interaction.Behaviors>
@@ -146,14 +155,16 @@
             <TextBox Width="60" VerticalContentAlignment="Center"
                      Text="{Binding DisplayMax, StringFormat='{}{0:0.##}'}"
                      IsEnabled="{Binding HasImage}"
-                     ToolTip="Display maximum value (commit with Enter or Tab)">
+                     ToolTip="Display maximum value (commit with Enter or Tab)"
+                     AutomationProperties.Name="Display Maximum">
                 <i:Interaction.Behaviors>
                     <behaviors:TextBoxCommitBehavior />
                 </i:Interaction.Behaviors>
             </TextBox>
             <Button Command="{Binding ResetMinMaxCommand}"
                     IsEnabled="{Binding HasImage}"
-                    ToolTip="Reset to original min/max values (R)">
+                    ToolTip="Reset to original min/max values (R)"
+                    AutomationProperties.Name="Reset Min/Max">
                 <Image Source="/Resources/DisplayMinMaxReset.png" />
             </Button>
         </ToolBar>
