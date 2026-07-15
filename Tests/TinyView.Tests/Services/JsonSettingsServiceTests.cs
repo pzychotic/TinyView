@@ -1,7 +1,7 @@
 using TinyView.Models;
 using TinyView.Services;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.Services;
 
 [TestFixture]
 public class JsonSettingsServiceTests

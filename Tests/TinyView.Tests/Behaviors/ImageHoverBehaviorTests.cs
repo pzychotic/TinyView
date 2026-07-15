@@ -4,8 +4,10 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using TinyView.Behaviors;
+using TinyView.Tests.TestSupport;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
 [Apartment(ApartmentState.STA)]
@@ -30,7 +32,7 @@ public class ImageHoverBehaviorTests
         img.UpdateLayout();
 
         var cmd = new TestCommand();
-        var behavior = new Behaviors.ImageHoverBehavior();
+        var behavior = new ImageHoverBehavior();
         Interaction.GetBehaviors(img).Add(behavior);
         behavior.HoverCommand = cmd;
 
@@ -56,7 +58,7 @@ public class ImageHoverBehaviorTests
         img.UpdateLayout();
 
         var cmd = new TestCommand();
-        var behavior = new Behaviors.ImageHoverBehavior();
+        var behavior = new ImageHoverBehavior();
         Interaction.GetBehaviors(img).Add(behavior);
         behavior.HoverCommand = cmd;
 
@@ -77,7 +79,7 @@ public class ImageHoverBehaviorTests
         var img = new Image();
 
         var cmd = new TestCommand();
-        var behavior = new Behaviors.ImageHoverBehavior();
+        var behavior = new ImageHoverBehavior();
         Interaction.GetBehaviors(img).Add(behavior);
         behavior.LeaveCommand = cmd;
 

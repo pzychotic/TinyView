@@ -3,9 +3,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using TinyView.Behaviors;
 using TinyView.Models;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
 [Apartment(ApartmentState.STA)]
@@ -30,7 +31,7 @@ public class ScrollViewerPanBehaviorTests
     public void PreviewMouseRightButtonDown_StartsPanning()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        var behavior = new ScrollViewerPanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Right)
@@ -49,7 +50,7 @@ public class ScrollViewerPanBehaviorTests
     public void PreviewMouseRightButtonUp_StopsPanning_ReleasesMouseAndRestoresCursor()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        var behavior = new ScrollViewerPanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         behavior._isPanning = true;
@@ -70,7 +71,7 @@ public class ScrollViewerPanBehaviorTests
     public void LostMouseCapture_ClearsCursor_WhenPanning()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        var behavior = new ScrollViewerPanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         behavior._isPanning = true;
@@ -89,7 +90,7 @@ public class ScrollViewerPanBehaviorTests
     public void OnPreviewMouseMove_PansScrollViewer_UpdatesOffsets()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        var behavior = new ScrollViewerPanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         Assert.That(sv.ScrollableWidth, Is.GreaterThan(0), "ScrollableWidth should be > 0 for the test layout");
@@ -117,15 +118,15 @@ public class ScrollViewerPanBehaviorTests
         var sb = new ScrollBar();
         var btn = new Button();
 
-        Assert.That(Behaviors.ScrollViewerPanBehavior.IsOverScrollbar(sb), Is.True);
-        Assert.That(Behaviors.ScrollViewerPanBehavior.IsOverScrollbar(btn), Is.False);
+        Assert.That(ScrollViewerPanBehavior.IsOverScrollbar(sb), Is.True);
+        Assert.That(ScrollViewerPanBehavior.IsOverScrollbar(btn), Is.False);
     }
 
     [Test]
     public void CancelPan_ClearsPanState()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        var behavior = new ScrollViewerPanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         behavior._isPanning = true;
@@ -140,7 +141,7 @@ public class ScrollViewerPanBehaviorTests
     public void ResetNotifier_CancelsPan_WhenFired()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        var behavior = new ScrollViewerPanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         var notifier = new ViewportResetNotifier();
@@ -158,7 +159,7 @@ public class ScrollViewerPanBehaviorTests
     public void RightButtonUp_WithoutDrag_RequestsViewportReset()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        var behavior = new ScrollViewerPanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         var notifier = new ViewportResetNotifier();
@@ -186,7 +187,7 @@ public class ScrollViewerPanBehaviorTests
     public void RightButtonUp_AfterDrag_DoesNotRequestViewportReset()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        var behavior = new ScrollViewerPanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         var notifier = new ViewportResetNotifier();
@@ -213,7 +214,7 @@ public class ScrollViewerPanBehaviorTests
     public void OnPreviewMouseMove_BeyondThreshold_MarksDragged()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        var behavior = new ScrollViewerPanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         behavior._isPanning = true;

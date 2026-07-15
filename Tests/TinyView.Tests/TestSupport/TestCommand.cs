@@ -1,6 +1,6 @@
 using System.Windows.Input;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.TestSupport;
 
 public class TestCommand : ICommand
 {

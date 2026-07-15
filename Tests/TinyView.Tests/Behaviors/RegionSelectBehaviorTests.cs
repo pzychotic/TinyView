@@ -6,8 +6,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TinyView.ViewModels;
+using TinyView.Behaviors;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
 [Apartment(ApartmentState.STA)]
@@ -15,7 +16,7 @@ public class RegionSelectBehaviorTests
 {
     private Image _img = null!;
     private Grid _grid = null!;
-    private Behaviors.RegionSelectBehavior _behavior = null!;
+    private RegionSelectBehavior _behavior = null!;
 
     /// <summary>
     /// TestCommand that also captures the parameter passed to Execute.
@@ -60,7 +61,7 @@ public class RegionSelectBehaviorTests
         _grid.Arrange(new Rect(0, 0, 100, 100));
         _grid.UpdateLayout();
 
-        _behavior = new Behaviors.RegionSelectBehavior();
+        _behavior = new RegionSelectBehavior();
         Interaction.GetBehaviors(_img).Add(_behavior);
     }
 
@@ -358,7 +359,7 @@ public class RegionSelectBehaviorTests
         standaloneImg.Arrange(new Rect(0, 0, 100, 100));
         standaloneImg.UpdateLayout();
 
-        var behavior = new Behaviors.RegionSelectBehavior();
+        var behavior = new RegionSelectBehavior();
         Interaction.GetBehaviors(standaloneImg).Add(behavior);
         behavior.IsActive = true;
 
@@ -378,7 +379,7 @@ public class RegionSelectBehaviorTests
     public void MakePixelRect_NormalOrder_ReturnsCorrectRect()
     {
         // Access private static method via reflection
-        var method = typeof(Behaviors.RegionSelectBehavior)
+        var method = typeof(RegionSelectBehavior)
             .GetMethod("MakePixelRect", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
 
         Assert.That(method, Is.Not.Null);
@@ -394,7 +395,7 @@ public class RegionSelectBehaviorTests
     [Test]
     public void MakePixelRect_ReverseDrag_ReturnsNormalizedRect()
     {
-        var method = typeof(Behaviors.RegionSelectBehavior)
+        var method = typeof(RegionSelectBehavior)
             .GetMethod("MakePixelRect", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
 
         Assert.That(method, Is.Not.Null);
@@ -411,7 +412,7 @@ public class RegionSelectBehaviorTests
     [Test]
     public void MakePixelRect_SamePoint_ReturnsZeroSizeRect()
     {
-        var method = typeof(Behaviors.RegionSelectBehavior)
+        var method = typeof(RegionSelectBehavior)
             .GetMethod("MakePixelRect", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
 
         Assert.That(method, Is.Not.Null);

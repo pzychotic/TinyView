@@ -1,8 +1,9 @@
 using Microsoft.Xaml.Behaviors;
 using System.Windows;
 using System.Windows.Controls;
+using TinyView.Behaviors;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
 [Apartment(ApartmentState.STA)]
@@ -23,17 +24,17 @@ public class ZoomCompensationBehaviorTests
         return sv;
     }
 
-    private static (ScrollViewer Viewer, Behaviors.ZoomCompensationBehavior Behavior) CreateSubject()
+    private static (ScrollViewer Viewer, ZoomCompensationBehavior Behavior) CreateSubject()
     {
         var viewer = CreateTestScrollViewer();
-        var behavior = new Behaviors.ZoomCompensationBehavior();
+        var behavior = new ZoomCompensationBehavior();
         Interaction.GetBehaviors(viewer).Add(behavior);
         return (viewer, behavior);
     }
 
     private static Point GetImageCenterAnchor(ScrollViewer viewer)
     {
-        var method = typeof(Behaviors.ZoomCompensationBehavior)
+        var method = typeof(ZoomCompensationBehavior)
             .GetMethod("GetImageCenterAnchor", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
 
         return (Point)method.Invoke(null, [viewer])!;

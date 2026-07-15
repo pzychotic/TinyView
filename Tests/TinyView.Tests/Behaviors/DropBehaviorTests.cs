@@ -1,7 +1,9 @@
 using Microsoft.Xaml.Behaviors;
 using System.Windows.Controls;
+using TinyView.Behaviors;
+using TinyView.Tests.TestSupport;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
 [Apartment(ApartmentState.STA)]
@@ -12,7 +14,7 @@ public class DropBehaviorTests
     {
         var element = new Border();
         var cmd = new TestCommand();
-        var behavior = new Behaviors.DropBehavior();
+        var behavior = new DropBehavior();
 
         Assert.That(element.AllowDrop, Is.False);
 
@@ -29,7 +31,7 @@ public class DropBehaviorTests
     {
         var element = new Border();
         var cmd = new TestCommand();
-        var behavior = new Behaviors.DropBehavior();
+        var behavior = new DropBehavior();
         Interaction.GetBehaviors(element).Add(behavior);
 
         behavior.Command = cmd;
@@ -48,7 +50,7 @@ public class DropBehaviorTests
         var element = new Border();
         var cmd1 = new TestCommand();
         var cmd2 = new TestCommand();
-        var behavior = new Behaviors.DropBehavior();
+        var behavior = new DropBehavior();
         Interaction.GetBehaviors(element).Add(behavior);
 
         behavior.Command = cmd1;

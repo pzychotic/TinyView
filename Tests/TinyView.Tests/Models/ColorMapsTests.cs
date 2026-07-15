@@ -1,7 +1,8 @@
 using NUnit.Framework.Legacy;
 using System.Reflection;
+using TinyView.Models;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.Models;
 
 [TestFixture]
 public class ColorMapsTests
@@ -9,7 +10,7 @@ public class ColorMapsTests
     // Helper to enumerate maps
     private static IEnumerable<(string Name, byte[,] Map)> GetMaps()
     {
-        var type = typeof(Models.ColorMaps);
+        var type = typeof(ColorMaps);
         var propertyType = typeof(byte[,]);
 
         var fields = type

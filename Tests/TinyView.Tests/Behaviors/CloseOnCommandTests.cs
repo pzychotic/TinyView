@@ -2,8 +2,9 @@ using Microsoft.Xaml.Behaviors;
 using System.Windows;
 using System.Windows.Input;
 using TinyView.Behaviors;
+using TinyView.Tests.TestSupport;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
 [Apartment(ApartmentState.STA)]

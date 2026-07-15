@@ -3,7 +3,7 @@ using TinyView.Models;
 using TinyView.Services;
 using TinyView.ViewModels;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.ViewModels;
 
 [TestFixture]
 [Apartment(ApartmentState.STA)]

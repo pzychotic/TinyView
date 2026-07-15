@@ -1,6 +1,6 @@
 using TinyView.ViewModels;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.ViewModels;
 
 [TestFixture]
 public class AboutViewModelTests

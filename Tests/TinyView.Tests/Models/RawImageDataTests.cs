@@ -1,6 +1,6 @@
 using TinyView.Models;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.Models;
 
 [TestFixture]
 public class RawImageDataTests

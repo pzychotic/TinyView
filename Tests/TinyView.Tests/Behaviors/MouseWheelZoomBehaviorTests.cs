@@ -3,8 +3,9 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using TinyView.Behaviors;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
 [Apartment(ApartmentState.STA)]
@@ -14,7 +15,7 @@ public class MouseWheelZoomBehaviorTests
     public void DefaultZoomFactor_IsOne()
     {
         var element = new Border();
-        var behavior = new Behaviors.MouseWheelZoomBehavior();
+        var behavior = new MouseWheelZoomBehavior();
         Interaction.GetBehaviors(element).Add(behavior);
         Assert.That(behavior.ZoomFactor, Is.EqualTo(1.0));
     }
@@ -23,7 +24,7 @@ public class MouseWheelZoomBehaviorTests
     public void SetZoomFactor_Works()
     {
         var element = new Border();
-        var behavior = new Behaviors.MouseWheelZoomBehavior();
+        var behavior = new MouseWheelZoomBehavior();
         Interaction.GetBehaviors(element).Add(behavior);
         behavior.ZoomFactor = 2.5;
         Assert.That(behavior.ZoomFactor, Is.EqualTo(2.5));
@@ -33,7 +34,7 @@ public class MouseWheelZoomBehaviorTests
     public void DefaultZoomAnchor_IsNull()
     {
         var element = new Border();
-        var behavior = new Behaviors.MouseWheelZoomBehavior();
+        var behavior = new MouseWheelZoomBehavior();
         Interaction.GetBehaviors(element).Add(behavior);
         Assert.That(behavior.ZoomAnchor, Is.Null);
     }
@@ -42,12 +43,12 @@ public class MouseWheelZoomBehaviorTests
     public void OnPreviewMouseWheel_NoCtrl_DoesNothing()
     {
         var element = new Border();
-        var behavior = new Behaviors.MouseWheelZoomBehavior();
+        var behavior = new MouseWheelZoomBehavior();
         Interaction.GetBehaviors(element).Add(behavior);
 
         Assert.That(behavior._wheelDeltaAccum, Is.EqualTo(0.0));
 
-        var mi = typeof(Behaviors.MouseWheelZoomBehavior).GetMethod("OnPreviewMouseWheel", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var mi = typeof(MouseWheelZoomBehavior).GetMethod("OnPreviewMouseWheel", BindingFlags.NonPublic | BindingFlags.Instance)!;
         var args = new MouseWheelEventArgs(InputManager.Current.PrimaryMouseDevice, 0, 120)
         {
             RoutedEvent = UIElement.PreviewMouseWheelEvent

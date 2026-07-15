@@ -2,8 +2,9 @@ using Microsoft.Xaml.Behaviors;
 using System.Windows;
 using System.Windows.Controls;
 using TinyView.Models;
+using TinyView.Behaviors;
 
-namespace TinyView.Tests;
+namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
 [Apartment(ApartmentState.STA)]
@@ -28,7 +29,7 @@ public class OverpanBehaviorTests
     public void UpdateMargin_AppliesViewportMargin_WhenEnabled()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.OverpanBehavior();
+        var behavior = new OverpanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         behavior.IsEnabled = true;
@@ -50,7 +51,7 @@ public class OverpanBehaviorTests
     public void UpdateMargin_SetsZeroMargin_WhenDisabled()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.OverpanBehavior();
+        var behavior = new OverpanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         behavior.IsEnabled = true;
@@ -70,7 +71,7 @@ public class OverpanBehaviorTests
     public void CenterContent_ScrollsToCenterOfScrollableArea()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.OverpanBehavior();
+        var behavior = new OverpanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
 
         Assert.That(sv.ScrollableWidth, Is.GreaterThan(0));
@@ -87,7 +88,7 @@ public class OverpanBehaviorTests
     public void ResetNotifier_ResetsToCenter_WhenFired()
     {
         var sv = CreateTestScrollViewer();
-        var behavior = new Behaviors.OverpanBehavior();
+        var behavior = new OverpanBehavior();
         Interaction.GetBehaviors(sv).Add(behavior);
         behavior.IsEnabled = false;
 
