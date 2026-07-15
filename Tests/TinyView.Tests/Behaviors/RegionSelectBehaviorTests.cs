@@ -11,7 +11,6 @@ using TinyView.Behaviors;
 namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
-[Apartment(ApartmentState.STA)]
 public class RegionSelectBehaviorTests
 {
     private Image _img = null!;

@@ -9,7 +9,6 @@ using TinyView.Models;
 namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
-[Apartment(ApartmentState.STA)]
 public class ScrollViewerPanBehaviorTests
 {
     private static ScrollViewer CreateTestScrollViewer()

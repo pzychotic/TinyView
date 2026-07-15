@@ -6,7 +6,6 @@ using TinyView.ViewModels;
 namespace TinyView.Tests.ViewModels;
 
 [TestFixture]
-[Apartment(ApartmentState.STA)]
 public class ImageViewModelTests
 {
     [Test]

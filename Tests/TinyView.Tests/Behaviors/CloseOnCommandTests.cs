@@ -7,7 +7,6 @@ using TinyView.Tests.TestSupport;
 namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
-[Apartment(ApartmentState.STA)]
 public class CloseOnCommandTests
 {
     [Test]

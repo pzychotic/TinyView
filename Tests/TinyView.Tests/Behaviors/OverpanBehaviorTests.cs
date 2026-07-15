@@ -7,7 +7,6 @@ using TinyView.Behaviors;
 namespace TinyView.Tests.Behaviors;
 
 [TestFixture]
-[Apartment(ApartmentState.STA)]
 public class OverpanBehaviorTests
 {
     private static ScrollViewer CreateTestScrollViewer()
