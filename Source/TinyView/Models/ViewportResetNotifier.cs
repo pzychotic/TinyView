@@ -2,9 +2,10 @@ namespace TinyView.Models;
 
 /// <summary>
 /// Lightweight event source that view-layer components (behaviors) can subscribe to
-/// in order to receive viewport-reset requests from the ViewModel.
-/// The ViewModel calls <see cref="RequestReset"/> and any attached behavior reacts
-/// by resetting its own state (cancel panning, re-center content, etc.).
+/// in order to receive viewport-reset requests.
+/// The ViewModel calls <see cref="RequestReset"/> (e.g. when a new image is loaded),
+/// as can view components (e.g. the right-click pan reset), and any attached behavior
+/// reacts by resetting its own state (cancel panning, re-center content, etc.).
 /// </summary>
 public sealed class ViewportResetNotifier
 {

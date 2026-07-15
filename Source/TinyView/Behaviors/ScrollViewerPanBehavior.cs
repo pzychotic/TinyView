@@ -10,12 +10,18 @@ namespace TinyView.Behaviors;
 
 /// <summary>
 /// Enables click-and-drag panning on a <see cref="ScrollViewer"/>.
+/// A plain right-click (a press-and-release without meaningful movement)
+/// requests a viewport reset via the bound <see cref="ResetNotifier"/>,
+/// re-centering the content without touching the zoom.
 /// This behavior is responsible only for mouse-driven panning; zoom
 /// compensation and overpan margin management are handled by
 /// <see cref="ZoomCompensationBehavior"/> and <see cref="OverpanBehavior"/>.
 /// </summary>
 public sealed class ScrollViewerPanBehavior : Behavior<ScrollViewer>
 {
+    /// <summary>Movement (in device-independent pixels) tolerated before a right-click counts as a drag.</summary>
+    private const double DragThreshold = 3.0;
+
     /// <summary>
     /// Optional notifier that signals a viewport reset (e.g. when a new image is loaded).
     /// When fired the active pan operation is cancelled.
@@ -46,6 +52,7 @@ public sealed class ScrollViewerPanBehavior : Behavior<ScrollViewer>
     }
 
     internal bool _isPanning;
+    internal bool _dragged;
     internal Point _panStartPoint;
     internal Point _panStartOffset;
 
@@ -83,6 +90,7 @@ public sealed class ScrollViewerPanBehavior : Behavior<ScrollViewer>
             return;
 
         _isPanning = true;
+        _dragged = false;
         _panStartPoint = e.GetPosition(AssociatedObject);
         _panStartOffset = new Point(AssociatedObject.HorizontalOffset, AssociatedObject.VerticalOffset);
         AssociatedObject.CaptureMouse();
@@ -98,6 +106,11 @@ public sealed class ScrollViewerPanBehavior : Behavior<ScrollViewer>
             _isPanning = false;
             AssociatedObject.ReleaseMouseCapture();
             AssociatedObject.Cursor = null;
+
+            // A right-click that did not turn into a drag re-centers the viewport.
+            if (!_dragged)
+                ResetNotifier?.RequestReset();
+
             e.Handled = true;
         }
     }
@@ -118,6 +131,9 @@ public sealed class ScrollViewerPanBehavior : Behavior<ScrollViewer>
 
         var currentPoint = e.GetPosition(AssociatedObject);
         var delta = currentPoint - _panStartPoint;
+
+        if (Math.Abs(delta.X) > DragThreshold || Math.Abs(delta.Y) > DragThreshold)
+            _dragged = true;
 
         double newH = _panStartOffset.X - delta.X;
         double newV = _panStartOffset.Y - delta.Y;

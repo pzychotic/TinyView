@@ -153,4 +153,82 @@ public class ScrollViewerPanBehaviorTests
 
         Assert.That(behavior._isPanning, Is.False);
     }
+
+    [Test]
+    public void RightButtonUp_WithoutDrag_RequestsViewportReset()
+    {
+        var sv = CreateTestScrollViewer();
+        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        Interaction.GetBehaviors(sv).Add(behavior);
+
+        var notifier = new ViewportResetNotifier();
+        behavior.ResetNotifier = notifier;
+
+        int resets = 0;
+        notifier.ResetRequested += () => resets++;
+
+        behavior._isPanning = true;
+        behavior._dragged = false;
+        sv.CaptureMouse();
+
+        var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Right)
+        {
+            RoutedEvent = UIElement.PreviewMouseRightButtonUpEvent
+        };
+        sv.RaiseEvent(args);
+
+        Assert.That(resets, Is.EqualTo(1));
+        Assert.That(behavior._isPanning, Is.False);
+        Assert.That(args.Handled, Is.True);
+    }
+
+    [Test]
+    public void RightButtonUp_AfterDrag_DoesNotRequestViewportReset()
+    {
+        var sv = CreateTestScrollViewer();
+        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        Interaction.GetBehaviors(sv).Add(behavior);
+
+        var notifier = new ViewportResetNotifier();
+        behavior.ResetNotifier = notifier;
+
+        int resets = 0;
+        notifier.ResetRequested += () => resets++;
+
+        behavior._isPanning = true;
+        behavior._dragged = true;
+        sv.CaptureMouse();
+
+        var args = new MouseButtonEventArgs(InputManager.Current.PrimaryMouseDevice, 0, MouseButton.Right)
+        {
+            RoutedEvent = UIElement.PreviewMouseRightButtonUpEvent
+        };
+        sv.RaiseEvent(args);
+
+        Assert.That(resets, Is.EqualTo(0));
+        Assert.That(behavior._isPanning, Is.False);
+    }
+
+    [Test]
+    public void OnPreviewMouseMove_BeyondThreshold_MarksDragged()
+    {
+        var sv = CreateTestScrollViewer();
+        var behavior = new Behaviors.ScrollViewerPanBehavior();
+        Interaction.GetBehaviors(sv).Add(behavior);
+
+        behavior._isPanning = true;
+        behavior._dragged = false;
+        behavior._panStartPoint = new Point(50, 50);
+        behavior._panStartOffset = new Point(10, 20);
+
+        var args = new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, 0)
+        {
+            RoutedEvent = UIElement.PreviewMouseMoveEvent
+        };
+        sv.RaiseEvent(args);
+
+        // The headless mouse position is far from the recorded start point,
+        // so the movement must exceed the drag threshold.
+        Assert.That(behavior._dragged, Is.True);
+    }
 }
