@@ -57,6 +57,54 @@ public class CloseOnCommandTests
     }
 
     [Test]
+    public void ProxyCommand_ForwardsTargetCanExecuteChanged()
+    {
+        var window = new Window();
+        var cmd = new TestCommand();
+        var behavior = new CloseOnCommand();
+        Interaction.GetBehaviors(window).Add(behavior);
+
+        behavior.Command = cmd;
+
+        var proxy = CloseOnCommand.GetProxyCommand(window);
+        Assert.That(proxy, Is.Not.Null);
+        Assert.That(proxy!.CanExecute(null), Is.True);
+
+        bool raised = false;
+        proxy.CanExecuteChanged += (_, _) => raised = true;
+
+        cmd.CanExecuteReturn = false;
+        cmd.RaiseCanExecuteChanged();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(raised, Is.True, "proxy should re-raise the target's CanExecuteChanged");
+            Assert.That(proxy.CanExecute(null), Is.False);
+        });
+    }
+
+    [Test]
+    public void ClearingCommand_StopsForwardingTheOldTargetsCanExecuteChanged()
+    {
+        var window = new Window();
+        var cmd = new TestCommand();
+        var behavior = new CloseOnCommand();
+        Interaction.GetBehaviors(window).Add(behavior);
+
+        behavior.Command = cmd;
+        var proxy = CloseOnCommand.GetProxyCommand(window);
+        Assert.That(proxy, Is.Not.Null);
+
+        bool raised = false;
+        proxy!.CanExecuteChanged += (_, _) => raised = true;
+
+        behavior.Command = null;
+        cmd.RaiseCanExecuteChanged();
+
+        Assert.That(raised, Is.False, "a cleared command must not reach the stale proxy");
+    }
+
+    [Test]
     public void ClearingCommand_RemovesProxyAndKeyBinding()
     {
         var window = new Window();

@@ -28,6 +28,8 @@ public sealed class CloseOnCommand : Behavior<Window>
     private static void SetProxyCommand(DependencyObject d, ICommand? value) => d.SetValue(ProxyCommandProperty, value);
 
     private KeyBinding? _escKeyBinding;
+    private ICommand? _target;
+    private RelayCommand<object?>? _proxy;
 
     private static void OnCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
@@ -61,6 +63,14 @@ public sealed class CloseOnCommand : Behavior<Window>
             _escKeyBinding = null;
         }
 
+        // detach from the previous target so its CanExecuteChanged no longer reaches a stale proxy
+        if (_target != null)
+        {
+            _target.CanExecuteChanged -= OnTargetCanExecuteChanged;
+            _target = null;
+        }
+        _proxy = null;
+
         if (target != null)
         {
             // lightweight proxy command
@@ -85,6 +95,11 @@ public sealed class CloseOnCommand : Behavior<Window>
 
             SetProxyCommand(AssociatedObject, proxy);
 
+            // forward the target's executability changes to proxy consumers
+            _target = target;
+            _proxy = proxy;
+            target.CanExecuteChanged += OnTargetCanExecuteChanged;
+
             // wire Escape to the proxy command
             _escKeyBinding = new KeyBinding(proxy, new KeyGesture(Key.Escape));
             AssociatedObject.InputBindings.Add(_escKeyBinding);
@@ -94,4 +109,6 @@ public sealed class CloseOnCommand : Behavior<Window>
             SetProxyCommand(AssociatedObject, null);
         }
     }
+
+    private void OnTargetCanExecuteChanged(object? sender, EventArgs e) => _proxy?.NotifyCanExecuteChanged();
 }
