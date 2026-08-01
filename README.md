@@ -24,13 +24,14 @@ Hovering over an area will display the raw pixel value under the cursor in the s
 
 - Open files by drag & drop
 - Zoom using keyboard shortcuts and mouse wheel
-- Pan around by holding the right mouse button
+- Pan around by holding the right mouse button, right click to reset
 - Flip the image horizontally and vertically
 - Automatic dynamic range scaling adjusts pixel values for screen display
 - Dynamic range scaling based on a rectangular selection
 - Manually define the display min/max range
 - Multiple color maps, including colorblind-friendly palettes
 - Pixel inspection shows raw pixel values in the status bar on mouse over
+- Export of the visible colorized image to PNG
 
 For more details, see the [Changelog](Docs/Changelog.md).
 
@@ -74,5 +75,6 @@ Just open ```TinyView.slnx``` build and run.
 
 ## References
 
+- AppIcon created with [TinyIcon](https://github.com/pzychotic/TinyIcon)
 - ColorMaps created from [viridisLite](https://github.com/sjmgarnier/viridisLite)
 - Icons created from [Fluent System Icons](https://github.com/microsoft/fluentui-system-icons)

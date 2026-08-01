@@ -7,6 +7,36 @@ title: Changelog
 
 All notable changes to TinyView are documented in this file.
 
+## v1.5.0 - 2026-08-01
+
+### User-Visible Changes
+
+- Added export of the visible colorized image to PNG
+- Added reset of panning with a right mouse button click
+- Optimized PNG and TIFF image loaders
+- Optimized internal image data handling for better performance
+- Fixed detection of supported PNG files
+- Fixed About dialog showing up in the taskbar
+- Hardened TIFF loader against invalid header values
+- Updated application icon created with [TinyIcon](https://github.com/pzychotic/TinyIcon)
+- Updated README
+
+### Internal Changes
+
+- Refactored settings to align more with `TinyIcon`
+- Extracted pixel coordinate conversion into a helper
+- Added `AutomationProperties` to buttons
+- Fixed `CloseOnCommand` proxy never raising `CanExecuteChanged`
+- Various code quality cleanups
+- Restructured tests
+- Added more tests
+
+### Dependency Updates
+
+- Bumped Magick.NET-Q16-AnyCPU from 14.14.0 to 14.16.0
+- Bumped Microsoft.NET.Test.Sdk from 18.6.0 to 18.8.1
+- Bumped TinyEXR.NET from 1.0.0 to 1.1.0
+
 ## v1.4.0 - 2026-06-14
 
 ### User-Visible Changes
