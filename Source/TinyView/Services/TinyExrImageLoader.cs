@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-using TinyEXR;
+using TinyEXR.V3;
 using TinyView.Models;
 
 namespace TinyView.Services;
@@ -13,36 +13,33 @@ public sealed class TinyExrImageLoader : IImageLoader
     public Task<IRawImageDataProvider> LoadImageAsync(string path)
         => Task.Run<IRawImageDataProvider>(() =>
         {
-            ResultCode versionResult = Exr.ParseEXRVersionFromFile(path, out ExrVersion version);
-            if (versionResult != ResultCode.Success)
-                throw new InvalidOperationException($"Failed to parse EXR version: {versionResult}");
+            ReaderResult<Image> result = ExrFile.LoadFromFile(path);
+            if (!result.IsSuccess || result.Value is not Image image)
+                throw new InvalidOperationException($"Failed to load EXR image: {result.Status}", result.Error);
 
-            ResultCode headerResult = Exr.ParseEXRHeaderFromFile(path, out _, out ExrHeader header);
-            if (headerResult != ResultCode.Success)
-                throw new InvalidOperationException($"Failed to parse EXR header: {headerResult}");
+            Part part = image.Parts[0];
+            if (part.Header.IsDeep)
+                throw new InvalidOperationException("Deep EXR images are not supported.");
 
-            ResultCode imageResult = Exr.LoadEXRImageFromFile(path, header, out ExrImage image);
-            if (imageResult != ResultCode.Success)
-                throw new InvalidOperationException($"Failed to load EXR image: {imageResult}");
-
-            if (image.Channels.Count != 1)
+            PartLevel level = part.GetLevel(0, 0);
+            if (level.Channels.Count != 1)
                 throw new InvalidOperationException("Expected a single channel image.");
 
-            ExrImageChannel channel = image.Channels[0];
-            string channelName = channel.Channel.Name;
+            ChannelBuffer channel = level.Channels[0];
+            string channelName = channel.Name;
 
-            int width = image.Width;
-            int height = image.Height;
+            int width = checked((int)level.Width);
+            int height = checked((int)level.Height);
 
-            switch (channel.DataType)
+            switch (channel.PixelType)
             {
-                case ExrPixelType.Float:
+                case PixelType.Float:
                     var floatData = MemoryMarshal.Cast<byte, float>(channel.Data).ToArray();
                     return new RawImageData<float>(width, height, floatData, $"{channelName} (float)");
-                case ExrPixelType.Half:
+                case PixelType.Half:
                     var halfData = MemoryMarshal.Cast<byte, Half>(channel.Data).ToArray();
                     return new RawImageData<Half>(width, height, halfData, $"{channelName} (half)");
-                case ExrPixelType.UInt:
+                case PixelType.UInt:
                     var uintData = MemoryMarshal.Cast<byte, uint>(channel.Data).ToArray();
                     return new RawImageData<uint>(width, height, uintData, $"{channelName} (uint)");
                 default:
