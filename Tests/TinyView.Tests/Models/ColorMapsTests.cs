@@ -1,4 +1,3 @@
-using NUnit.Framework.Legacy;
 using System.Reflection;
 using TinyView.Models;
 
@@ -38,7 +37,7 @@ public class ColorMapsTests
 
         var expected = new[] { "Mako", "Turbo", "Viridis", "Cividis", "Inferno", "Plasma", "Magma", "Rocket" };
 
-        CollectionAssert.AreEquivalent(expected, memberNames);
+        Assert.That(memberNames, Is.EquivalentTo(expected));
 
         // Additionally verify each map has dimensions [256,3]
         foreach (var (name, map) in maps)
@@ -102,8 +101,8 @@ public class ColorMapsTests
             var first = new byte[] { map[0, 0], map[0, 1], map[0, 2] };
             var last = new byte[] { map[255, 0], map[255, 1], map[255, 2] };
 
-            CollectionAssert.AreEqual(firstExp, first, $"First row for '{name}' does not match expected");
-            CollectionAssert.AreEqual(lastExp, last, $"Last row for '{name}' does not match expected");
+            Assert.That(first, Is.EqualTo(firstExp), $"First row for '{name}' does not match expected");
+            Assert.That(last, Is.EqualTo(lastExp), $"Last row for '{name}' does not match expected");
         }
     }
 }

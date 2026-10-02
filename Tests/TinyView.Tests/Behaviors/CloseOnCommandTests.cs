@@ -76,11 +76,11 @@ public class CloseOnCommandTests
         cmd.CanExecuteReturn = false;
         cmd.RaiseCanExecuteChanged();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(raised, Is.True, "proxy should re-raise the target's CanExecuteChanged");
             Assert.That(proxy.CanExecute(null), Is.False);
-        });
+        }
     }
 
     [Test]
