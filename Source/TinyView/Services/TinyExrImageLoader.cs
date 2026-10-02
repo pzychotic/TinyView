@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-using TinyEXR.V3;
+using TinyEXR;
 using TinyView.Models;
 
 namespace TinyView.Services;
