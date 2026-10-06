@@ -24,7 +24,7 @@ public sealed class ScrollViewerPanBehavior : Behavior<ScrollViewer>
 
     /// <summary>
     /// Optional notifier that signals a viewport reset (e.g. when a new image is loaded).
-    /// When fired the active pan operation is cancelled.
+    /// When fired the active pan operation is canceled.
     /// </summary>
     public static readonly DependencyProperty ResetNotifierProperty =
         DependencyProperty.Register(

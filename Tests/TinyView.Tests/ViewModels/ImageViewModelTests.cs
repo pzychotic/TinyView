@@ -416,7 +416,7 @@ public class ImageViewModelTests
     }
 
     [Test]
-    public async Task ExportCommand_DoesNothing_WhenSaveDialogCancelled()
+    public async Task ExportCommand_DoesNothing_WhenSaveDialogCanceled()
     {
         var provider = new RawImageData<int>(1, 1, new int[] { 1 }, "INT_FMT");
         string path = Path.Combine(Path.GetTempPath(), $"tinyview_export_{Guid.NewGuid():N}.png");
