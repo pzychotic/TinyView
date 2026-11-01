@@ -7,6 +7,27 @@ title: Changelog
 
 All notable changes to TinyView are documented in this file.
 
+## v1.5.1 - 2026-11-01
+
+### User-Visible Changes
+
+- Nothing, maintenance release only
+
+### Internal Changes
+
+- Ported TinyEXR.NET to v3 API
+- Removed `RuntimeIdentifier` from project files
+- Migrated legacy NUnit calls to new style
+
+### Dependency Updates
+
+- Bumped Magick.NET-Q16-AnyCPU from 14.16.0 to 15.0.0
+- Bumped Microsoft.NET.Test.Sdk from 18.8.1 to 18.11.0
+- Bumped Microsoft.Xaml.Behaviors.Wpf from 1.1.142 to 1.1.161
+- Bumped NUnit from 4.6.1 to 5.0.0
+- Bumped NUnit3TestAdapter from 6.2.0 to 6.3.1
+- Bumped TinyEXR.NET from 1.1.0 to 1.2.0
+
 ## v1.5.0 - 2026-08-01
 
 ### User-Visible Changes
