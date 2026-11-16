@@ -4,6 +4,10 @@ using System.Windows.Input;
 
 namespace TinyView.Behaviors;
 
+/// <summary>
+/// Makes the associated element a file drop target and forwards the dropped paths to <see cref="Command"/>.
+/// Which files are accepted is the command's business, not the behavior's.
+/// </summary>
 public sealed class DropBehavior : Behavior<UIElement>
 {
     public static readonly DependencyProperty CommandProperty =
@@ -23,37 +27,37 @@ public sealed class DropBehavior : Behavior<UIElement>
     {
         base.OnAttached();
         AssociatedObject.AllowDrop = true;
-        AssociatedObject.DragEnter += OnDragEnter;
+        AssociatedObject.DragEnter += OnDragOver;
+        // Children of the drop target reset the effect as the pointer moves over them, so keep setting it.
+        AssociatedObject.DragOver += OnDragOver;
         AssociatedObject.Drop += OnDrop;
     }
 
     protected override void OnDetaching()
     {
         AssociatedObject.AllowDrop = false;
-        AssociatedObject.DragEnter -= OnDragEnter;
+        AssociatedObject.DragEnter -= OnDragOver;
+        AssociatedObject.DragOver -= OnDragOver;
         AssociatedObject.Drop -= OnDrop;
         base.OnDetaching();
     }
 
-    private void OnDragEnter(object? sender, DragEventArgs e)
+    private void OnDragOver(object? sender, DragEventArgs e)
     {
-        if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            e.Effects = DragDropEffects.Copy;
-        else
-            e.Effects = DragDropEffects.None;
+        e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop)
+            ? DragDropEffects.Copy
+            : DragDropEffects.None;
 
         e.Handled = true;
     }
 
     private void OnDrop(object? sender, DragEventArgs e)
     {
-        if (Command == null) return;
+        if (Command is null)
+            return;
 
-        if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
-        {
-            if (Command.CanExecute(files))
-                Command.Execute(files);
-        }
+        if (e.Data.GetData(DataFormats.FileDrop) is string[] files && Command.CanExecute(files))
+            Command.Execute(files);
 
         e.Handled = true;
     }
