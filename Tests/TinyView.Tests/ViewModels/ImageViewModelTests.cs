@@ -208,8 +208,8 @@ public class ImageViewModelTests
         var vm = new ImageViewModel();
         vm.RawData = provider;
 
-        Assert.That(vm.DisplayMin, Is.EqualTo(provider.Min));
-        Assert.That(vm.DisplayMax, Is.EqualTo(provider.Max));
+        Assert.That(vm.DisplayMin, Is.EqualTo(provider.Range.Min));
+        Assert.That(vm.DisplayMax, Is.EqualTo(provider.Range.Max));
     }
 
     [Test]
@@ -280,8 +280,8 @@ public class ImageViewModelTests
         // reset
         vm.ResetMinMaxCommand.Execute(null);
 
-        Assert.That(vm.DisplayMin, Is.EqualTo(provider.Min));
-        Assert.That(vm.DisplayMax, Is.EqualTo(provider.Max));
+        Assert.That(vm.DisplayMin, Is.EqualTo(provider.Range.Min));
+        Assert.That(vm.DisplayMax, Is.EqualTo(provider.Range.Max));
         Assert.That(vm.ResetMinMaxCommand.CanExecute(null), Is.False);
     }
 

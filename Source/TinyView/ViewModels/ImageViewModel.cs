@@ -47,17 +47,26 @@ public partial class ImageViewModel : ObservableObject
 
     public bool HasImage => RawData != null;
     public string ImageSizeText => RawData != null ? $"{RawData.Width}x{RawData.Height}" : "0x0";
-    public string ImageMinMaxText => RawData != null ? $"{RawData.Min:0.##}..{RawData.Max:0.##}" : "0..0";
+    public string ImageMinMaxText => (RawData?.Range ?? default).ToString();
     public string ImageFormatText => RawData?.DataFormat ?? "undefined";
 
-    // Display range for normalization (editable by the user via toolbar)
+    // Display range for normalization (editable by the user via toolbar). Kept as two
+    // properties because the view binds and edits each bound independently.
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DisplayRange))]
     [NotifyCanExecuteChangedFor(nameof(ResetMinMaxCommand))]
     private double _displayMin;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DisplayRange))]
     [NotifyCanExecuteChangedFor(nameof(ResetMinMaxCommand))]
     private double _displayMax;
+
+    /// <summary>
+    /// <see cref="DisplayMin"/> and <see cref="DisplayMax"/> as a single value.
+    /// Use <see cref="SetDisplayRange"/> to change both at once.
+    /// </summary>
+    public ValueRange DisplayRange => new(DisplayMin, DisplayMax);
 
     private bool _suppressDisplayRangeUpdates;
 
@@ -65,11 +74,10 @@ public partial class ImageViewModel : ObservableObject
     /// Sets both <see cref="DisplayMin"/> and <see cref="DisplayMax"/> in a
     /// single batch, re-normalizing and re-rendering only once.
     /// </summary>
-    private void SetDisplayRange(double min, double max)
+    private void SetDisplayRange(ValueRange range)
     {
         _suppressDisplayRangeUpdates = true;
-        DisplayMin = min;
-        DisplayMax = max;
+        (DisplayMin, DisplayMax) = range;
         _suppressDisplayRangeUpdates = false;
         ApplyDisplayRange();
         ResetMinMaxCommand.NotifyCanExecuteChanged();
@@ -83,19 +91,18 @@ public partial class ImageViewModel : ObservableObject
     private void InitializeDisplayRange()
     {
         _suppressDisplayRangeUpdates = true;
-        DisplayMin = RawData?.Min ?? 0;
-        DisplayMax = RawData?.Max ?? 0;
+        (DisplayMin, DisplayMax) = RawData?.Range ?? default;
         _suppressDisplayRangeUpdates = false;
     }
 
-    private bool CanResetMinMax() => HasImage && (DisplayMin != RawData!.Min || DisplayMax != RawData!.Max);
+    private bool CanResetMinMax() => HasImage && DisplayRange != RawData!.Range;
 
     /// <summary>
     /// Resets <see cref="DisplayMin"/> and <see cref="DisplayMax"/> to the
     /// original values computed from the loaded image data.
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanResetMinMax))]
-    private void ResetMinMax() => SetDisplayRange(RawData!.Min, RawData!.Max);
+    private void ResetMinMax() => SetDisplayRange(RawData!.Range);
 
     /// <summary>
     /// Re-normalizes the raw data with the current display range and re-applies the palette.
@@ -105,7 +112,7 @@ public partial class ImageViewModel : ObservableObject
         if (RawData == null)
             return;
 
-        RawData.RegenerateIndexedData(DisplayMin, DisplayMax);
+        RawData.RegenerateIndexedData(DisplayRange);
         ApplyPalette();
     }
 
@@ -398,8 +405,7 @@ public partial class ImageViewModel : ObservableObject
         if (RawData == null || rect.Width <= 0 || rect.Height <= 0)
             return;
 
-        var (min, max) = RawData.GetRegionMinMax(rect.X, rect.Y, rect.Width, rect.Height);
-        SetDisplayRange(min, max);
+        SetDisplayRange(RawData.GetRegionRange(rect.X, rect.Y, rect.Width, rect.Height));
     }
 
     private async Task LoadImageAsync(string path)

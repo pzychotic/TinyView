@@ -14,8 +14,8 @@ public class RawImageDataHistogramTests
 
         Assert.That(histogram.Counts, Is.EqualTo([1, 2, 0, 1]));
         // bins are centered on the integer values
-        Assert.That(histogram.Min, Is.EqualTo(-0.5));
-        Assert.That(histogram.Max, Is.EqualTo(3.5));
+        Assert.That(histogram.Range.Min, Is.EqualTo(-0.5));
+        Assert.That(histogram.Range.Max, Is.EqualTo(3.5));
         Assert.That(histogram.BinWidth, Is.EqualTo(1.0));
         Assert.That(histogram.MaxCount, Is.EqualTo(2));
     }
@@ -50,8 +50,8 @@ public class RawImageDataHistogramTests
 
         var histogram = provider.ComputeHistogram(4);
 
-        Assert.That(histogram.Min, Is.EqualTo(0.0));
-        Assert.That(histogram.Max, Is.EqualTo(1.0));
+        Assert.That(histogram.Range.Min, Is.EqualTo(0.0));
+        Assert.That(histogram.Range.Max, Is.EqualTo(1.0));
         Assert.That(histogram.Counts, Is.EqualTo([1, 0, 1, 1]));
     }
 
@@ -63,8 +63,8 @@ public class RawImageDataHistogramTests
         var histogram = provider.ComputeHistogram(512);
 
         Assert.That(histogram.Counts, Is.EqualTo([4]));
-        Assert.That(histogram.Min, Is.LessThan(2.0));
-        Assert.That(histogram.Max, Is.GreaterThan(2.0));
+        Assert.That(histogram.Range.Min, Is.LessThan(2.0));
+        Assert.That(histogram.Range.Max, Is.GreaterThan(2.0));
     }
 
     [Test]

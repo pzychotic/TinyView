@@ -23,8 +23,8 @@
                 BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}">
             <Grid>
                 <controls:HistogramControl Histogram="{Binding Histogram}"
-                                           RangeMinimum="{Binding RawData.Min, FallbackValue=0}"
-                                           RangeMaximum="{Binding RawData.Max, FallbackValue=0}"
+                                           RangeMinimum="{Binding RawData.Range.Min, FallbackValue=0}"
+                                           RangeMaximum="{Binding RawData.Range.Max, FallbackValue=0}"
                                            BlackPoint="{Binding DisplayMin, Mode=TwoWay}"
                                            WhitePoint="{Binding DisplayMax, Mode=TwoWay}"
                                            IsLogScale="{Binding IsHistogramLogScale}"
