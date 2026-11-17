@@ -43,6 +43,9 @@
 
         <!-- R for reset min/max -->
         <KeyBinding Command="{Binding ResetMinMaxCommand}" Key="R" />
+
+        <!-- H for histogram window toggle -->
+        <KeyBinding Command="{Binding ToggleHistogramCommand}" Key="H" />
     </Window.InputBindings>
 
     <Grid>
@@ -92,6 +95,8 @@
                         <Image Source="/Resources/FlipVertical.png" />
                     </MenuItem.Icon>
                 </MenuItem>
+                <Separator />
+                <MenuItem Header="Histo_gram" IsCheckable="True" IsChecked="{Binding IsHistogramVisible, Mode=TwoWay}" InputGestureText="H" />
             </MenuItem>
 
             <MenuItem Header="?">

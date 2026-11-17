@@ -33,7 +33,13 @@ public class JsonSettingsServiceTests
             WindowWidth = 1024,
             WindowHeight = 768,
             WindowMaximized = true,
-            SelectedPaletteName = "Viridis"
+            SelectedPaletteName = "Viridis",
+            HistogramVisible = true,
+            HistogramLogScale = false,
+            HistogramLeft = 10,
+            HistogramTop = 20,
+            HistogramWidth = 400,
+            HistogramHeight = 250
         };
 
         service.Save(original);
@@ -46,6 +52,12 @@ public class JsonSettingsServiceTests
         Assert.That(loaded.WindowHeight, Is.EqualTo(original.WindowHeight));
         Assert.That(loaded.WindowMaximized, Is.EqualTo(original.WindowMaximized));
         Assert.That(loaded.SelectedPaletteName, Is.EqualTo(original.SelectedPaletteName));
+        Assert.That(loaded.HistogramVisible, Is.EqualTo(original.HistogramVisible));
+        Assert.That(loaded.HistogramLogScale, Is.EqualTo(original.HistogramLogScale));
+        Assert.That(loaded.HistogramLeft, Is.EqualTo(original.HistogramLeft));
+        Assert.That(loaded.HistogramTop, Is.EqualTo(original.HistogramTop));
+        Assert.That(loaded.HistogramWidth, Is.EqualTo(original.HistogramWidth));
+        Assert.That(loaded.HistogramHeight, Is.EqualTo(original.HistogramHeight));
     }
 
     [Test]

@@ -22,4 +22,10 @@ public interface IRawImageDataProvider
     /// specified rectangular region. Coordinates are clamped to the image bounds.
     /// </summary>
     (double Min, double Max) GetRegionMinMax(int x, int y, int width, int height);
+
+    /// <summary>
+    /// Computes the distribution of the raw pixel values over [<see cref="Min"/>, <see cref="Max"/>]
+    /// using at most <paramref name="binCount"/> equally wide bins. Non-finite values are skipped.
+    /// </summary>
+    Histogram ComputeHistogram(int binCount);
 }

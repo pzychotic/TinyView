@@ -431,6 +431,79 @@ public class ImageViewModelTests
         Assert.That(vm.IsBusy, Is.False);
     }
 
+    [Test]
+    public void ToggleHistogramCommand_ShowsAndHidesHistogramWindow()
+    {
+        var dialog = new SpyDialogService();
+        var vm = new ImageViewModel(dialog);
+
+        vm.ToggleHistogramCommand.Execute(null);
+        Assert.That(vm.IsHistogramVisible, Is.True);
+        Assert.That(dialog.HistogramShown, Is.True);
+        Assert.That(dialog.HistogramDataContext, Is.SameAs(vm));
+
+        vm.ToggleHistogramCommand.Execute(null);
+        Assert.That(vm.IsHistogramVisible, Is.False);
+        Assert.That(dialog.HistogramShown, Is.False);
+    }
+
+    [Test]
+    public void HistogramCloseRequested_ClearsIsHistogramVisible()
+    {
+        var dialog = new SpyDialogService();
+        var vm = new ImageViewModel(dialog) { IsHistogramVisible = true };
+
+        dialog.HistogramCloseRequested!.Invoke();
+
+        Assert.That(vm.IsHistogramVisible, Is.False);
+        Assert.That(dialog.HistogramShown, Is.False);
+    }
+
+    [Test]
+    public void Histogram_IsNotComputed_WhileHidden_AndComputedOnShow()
+    {
+        var vm = new ImageViewModel(new SpyDialogService());
+        vm.RawData = new RawImageData<int>(2, 1, [0, 3], "INT_FMT");
+
+        Assert.That(vm.Histogram, Is.Null);
+
+        vm.IsHistogramVisible = true;
+
+        Assert.That(vm.Histogram, Is.Not.Null);
+        Assert.That(vm.Histogram!.Counts.Sum(), Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Histogram_IsRecomputed_WhenNewImageLoadedWhileVisible()
+    {
+        var vm = new ImageViewModel(new SpyDialogService()) { IsHistogramVisible = true };
+        vm.RawData = new RawImageData<int>(1, 1, [5], "INT_FMT");
+        var first = vm.Histogram;
+
+        vm.RawData = new RawImageData<int>(3, 1, [0, 1, 2], "INT_FMT");
+
+        Assert.That(vm.Histogram, Is.Not.SameAs(first));
+        Assert.That(vm.Histogram!.Counts, Is.EqualTo(new[] { 1, 1, 1 }));
+    }
+
+    [Test]
+    public void Histogram_IsCleared_WhenNewImageLoadedWhileHidden()
+    {
+        var vm = new ImageViewModel(new SpyDialogService()) { IsHistogramVisible = true };
+        vm.RawData = new RawImageData<int>(1, 1, [5], "INT_FMT");
+        vm.IsHistogramVisible = false;
+
+        vm.RawData = new RawImageData<int>(1, 1, [7], "INT_FMT");
+
+        Assert.That(vm.Histogram, Is.Null);
+    }
+
+    [Test]
+    public void IsHistogramLogScale_DefaultsToTrue()
+    {
+        Assert.That(new ImageViewModel().IsHistogramLogScale, Is.True);
+    }
+
     private sealed class SpyDialogService : IDialogService
     {
         public bool ShutdownRequested { get; private set; }
@@ -447,6 +520,18 @@ public class ImageViewModelTests
         public string? ShowSaveFileDialog(string filter, string defaultFileName) => SaveFilePath;
         public void ShowError(string title, string message) { }
         public void ShowAbout() => AboutShown = true;
+
+        public bool HistogramShown { get; private set; }
+        public object? HistogramDataContext { get; private set; }
+        public Action? HistogramCloseRequested { get; private set; }
+
+        public void ShowHistogram(object dataContext, Action closeRequested)
+        {
+            HistogramShown = true;
+            HistogramDataContext = dataContext;
+            HistogramCloseRequested = closeRequested;
+        }
+        public void HideHistogram() => HistogramShown = false;
         public void RequestShutdown() => ShutdownRequested = true;
     }
 
