@@ -17,6 +17,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" BorderThickness="1"
@@ -48,7 +49,28 @@
             </Grid>
         </Border>
 
-        <DockPanel Grid.Row="1" Margin="0,6,0,0" LastChildFill="False">
+        <TextBlock Grid.Row="1" Margin="0,4,0,0"
+                   ToolTip="Pixels that are NaN or infinite are excluded from the histogram and the value range"
+                   AutomationProperties.Name="Non-finite Pixel Counts">
+            <TextBlock.Text>
+                <MultiBinding StringFormat="{}NaN: {0:N0} · ±Inf: {1:N0}">
+                    <Binding Path="Histogram.NaNCount" />
+                    <Binding Path="Histogram.InfinityCount" />
+                </MultiBinding>
+            </TextBlock.Text>
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Histogram.HasNonFiniteValues}" Value="True">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+        <DockPanel Grid.Row="2" Margin="0,6,0,0" LastChildFill="False">
             <TextBlock DockPanel.Dock="Left" Text="Black:" VerticalAlignment="Center" Margin="0,0,4,0" />
             <TextBox DockPanel.Dock="Left" Width="60" VerticalContentAlignment="Center"
                      Text="{Binding DisplayMin, StringFormat='{}{0:0.##}'}"

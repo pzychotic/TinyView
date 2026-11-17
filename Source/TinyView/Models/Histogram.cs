@@ -6,8 +6,13 @@ namespace TinyView.Models;
 /// </summary>
 /// <param name="Counts">Number of pixels per bin.</param>
 /// <param name="Range">Value range covered by the bins, from the lower edge of the first bin to the upper edge of the last.</param>
-public sealed record Histogram(int[] Counts, ValueRange Range)
+/// <param name="NaNCount">Number of NaN pixels (not included in <paramref name="Counts"/>).</param>
+/// <param name="InfinityCount">Number of +Infinity and -Infinity pixels (not included in <paramref name="Counts"/>).</param>
+public sealed record Histogram(int[] Counts, ValueRange Range, int NaNCount = 0, int InfinityCount = 0)
 {
+    /// <summary>True when the image contains NaN or ±Infinity pixels.</summary>
+    public bool HasNonFiniteValues => NaNCount > 0 || InfinityCount > 0;
+
     /// <summary>Default bin count used for the histogram panel.</summary>
     public const int DefaultBinCount = 512;
 

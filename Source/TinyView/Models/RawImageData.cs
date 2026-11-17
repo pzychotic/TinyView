@@ -29,21 +29,27 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
     }
 
     /// <summary>
-    /// Computes the minimum and maximum of <paramref name="data"/> in a single pass.
-    /// Returns (0, 0) for an empty buffer.
+    /// Computes the minimum and maximum of the finite values in <paramref name="data"/> in a single pass.
+    /// NaN and ±Infinity are ignored. Returns (0, 0) when there is no finite value (e.g. an empty buffer).
     /// </summary>
     private static ValueRange ComputeRange(ReadOnlySpan<T> data)
     {
-        if (data.IsEmpty)
-            return default;
-
-        T min = data[0];
-        T max = data[0];
-        for (int i = 1; i < data.Length; ++i)
+        T min = T.Zero;
+        T max = T.Zero;
+        bool found = false;
+        for (int i = 0; i < data.Length; ++i)
         {
             T value = data[i];
-            if (value < min) min = value;
-            if (value > max) max = value;
+            if (!T.IsFinite(value))
+                continue;
+
+            if (!found)
+            {
+                min = max = value;
+                found = true;
+            }
+            else if (value < min) min = value;
+            else if (value > max) max = value;
         }
 
         return new ValueRange(double.CreateTruncating(min), double.CreateTruncating(max));
@@ -82,6 +88,10 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         int x1 = Math.Min(Width, x + width);
         int y1 = Math.Min(Height, y + height);
 
+        // If the region is empty, fall back to the global range
+        if (x1 <= x0 || y1 <= y0)
+            return Range;
+
         double min = double.MaxValue;
         double max = double.MinValue;
 
@@ -93,14 +103,16 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
             for (int i = 0; i < colCount; i++)
             {
                 double val = double.CreateTruncating(rowSlice[i]);
+                if (!double.IsFinite(val))
+                    continue;
                 if (val < min) min = val;
                 if (val > max) max = val;
             }
         }
 
-        // If the region was empty, fall back to global min/max
+        // The region contains no finite value
         if (min > max)
-            return Range;
+            return default;
 
         return new ValueRange(min, max);
     }
@@ -129,18 +141,25 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         double scale = binCount / histRange.Length;
         int lastBin = binCount - 1;
 
+        int nanCount = 0;
+        int infinityCount = 0;
+
         ReadOnlySpan<T> rawSpan = _rawData;
         for (int i = 0; i < rawSpan.Length; ++i)
         {
             double value = double.CreateTruncating(rawSpan[i]);
             if (!double.IsFinite(value))
+            {
+                if (double.IsNaN(value)) nanCount++;
+                else infinityCount++;
                 continue;
+            }
 
             int bin = (int)((value - histMin) * scale);
             counts[Math.Clamp(bin, 0, lastBin)]++;
         }
 
-        return new Histogram(counts, histRange);
+        return new Histogram(counts, histRange, nanCount, infinityCount);
     }
 
     public int Width { get; }
