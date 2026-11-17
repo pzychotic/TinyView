@@ -29,6 +29,7 @@ Hovering over an area will display the raw pixel value under the cursor in the s
 - Automatic dynamic range scaling adjusts pixel values for screen display
 - Dynamic range scaling based on a rectangular selection
 - Manually define the display min/max range
+- Histogram window showing the pixel value distribution, with draggable black/white points
 - Multiple color maps, including colorblind-friendly palettes
 - Pixel inspection shows raw pixel values in the status bar on mouse over
 - Export of the visible colorized image to PNG

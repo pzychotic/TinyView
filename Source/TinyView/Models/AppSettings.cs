@@ -14,4 +14,15 @@ public sealed class AppSettings
 
     /// <summary>Name of the selected color palette.</summary>
     public string? SelectedPaletteName { get; set; }
+
+    /// <summary>Whether the histogram window was open.</summary>
+    public bool HistogramVisible { get; set; }
+
+    /// <summary>Whether the histogram uses a logarithmic count axis (null = default).</summary>
+    public bool? HistogramLogScale { get; set; }
+
+    public double? HistogramLeft { get; set; }
+    public double? HistogramTop { get; set; }
+    public double? HistogramWidth { get; set; }
+    public double? HistogramHeight { get; set; }
 }

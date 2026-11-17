@@ -109,6 +109,47 @@ public partial class ImageViewModel : ObservableObject
         ApplyPalette();
     }
 
+    /// <summary>
+    /// Whether the histogram tool window is shown (View > Histogram menu item).
+    /// </summary>
+    [ObservableProperty]
+    private bool _isHistogramVisible;
+
+    /// <summary>
+    /// Whether the histogram uses a logarithmic count axis.
+    /// </summary>
+    [ObservableProperty]
+    private bool _isHistogramLogScale = true;
+
+    /// <summary>
+    /// Pixel-value distribution of the current image. Computed lazily, only while the
+    /// histogram window is visible, and reset whenever a new image is loaded.
+    /// </summary>
+    [ObservableProperty]
+    private Histogram? _histogram;
+
+    [RelayCommand]
+    private void ToggleHistogram() => IsHistogramVisible = !IsHistogramVisible;
+
+    partial void OnIsHistogramVisibleChanged(bool value)
+    {
+        if (value)
+        {
+            EnsureHistogram();
+            _dialogService.ShowHistogram(this, () => IsHistogramVisible = false);
+        }
+        else
+        {
+            _dialogService.HideHistogram();
+        }
+    }
+
+    private void EnsureHistogram()
+    {
+        if (Histogram == null && RawData != null)
+            Histogram = RawData.ComputeHistogram(Models.Histogram.DefaultBinCount);
+    }
+
     private bool CanToggleRegionSelect() => HasImage;
 
     [RelayCommand(CanExecute = nameof(CanToggleRegionSelect))]
@@ -200,6 +241,9 @@ public partial class ImageViewModel : ObservableObject
         IsFlippedVertically = false;
         IsRegionSelectActive = false;
         PanResetNotifier.RequestReset();
+        Histogram = null;
+        if (IsHistogramVisible)
+            EnsureHistogram();
         InitializeDisplayRange();
         ApplyPalette();
         ZoomInCommand.NotifyCanExecuteChanged();
@@ -424,6 +468,8 @@ public partial class ImageViewModel : ObservableObject
         public string? ShowSaveFileDialog(string filter, string defaultFileName) => null;
         public void ShowError(string title, string message) { }
         public void ShowAbout() { }
+        public void ShowHistogram(object dataContext, Action closeRequested) { }
+        public void HideHistogram() { }
         public void RequestShutdown() { }
     }
 }

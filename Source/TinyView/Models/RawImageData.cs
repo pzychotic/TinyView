@@ -104,6 +104,45 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         return (min, max);
     }
 
+    // True for integral pixel types: CreateTruncating(0.5) rounds to zero, which is an integer.
+    private static readonly bool IsIntegerType = T.IsInteger(T.CreateTruncating(0.5));
+
+    /// <inheritdoc />
+    public Histogram ComputeHistogram(int binCount)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(binCount, 1);
+
+        double range = Max - Min;
+        double histMin = Min;
+        double histMax = Max;
+
+        if (range == 0 || (IsIntegerType && range < binCount))
+        {
+            // One bin per distinct integer value (or a single bin for a constant image),
+            // centered on the value so the markers line up with the bars.
+            binCount = (int)range + 1;
+            histMin = Min - 0.5;
+            histMax = Max + 0.5;
+        }
+
+        var counts = new int[binCount];
+        double scale = binCount / (histMax - histMin);
+        int lastBin = binCount - 1;
+
+        ReadOnlySpan<T> rawSpan = _rawData;
+        for (int i = 0; i < rawSpan.Length; ++i)
+        {
+            double value = double.CreateTruncating(rawSpan[i]);
+            if (!double.IsFinite(value))
+                continue;
+
+            int bin = (int)((value - histMin) * scale);
+            counts[Math.Clamp(bin, 0, lastBin)]++;
+        }
+
+        return new Histogram(counts, histMin, histMax);
+    }
+
     public int Width { get; }
     public int Height { get; }
 

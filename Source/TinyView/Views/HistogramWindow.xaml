@@ -1,0 +1,84 @@
+<Window x:Class="TinyView.Views.HistogramWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:behaviors="clr-namespace:TinyView.Behaviors"
+        xmlns:controls="clr-namespace:TinyView.Controls"
+        SnapsToDevicePixels="True" UseLayoutRounding="True"
+        Title="Histogram"
+        Width="420" Height="240" MinWidth="260" MinHeight="160"
+        WindowStyle="ToolWindow" ShowInTaskbar="False" ShowActivated="False"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </Window.Resources>
+
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" BorderThickness="1"
+                BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}">
+            <Grid>
+                <controls:HistogramControl Histogram="{Binding Histogram}"
+                                           RangeMinimum="{Binding RawData.Min, FallbackValue=0}"
+                                           RangeMaximum="{Binding RawData.Max, FallbackValue=0}"
+                                           BlackPoint="{Binding DisplayMin, Mode=TwoWay}"
+                                           WhitePoint="{Binding DisplayMax, Mode=TwoWay}"
+                                           IsLogScale="{Binding IsHistogramLogScale}"
+                                           Palette="{Binding SelectedPalette.Palette}"
+                                           IsEnabled="{Binding HasImage}"
+                                           ToolTip="Drag the markers to set the black and white points (double-click a marker to reset it)"
+                                           AutomationProperties.Name="Histogram" />
+                <TextBlock Text="No image loaded" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Foreground="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasImage}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </Border>
+
+        <DockPanel Grid.Row="1" Margin="0,6,0,0" LastChildFill="False">
+            <TextBlock DockPanel.Dock="Left" Text="Black:" VerticalAlignment="Center" Margin="0,0,4,0" />
+            <TextBox DockPanel.Dock="Left" Width="60" VerticalContentAlignment="Center"
+                     Text="{Binding DisplayMin, StringFormat='{}{0:0.##}'}"
+                     IsEnabled="{Binding HasImage}"
+                     ToolTip="Black point (commit with Enter or Tab)"
+                     AutomationProperties.Name="Black Point">
+                <i:Interaction.Behaviors>
+                    <behaviors:TextBoxCommitBehavior />
+                </i:Interaction.Behaviors>
+            </TextBox>
+            <TextBlock DockPanel.Dock="Left" Text="White:" VerticalAlignment="Center" Margin="8,0,4,0" />
+            <TextBox DockPanel.Dock="Left" Width="60" VerticalContentAlignment="Center"
+                     Text="{Binding DisplayMax, StringFormat='{}{0:0.##}'}"
+                     IsEnabled="{Binding HasImage}"
+                     ToolTip="White point (commit with Enter or Tab)"
+                     AutomationProperties.Name="White Point">
+                <i:Interaction.Behaviors>
+                    <behaviors:TextBoxCommitBehavior />
+                </i:Interaction.Behaviors>
+            </TextBox>
+            <Button DockPanel.Dock="Left" Margin="4,0,0,0" Padding="2"
+                    Command="{Binding ResetMinMaxCommand}"
+                    ToolTip="Reset to original min/max values (R)"
+                    AutomationProperties.Name="Reset Black/White Points">
+                <Image Source="/Resources/DisplayMinMaxReset.png" Width="16" Height="16" />
+            </Button>
+
+            <CheckBox DockPanel.Dock="Right" Content="Log scale" VerticalAlignment="Center"
+                      IsChecked="{Binding IsHistogramLogScale, Mode=TwoWay}"
+                      ToolTip="Logarithmic count axis" />
+        </DockPanel>
+    </Grid>
+</Window>
