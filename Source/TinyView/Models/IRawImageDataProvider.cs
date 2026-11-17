@@ -5,7 +5,7 @@ public interface IRawImageDataProvider
     int Width { get; }
     int Height { get; }
 
-    /// <summary>Minimum and maximum raw pixel value of the whole image.</summary>
+    /// <summary>Minimum and maximum finite raw pixel value of the whole image ((0, 0) if there is none).</summary>
     ValueRange Range { get; }
 
     byte[] IndexedData { get; }
@@ -20,8 +20,10 @@ public interface IRawImageDataProvider
     void RegenerateIndexedData(ValueRange displayRange);
 
     /// <summary>
-    /// Computes the minimum and maximum raw pixel values within the
+    /// Computes the minimum and maximum finite raw pixel values within the
     /// specified rectangular region. Coordinates are clamped to the image bounds.
+    /// NaN and ±Infinity are ignored; returns (0, 0) if the region has no finite value,
+    /// and the global <see cref="Range"/> if the clamped region is empty.
     /// </summary>
     ValueRange GetRegionRange(int x, int y, int width, int height);
 

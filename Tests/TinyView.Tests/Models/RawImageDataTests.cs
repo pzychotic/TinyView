@@ -319,4 +319,86 @@ public class RawImageDataTests
         Assert.That(min, Is.EqualTo(-50.0));
         Assert.That(max, Is.EqualTo(100.0));
     }
+
+    [Test]
+    public void Range_IgnoresInfinity()
+    {
+        var data = new float[] { float.NegativeInfinity, 1f, 3f, float.PositiveInfinity };
+        var provider = new RawImageData<float>(4, 1, data, "FLT");
+
+        Assert.That(provider.Range, Is.EqualTo(new ValueRange(1, 3)));
+    }
+
+    [Test]
+    public void Range_IgnoresNaN_AtFirstIndex()
+    {
+        var data = new float[] { float.NaN, 1f, 3f };
+        var provider = new RawImageData<float>(3, 1, data, "FLT");
+
+        Assert.That(provider.Range, Is.EqualTo(new ValueRange(1, 3)));
+    }
+
+    [Test]
+    public void Range_IgnoresNonFinite_ForHalf()
+    {
+        var data = new Half[] { Half.NaN, (Half)2f, Half.PositiveInfinity, (Half)(-1f), Half.NegativeInfinity };
+        var provider = new RawImageData<Half>(5, 1, data, "HALF");
+
+        Assert.That(provider.Range, Is.EqualTo(new ValueRange(-1, 2)));
+    }
+
+    [Test]
+    public void Range_NoFiniteValues_IsZero()
+    {
+        var data = new float[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity };
+        var provider = new RawImageData<float>(3, 1, data, "FLT");
+
+        Assert.That(provider.Range, Is.EqualTo(new ValueRange(0, 0)));
+    }
+
+    [Test]
+    public void IndexedData_NonFiniteValues_MapToPaletteEnds()
+    {
+        // Agreed behavior for now: NaN and -Inf use the first palette entry, +Inf the last.
+        var data = new float[] { 1f, float.NaN, float.NegativeInfinity, float.PositiveInfinity, 3f };
+        var provider = new RawImageData<float>(5, 1, data, "FLT");
+
+        Assert.That(provider.IndexedData, Is.EqualTo(new byte[] { 0, 0, 0, 255, 255 }));
+    }
+
+    [Test]
+    public void GetRegionRange_IgnoresNonFinite()
+    {
+        // Layout (3x2):
+        //  NaN   +Inf  9
+        //  2     -Inf  4
+        var data = new float[] { float.NaN, float.PositiveInfinity, 9f, 2f, float.NegativeInfinity, 4f };
+        var provider = new RawImageData<float>(3, 2, data, "FLT");
+
+        var range = provider.GetRegionRange(0, 0, 2, 2);
+
+        Assert.That(range, Is.EqualTo(new ValueRange(2, 2)));
+    }
+
+    [Test]
+    public void GetRegionRange_NoFiniteValuesInRegion_IsZero()
+    {
+        var data = new float[] { float.NaN, float.PositiveInfinity, 5f, 7f };
+        var provider = new RawImageData<float>(2, 2, data, "FLT");
+
+        var range = provider.GetRegionRange(0, 0, 2, 1);
+
+        Assert.That(range, Is.EqualTo(new ValueRange(0, 0)));
+    }
+
+    [Test]
+    public void GetValueString_NonFiniteHalf_MatchesFloatFormatting()
+    {
+        var data = new Half[] { Half.NaN, Half.PositiveInfinity, Half.NegativeInfinity };
+        var provider = new RawImageData<Half>(3, 1, data, "HALF");
+
+        Assert.That(provider.GetValueString(0, 0), Is.EqualTo(float.NaN.ToString()));
+        Assert.That(provider.GetValueString(1, 0), Is.EqualTo(float.PositiveInfinity.ToString()));
+        Assert.That(provider.GetValueString(2, 0), Is.EqualTo(float.NegativeInfinity.ToString()));
+    }
 }
