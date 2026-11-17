@@ -141,18 +141,25 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         double scale = binCount / histRange.Length;
         int lastBin = binCount - 1;
 
+        int nanCount = 0;
+        int infinityCount = 0;
+
         ReadOnlySpan<T> rawSpan = _rawData;
         for (int i = 0; i < rawSpan.Length; ++i)
         {
             double value = double.CreateTruncating(rawSpan[i]);
             if (!double.IsFinite(value))
+            {
+                if (double.IsNaN(value)) nanCount++;
+                else infinityCount++;
                 continue;
+            }
 
             int bin = (int)((value - histMin) * scale);
             counts[Math.Clamp(bin, 0, lastBin)]++;
         }
 
-        return new Histogram(counts, histRange);
+        return new Histogram(counts, histRange, nanCount, infinityCount);
     }
 
     public int Width { get; }

@@ -78,6 +78,55 @@ public class RawImageDataHistogramTests
     }
 
     [Test]
+    public void ComputeHistogram_CountsNaNAndInfinitySeparately()
+    {
+        float[] data = [float.NaN, 0f, float.PositiveInfinity, float.NaN, 1f, float.NegativeInfinity, float.NaN];
+        var provider = new RawImageData<float>(7, 1, data, "R32F");
+
+        var histogram = provider.ComputeHistogram(8);
+
+        Assert.That(histogram.Counts.Sum(), Is.EqualTo(2));
+        Assert.That(histogram.NaNCount, Is.EqualTo(3));
+        Assert.That(histogram.InfinityCount, Is.EqualTo(2));
+        Assert.That(histogram.HasNonFiniteValues, Is.True);
+    }
+
+    [Test]
+    public void ComputeHistogram_InfinityDoesNotCollapseBins()
+    {
+        var provider = new RawImageData<float>(4, 1, [0f, 1f, float.PositiveInfinity, float.NegativeInfinity], "R32F");
+
+        var histogram = provider.ComputeHistogram(4);
+
+        Assert.That(histogram.Range, Is.EqualTo(new ValueRange(0, 1)));
+        Assert.That(histogram.Counts, Is.EqualTo([1, 0, 0, 1]));
+    }
+
+    [Test]
+    public void ComputeHistogram_NoFiniteValues_HasEmptyBinsAndCounts()
+    {
+        var provider = new RawImageData<float>(2, 1, [float.NaN, float.PositiveInfinity], "R32F");
+
+        var histogram = provider.ComputeHistogram(8);
+
+        Assert.That(histogram.Counts.Sum(), Is.Zero);
+        Assert.That(histogram.NaNCount, Is.EqualTo(1));
+        Assert.That(histogram.InfinityCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ComputeHistogram_FiniteImage_HasNoNonFiniteValues()
+    {
+        var provider = new RawImageData<int>(2, 1, [1, 2], "INT_FMT");
+
+        var histogram = provider.ComputeHistogram(8);
+
+        Assert.That(histogram.NaNCount, Is.Zero);
+        Assert.That(histogram.InfinityCount, Is.Zero);
+        Assert.That(histogram.HasNonFiniteValues, Is.False);
+    }
+
+    [Test]
     public void ComputeHistogram_CountsSumToPixelCount()
     {
         var random = new Random(42);
