@@ -18,24 +18,24 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         Width = width;
         Height = height;
 
-        (Min, Max) = ComputeMinMax(data);
+        Range = ComputeRange(data);
 
         _rawData = data;
         IndexedData = new byte[Width * Height];
 
         _dataFormat = dataFormat;
 
-        GenerateIndexedData(Min, Max);
+        GenerateIndexedData(Range);
     }
 
     /// <summary>
     /// Computes the minimum and maximum of <paramref name="data"/> in a single pass.
     /// Returns (0, 0) for an empty buffer.
     /// </summary>
-    private static (double Min, double Max) ComputeMinMax(ReadOnlySpan<T> data)
+    private static ValueRange ComputeRange(ReadOnlySpan<T> data)
     {
         if (data.IsEmpty)
-            return (0, 0);
+            return default;
 
         T min = data[0];
         T max = data[0];
@@ -46,17 +46,18 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
             if (value > max) max = value;
         }
 
-        return (double.CreateTruncating(min), double.CreateTruncating(max));
+        return new ValueRange(double.CreateTruncating(min), double.CreateTruncating(max));
     }
 
     /// <summary>
-    /// Generates indexed data by normalizing the raw data values between
-    /// <paramref name="min"/> and <paramref name="max"/> to a 0-255 byte range.
-    /// Values outside the range are clamped.
+    /// Generates indexed data by normalizing the raw data values within
+    /// <paramref name="range"/> to a 0-255 byte range. Values outside the range are clamped.
+    /// An inverted range (Min &gt; Max) intentionally inverts the mapping.
     /// </summary>
-    private void GenerateIndexedData(double min, double max)
+    private void GenerateIndexedData(ValueRange range)
     {
-        double scale = min == max ? 1.0 : 255.0 / (max - min);
+        double min = range.Min;
+        double scale = range.Length == 0 ? 1.0 : 255.0 / range.Length;
         ReadOnlySpan<T> rawSpan = _rawData;
         Span<byte> indexedSpan = IndexedData;
         for (int i = 0; i < rawSpan.Length; ++i)
@@ -67,13 +68,13 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
     }
 
     /// <inheritdoc />
-    public void RegenerateIndexedData(double displayMin, double displayMax)
+    public void RegenerateIndexedData(ValueRange displayRange)
     {
-        GenerateIndexedData(displayMin, displayMax);
+        GenerateIndexedData(displayRange);
     }
 
     /// <inheritdoc />
-    public (double Min, double Max) GetRegionMinMax(int x, int y, int width, int height)
+    public ValueRange GetRegionRange(int x, int y, int width, int height)
     {
         // Clamp the rectangle to the image bounds
         int x0 = Math.Max(0, x);
@@ -99,9 +100,9 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
 
         // If the region was empty, fall back to global min/max
         if (min > max)
-            return (Min, Max);
+            return Range;
 
-        return (min, max);
+        return new ValueRange(min, max);
     }
 
     // True for integral pixel types: CreateTruncating(0.5) rounds to zero, which is an integer.
@@ -112,21 +113,20 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(binCount, 1);
 
-        double range = Max - Min;
-        double histMin = Min;
-        double histMax = Max;
+        double length = Range.Length;
+        ValueRange histRange = Range;
 
-        if (range == 0 || (IsIntegerType && range < binCount))
+        if (length == 0 || (IsIntegerType && length < binCount))
         {
             // One bin per distinct integer value (or a single bin for a constant image),
             // centered on the value so the markers line up with the bars.
-            binCount = (int)range + 1;
-            histMin = Min - 0.5;
-            histMax = Max + 0.5;
+            binCount = (int)length + 1;
+            histRange = new ValueRange(Range.Min - 0.5, Range.Max + 0.5);
         }
 
         var counts = new int[binCount];
-        double scale = binCount / (histMax - histMin);
+        double histMin = histRange.Min;
+        double scale = binCount / histRange.Length;
         int lastBin = binCount - 1;
 
         ReadOnlySpan<T> rawSpan = _rawData;
@@ -140,14 +140,13 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
             counts[Math.Clamp(bin, 0, lastBin)]++;
         }
 
-        return new Histogram(counts, histMin, histMax);
+        return new Histogram(counts, histRange);
     }
 
     public int Width { get; }
     public int Height { get; }
 
-    public double Min { get; }
-    public double Max { get; }
+    public ValueRange Range { get; }
 
     public byte[] IndexedData { get; }
 

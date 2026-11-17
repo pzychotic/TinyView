@@ -20,8 +20,8 @@ public class RawImageDataTests
 
         Assert.That(provider.Width, Is.EqualTo(width));
         Assert.That(provider.Height, Is.EqualTo(height));
-        Assert.That(provider.Min, Is.EqualTo(0.0));
-        Assert.That(provider.Max, Is.EqualTo(255.0));
+        Assert.That(provider.Range.Min, Is.EqualTo(0.0));
+        Assert.That(provider.Range.Max, Is.EqualTo(255.0));
         Assert.That(provider.DataFormat, Is.EqualTo("INT_FMT"));
 
         // expected bytes at index = y * width + x
@@ -49,8 +49,8 @@ public class RawImageDataTests
 
         Assert.That(provider.Width, Is.EqualTo(width));
         Assert.That(provider.Height, Is.EqualTo(height));
-        Assert.That(provider.Min, Is.EqualTo(5.0));
-        Assert.That(provider.Max, Is.EqualTo(5.0));
+        Assert.That(provider.Range.Min, Is.EqualTo(5.0));
+        Assert.That(provider.Range.Max, Is.EqualTo(5.0));
         Assert.That(provider.DataFormat, Is.EqualTo("FLT_FMT"));
 
         // when Min == Max the implementation sets scale = 1f,
@@ -72,8 +72,8 @@ public class RawImageDataTests
 
         var expected = new byte[] { (byte)0, (byte)127, (byte)255 };
 
-        Assert.That(provider.Min, Is.EqualTo(float.MinValue));
-        Assert.That(provider.Max, Is.EqualTo(float.MaxValue));
+        Assert.That(provider.Range.Min, Is.EqualTo(float.MinValue));
+        Assert.That(provider.Range.Max, Is.EqualTo(float.MaxValue));
         Assert.That(provider.IndexedData, Is.EqualTo(expected));
 
         // GetValueString() should return the ToString() of the raw value
@@ -91,8 +91,8 @@ public class RawImageDataTests
 
         var expected = new byte[] { (byte)0, (byte)127, (byte)255 };
 
-        Assert.That(provider.Min, Is.EqualTo((float)Half.MinValue));
-        Assert.That(provider.Max, Is.EqualTo((float)Half.MaxValue));
+        Assert.That(provider.Range.Min, Is.EqualTo((float)Half.MinValue));
+        Assert.That(provider.Range.Max, Is.EqualTo((float)Half.MaxValue));
         Assert.That(provider.IndexedData, Is.EqualTo(expected));
 
         // GetValueString() should return the ToString() of the raw value
@@ -126,8 +126,8 @@ public class RawImageDataTests
             }
         }
 
-        Assert.That(provider.Min, Is.EqualTo(min));
-        Assert.That(provider.Max, Is.EqualTo(max));
+        Assert.That(provider.Range.Min, Is.EqualTo(min));
+        Assert.That(provider.Range.Max, Is.EqualTo(max));
         Assert.That(provider.IndexedData, Is.EqualTo(expected));
         Assert.That(provider.DataFormat, Is.EqualTo("DBL_FMT"));
 
@@ -145,11 +145,11 @@ public class RawImageDataTests
         var provider = new RawImageData<float>(width, height, data, "FLT_FMT");
 
         // original range: 0..100 → indexed: 0, 127/128, 255
-        Assert.That(provider.Min, Is.EqualTo(0.0));
-        Assert.That(provider.Max, Is.EqualTo(100.0));
+        Assert.That(provider.Range.Min, Is.EqualTo(0.0));
+        Assert.That(provider.Range.Max, Is.EqualTo(100.0));
 
         // narrow the display range to 25..75
-        provider.RegenerateIndexedData(25.0, 75.0);
+        provider.RegenerateIndexedData(new ValueRange(25.0, 75.0));
 
         // 0 is below 25 → clamped to 0
         // 50 is mid-range: (50-25)*255/50 = 127.5 → 127
@@ -159,8 +159,8 @@ public class RawImageDataTests
         Assert.That(provider.IndexedData[2], Is.EqualTo((byte)255));
 
         // Min and Max properties remain unchanged (they reflect the original data)
-        Assert.That(provider.Min, Is.EqualTo(0.0));
-        Assert.That(provider.Max, Is.EqualTo(100.0));
+        Assert.That(provider.Range.Min, Is.EqualTo(0.0));
+        Assert.That(provider.Range.Max, Is.EqualTo(100.0));
     }
 
     [Test]
@@ -173,7 +173,7 @@ public class RawImageDataTests
 
         // when displayMin == displayMax, scale = 1, so (value - min) * 1
         // both values become 0 and 10 respectively, clamped to byte
-        provider.RegenerateIndexedData(15.0, 15.0);
+        provider.RegenerateIndexedData(new ValueRange(15.0, 15.0));
 
         // (10 - 15) * 1 = -5 → clamped to 0
         // (20 - 15) * 1 = 5 → clamped to 5
@@ -192,29 +192,29 @@ public class RawImageDataTests
         var originalIndexed = (byte[])provider.IndexedData.Clone();
 
         // apply a custom range
-        provider.RegenerateIndexedData(50.0, 200.0);
+        provider.RegenerateIndexedData(new ValueRange(50.0, 200.0));
         Assert.That(provider.IndexedData, Is.Not.EqualTo(originalIndexed));
 
         // revert to the original range
-        provider.RegenerateIndexedData(provider.Min, provider.Max);
+        provider.RegenerateIndexedData(provider.Range);
         Assert.That(provider.IndexedData, Is.EqualTo(originalIndexed));
     }
 
     [Test]
-    public void GetRegionMinMax_FullImage_ReturnsGlobalMinMax()
+    public void GetRegionRange_FullImage_ReturnsGlobalMinMax()
     {
         int width = 3, height = 3;
         var data = new float[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
         var provider = new RawImageData<float>(width, height, data, "FLT");
 
-        var (min, max) = provider.GetRegionMinMax(0, 0, width, height);
+        var (min, max) = provider.GetRegionRange(0, 0, width, height);
 
         Assert.That(min, Is.EqualTo(10.0));
         Assert.That(max, Is.EqualTo(90.0));
     }
 
     [Test]
-    public void GetRegionMinMax_SubRegion_ReturnsCorrectValues()
+    public void GetRegionRange_SubRegion_ReturnsCorrectValues()
     {
         // Layout (3x3):
         //  10  20  30
@@ -225,35 +225,35 @@ public class RawImageDataTests
         var provider = new RawImageData<float>(width, height, data, "FLT");
 
         // select the center 2x2 region at (1,1)
-        var (min, max) = provider.GetRegionMinMax(1, 1, 2, 2);
+        var (min, max) = provider.GetRegionRange(1, 1, 2, 2);
 
         Assert.That(min, Is.EqualTo(50.0));
         Assert.That(max, Is.EqualTo(90.0));
     }
 
     [Test]
-    public void GetRegionMinMax_SinglePixel_ReturnsSameMinMax()
+    public void GetRegionRange_SinglePixel_ReturnsSameMinMax()
     {
         int width = 3, height = 3;
         var data = new float[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
         var provider = new RawImageData<float>(width, height, data, "FLT");
 
         // single pixel at (1,1) = 50
-        var (min, max) = provider.GetRegionMinMax(1, 1, 1, 1);
+        var (min, max) = provider.GetRegionRange(1, 1, 1, 1);
 
         Assert.That(min, Is.EqualTo(50.0));
         Assert.That(max, Is.EqualTo(50.0));
     }
 
     [Test]
-    public void GetRegionMinMax_ClampsToImageBounds()
+    public void GetRegionRange_ClampsToImageBounds()
     {
         int width = 3, height = 3;
         var data = new float[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
         var provider = new RawImageData<float>(width, height, data, "FLT");
 
         // region extends past the bottom-right corner
-        var (min, max) = provider.GetRegionMinMax(2, 2, 5, 5);
+        var (min, max) = provider.GetRegionRange(2, 2, 5, 5);
 
         // only pixel at (2,2) = 90 is within bounds
         Assert.That(min, Is.EqualTo(90.0));
@@ -261,14 +261,14 @@ public class RawImageDataTests
     }
 
     [Test]
-    public void GetRegionMinMax_NegativeOrigin_ClampsToZero()
+    public void GetRegionRange_NegativeOrigin_ClampsToZero()
     {
         int width = 3, height = 3;
         var data = new float[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
         var provider = new RawImageData<float>(width, height, data, "FLT");
 
         // region starts at (-1,-1) with size 2x2 → effective region is (0,0) to (1,1)
-        var (min, max) = provider.GetRegionMinMax(-1, -1, 2, 2);
+        var (min, max) = provider.GetRegionRange(-1, -1, 2, 2);
 
         // only pixel at (0,0) = 10 is within the effective region
         Assert.That(min, Is.EqualTo(10.0));
@@ -276,21 +276,21 @@ public class RawImageDataTests
     }
 
     [Test]
-    public void GetRegionMinMax_EmptyRegion_FallsBackToGlobalMinMax()
+    public void GetRegionRange_EmptyRegion_FallsBackToGlobalMinMax()
     {
         int width = 2, height = 2;
         var data = new float[] { 5, 15, 25, 35 };
         var provider = new RawImageData<float>(width, height, data, "FLT");
 
         // zero-size region
-        var (min, max) = provider.GetRegionMinMax(0, 0, 0, 0);
+        var (min, max) = provider.GetRegionRange(0, 0, 0, 0);
 
-        Assert.That(min, Is.EqualTo(provider.Min));
-        Assert.That(max, Is.EqualTo(provider.Max));
+        Assert.That(min, Is.EqualTo(provider.Range.Min));
+        Assert.That(max, Is.EqualTo(provider.Range.Max));
     }
 
     [Test]
-    public void GetRegionMinMax_FirstRow_ReturnsRowMinMax()
+    public void GetRegionRange_FirstRow_ReturnsRowMinMax()
     {
         // Layout (4x2):
         //  100  200  300  400
@@ -300,20 +300,20 @@ public class RawImageDataTests
         var provider = new RawImageData<float>(width, height, data, "FLT");
 
         // select first row only
-        var (min, max) = provider.GetRegionMinMax(0, 0, width, 1);
+        var (min, max) = provider.GetRegionRange(0, 0, width, 1);
 
         Assert.That(min, Is.EqualTo(100.0));
         Assert.That(max, Is.EqualTo(400.0));
     }
 
     [Test]
-    public void GetRegionMinMax_WorksWithIntData()
+    public void GetRegionRange_WorksWithIntData()
     {
         int width = 2, height = 2;
         var data = new int[] { -50, 0, 100, 200 };
         var provider = new RawImageData<int>(width, height, data, "INT");
 
-        var (min, max) = provider.GetRegionMinMax(0, 0, 1, 2);
+        var (min, max) = provider.GetRegionRange(0, 0, 1, 2);
 
         // column 0: -50, 100
         Assert.That(min, Is.EqualTo(-50.0));

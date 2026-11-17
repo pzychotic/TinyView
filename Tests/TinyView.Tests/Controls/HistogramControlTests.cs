@@ -17,8 +17,8 @@ public class HistogramControlTests
         var control = new HistogramControl
         {
             Histogram = provider.ComputeHistogram(64),
-            RangeMinimum = provider.Min,
-            RangeMaximum = provider.Max,
+            RangeMinimum = provider.Range.Min,
+            RangeMaximum = provider.Range.Max,
             BlackPoint = 0.2,
             WhitePoint = 0.8,
             Palette = ColorPalettes.Palettes[0].Palette,

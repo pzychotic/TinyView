@@ -134,13 +134,13 @@ public sealed class HistogramControl : FrameworkElement
     private double ToX(double value)
     {
         var h = Histogram;
-        return h == null ? 0 : HistogramMapping.ValueToX(value, h.Min, h.Max, ActualWidth);
+        return h == null ? 0 : HistogramMapping.ValueToX(value, h.Range, ActualWidth);
     }
 
     private double ToValue(double x)
     {
         var h = Histogram;
-        return h == null ? 0 : HistogramMapping.XToValue(x, h.Min, h.Max, ActualWidth);
+        return h == null ? 0 : HistogramMapping.XToValue(x, h.Range, ActualWidth);
     }
 
     protected override Size MeasureOverride(Size availableSize) => new(0, StripHeight + HandleHeight + Gap + 20);
@@ -326,9 +326,10 @@ public sealed class HistogramControl : FrameworkElement
     private void UpdateDrag(double x)
     {
         double value = ToValue(x);
+        var imageRange = new ValueRange(RangeMinimum, RangeMaximum);
         _dragValue = _dragMarker == Marker.Black
-            ? HistogramMapping.ClampBlackPoint(value, RangeMinimum, RangeMaximum, WhitePoint)
-            : HistogramMapping.ClampWhitePoint(value, RangeMinimum, RangeMaximum, BlackPoint);
+            ? HistogramMapping.ClampBlackPoint(value, imageRange, WhitePoint)
+            : HistogramMapping.ClampWhitePoint(value, imageRange, BlackPoint);
 
         InvalidateVisual();
 
