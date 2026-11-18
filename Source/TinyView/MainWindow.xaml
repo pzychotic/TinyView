@@ -46,6 +46,9 @@
 
         <!-- H for histogram window toggle -->
         <KeyBinding Command="{Binding ToggleHistogramCommand}" Key="H" />
+
+        <!-- N for non-finite (NaN/±Inf) highlight toggle -->
+        <KeyBinding Command="{Binding ToggleNonFiniteHighlightCommand}" Key="N" />
     </Window.InputBindings>
 
     <Grid>
@@ -97,6 +100,8 @@
                 </MenuItem>
                 <Separator />
                 <MenuItem Header="Histo_gram" IsCheckable="True" IsChecked="{Binding IsHistogramVisible, Mode=TwoWay}" InputGestureText="H" />
+                <MenuItem Header="Highlight _Non-finite Values" IsCheckable="True" IsChecked="{Binding IsNonFiniteHighlightVisible, Mode=TwoWay}" InputGestureText="N"
+                          ToolTip="Show NaN and ±Infinity pixels in magenta" />
             </MenuItem>
 
             <MenuItem Header="?">
@@ -202,6 +207,10 @@
                                                             SelectionCommand="{Binding ApplyRegionMinMaxCommand}" />
                         </i:Interaction.Behaviors>
                     </Image>
+                    <!-- NaN/±Inf highlight: same size and scaling as PreviewImage, so it covers its pixels exactly -->
+                    <Image x:Name="NonFiniteOverlayImage" Stretch="Fill" IsHitTestVisible="False"
+                           RenderOptions.BitmapScalingMode="NearestNeighbor"
+                           Source="{Binding NonFiniteOverlay}" />
                 </Grid>
             </Grid>
         </ScrollViewer>

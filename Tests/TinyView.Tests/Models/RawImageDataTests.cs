@@ -392,6 +392,42 @@ public class RawImageDataTests
     }
 
     [Test]
+    public void NonFiniteMask_MarksNaNAndInfinity()
+    {
+        var data = new float[] { 1f, float.NaN, float.NegativeInfinity, 2f, float.PositiveInfinity };
+        var provider = new RawImageData<float>(5, 1, data, "FLT");
+
+        const byte n = OverlayPalette.NonFiniteIndex;
+        const byte t = OverlayPalette.TransparentIndex;
+        Assert.That(provider.NonFiniteMask, Is.EqualTo(new byte[] { t, n, n, t, n }));
+    }
+
+    [Test]
+    public void NonFiniteMask_MarksNonFiniteHalf()
+    {
+        var data = new Half[] { Half.NaN, (Half)1f, Half.PositiveInfinity };
+        var provider = new RawImageData<Half>(3, 1, data, "HALF");
+
+        Assert.That(provider.NonFiniteMask, Is.EqualTo(new byte[] { OverlayPalette.NonFiniteIndex, OverlayPalette.TransparentIndex, OverlayPalette.NonFiniteIndex }));
+    }
+
+    [Test]
+    public void NonFiniteMask_IsNull_WhenAllValuesFinite()
+    {
+        var provider = new RawImageData<float>(3, 1, [0f, 1f, -2f], "FLT");
+
+        Assert.That(provider.NonFiniteMask, Is.Null);
+    }
+
+    [Test]
+    public void NonFiniteMask_IsNull_ForIntegerData()
+    {
+        var provider = new RawImageData<int>(2, 1, [int.MinValue, int.MaxValue], "INT_FMT");
+
+        Assert.That(provider.NonFiniteMask, Is.Null);
+    }
+
+    [Test]
     public void GetValueString_NonFiniteHalf_MatchesFloatFormatting()
     {
         var data = new Half[] { Half.NaN, Half.PositiveInfinity, Half.NegativeInfinity };

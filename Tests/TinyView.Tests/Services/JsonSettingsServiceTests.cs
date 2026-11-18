@@ -36,6 +36,7 @@ public class JsonSettingsServiceTests
             SelectedPaletteName = "Viridis",
             HistogramVisible = true,
             HistogramLogScale = false,
+            HighlightNonFinite = false,
             HistogramLeft = 10,
             HistogramTop = 20,
             HistogramWidth = 400,
@@ -54,6 +55,7 @@ public class JsonSettingsServiceTests
         Assert.That(loaded.SelectedPaletteName, Is.EqualTo(original.SelectedPaletteName));
         Assert.That(loaded.HistogramVisible, Is.EqualTo(original.HistogramVisible));
         Assert.That(loaded.HistogramLogScale, Is.EqualTo(original.HistogramLogScale));
+        Assert.That(loaded.HighlightNonFinite, Is.EqualTo(original.HighlightNonFinite));
         Assert.That(loaded.HistogramLeft, Is.EqualTo(original.HistogramLeft));
         Assert.That(loaded.HistogramTop, Is.EqualTo(original.HistogramTop));
         Assert.That(loaded.HistogramWidth, Is.EqualTo(original.HistogramWidth));

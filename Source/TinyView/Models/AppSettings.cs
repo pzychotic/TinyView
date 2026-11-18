@@ -25,4 +25,7 @@ public sealed class AppSettings
     public double? HistogramTop { get; set; }
     public double? HistogramWidth { get; set; }
     public double? HistogramHeight { get; set; }
+
+    /// <summary>Whether NaN and ±Infinity pixels are highlighted (null = default, on).</summary>
+    public bool? HighlightNonFinite { get; set; }
 }

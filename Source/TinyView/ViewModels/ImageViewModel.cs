@@ -157,6 +157,38 @@ public partial class ImageViewModel : ObservableObject
             Histogram = RawData.ComputeHistogram(Models.Histogram.DefaultBinCount);
     }
 
+    /// <summary>
+    /// Whether NaN and ±Infinity pixels are highlighted (View menu item, persisted).
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NonFiniteOverlay))]
+    private bool _isNonFiniteHighlightVisible = true;
+
+    // Overlay bitmap for the current image, or null when it has no non-finite pixels.
+    // Built once per image: the mask does not depend on display range or palette.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NonFiniteOverlay))]
+    private WriteableBitmap? _nonFiniteOverlayBitmap;
+
+    /// <summary>
+    /// Transparent overlay marking non-finite pixels, drawn above <see cref="ImageSource"/>.
+    /// Null when the highlight is switched off or the image has no non-finite pixels.
+    /// </summary>
+    public WriteableBitmap? NonFiniteOverlay => IsNonFiniteHighlightVisible ? NonFiniteOverlayBitmap : null;
+
+    [RelayCommand]
+    private void ToggleNonFiniteHighlight() => IsNonFiniteHighlightVisible = !IsNonFiniteHighlightVisible;
+
+    private static WriteableBitmap? CreateNonFiniteOverlay(IRawImageDataProvider rawData)
+    {
+        if (rawData.NonFiniteMask is not { } mask)
+            return null;
+
+        var bitmap = new WriteableBitmap(rawData.Width, rawData.Height, 96, 96, PixelFormats.Indexed8, OverlayPalette.Palette);
+        bitmap.WritePixels(new Int32Rect(0, 0, rawData.Width, rawData.Height), mask, rawData.Width, 0);
+        return bitmap;
+    }
+
     private bool CanToggleRegionSelect() => HasImage;
 
     [RelayCommand(CanExecute = nameof(CanToggleRegionSelect))]
@@ -253,6 +285,7 @@ public partial class ImageViewModel : ObservableObject
             EnsureHistogram();
         InitializeDisplayRange();
         ApplyPalette();
+        NonFiniteOverlayBitmap = CreateNonFiniteOverlay(value);
         ZoomInCommand.NotifyCanExecuteChanged();
         ZoomOutCommand.NotifyCanExecuteChanged();
         ZoomResetCommand.NotifyCanExecuteChanged();
