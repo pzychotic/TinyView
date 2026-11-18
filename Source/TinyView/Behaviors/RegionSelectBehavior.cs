@@ -170,9 +170,15 @@ public sealed class RegionSelectBehavior : Behavior<Image>
         if (AssociatedObject.Parent is not Panel parent)
             return;
 
+        // Layout rounding (inherited from the Window) snaps Canvas.Left/Top and
+        // Width/Height to device pixels in the canvas' *unzoomed* local space,
+        // i.e. to multiples of 1/dpiScale image pixels. At 150% DPI that shifts
+        // odd pixel coordinates by ±1/3 pixel, which the zoom LayoutTransform then
+        // magnifies. The selection is already in whole image pixels, so disable it.
         _overlayCanvas = new Canvas
         {
-            IsHitTestVisible = false
+            IsHitTestVisible = false,
+            UseLayoutRounding = false
         };
 
         _selectionRect = new Rectangle
@@ -182,6 +188,11 @@ public sealed class RegionSelectBehavior : Behavior<Image>
             StrokeDashArray = [4, 2],
             Visibility = Visibility.Collapsed
         };
+
+        // Aliased edges fill exactly the device pixels whose centers lie inside the
+        // stroke, the same rule the NearestNeighbor image uses for its texels. With
+        // antialiasing, fractional zoom factors smear the edge into a neighbor column.
+        RenderOptions.SetEdgeMode(_selectionRect, EdgeMode.Aliased);
 
         _overlayCanvas.Children.Add(_selectionRect);
         parent.Children.Add(_overlayCanvas);
