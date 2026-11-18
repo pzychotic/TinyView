@@ -26,6 +26,8 @@ public partial class MainWindow : Window
         _dialogService = new WpfDialogService(this);
         _viewModel = new(_dialogService);
         _viewModel.RestorePalette(settings.SelectedPaletteName);
+        if (settings.HighlightNonFinite is bool highlightNonFinite)
+            _viewModel.IsNonFiniteHighlightVisible = highlightNonFinite;
         DataContext = _viewModel;
 
         RestorePlacement(settings);
@@ -40,6 +42,7 @@ public partial class MainWindow : Window
             SavePlacement(_settings);
             SaveHistogram(_settings);
             _settings.SelectedPaletteName = _viewModel.SelectedPaletteName;
+            _settings.HighlightNonFinite = _viewModel.IsNonFiniteHighlightVisible;
             _dialogService.CloseHistogram();
             _settingsService.Save(_settings);
         }

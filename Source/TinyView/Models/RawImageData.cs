@@ -19,6 +19,7 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         Height = height;
 
         Range = ComputeRange(data);
+        NonFiniteMask = ComputeNonFiniteMask(data);
 
         _rawData = data;
         IndexedData = new byte[Width * Height];
@@ -53,6 +54,26 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
         }
 
         return new ValueRange(double.CreateTruncating(min), double.CreateTruncating(max));
+    }
+
+    /// <summary>
+    /// Marks every NaN and ±Infinity value in <paramref name="data"/> with
+    /// <see cref="OverlayPalette.NonFiniteIndex"/>. Returns null when all values are finite,
+    /// so images without such values (including all integer images) need no mask buffer.
+    /// </summary>
+    private static byte[]? ComputeNonFiniteMask(ReadOnlySpan<T> data)
+    {
+        byte[]? mask = null;
+        for (int i = 0; i < data.Length; ++i)
+        {
+            if (T.IsFinite(data[i]))
+                continue;
+
+            mask ??= new byte[data.Length];
+            mask[i] = OverlayPalette.NonFiniteIndex;
+        }
+
+        return mask;
     }
 
     /// <summary>
@@ -168,6 +189,9 @@ public sealed class RawImageData<T> : IRawImageDataProvider where T : INumber<T>
     public ValueRange Range { get; }
 
     public byte[] IndexedData { get; }
+
+    /// <inheritdoc />
+    public byte[]? NonFiniteMask { get; }
 
     public string DataFormat => _dataFormat;
 

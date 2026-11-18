@@ -504,6 +504,63 @@ public class ImageViewModelTests
         Assert.That(new ImageViewModel().IsHistogramLogScale, Is.True);
     }
 
+    [Test]
+    public void IsNonFiniteHighlightVisible_DefaultsToTrue()
+    {
+        Assert.That(new ImageViewModel().IsNonFiniteHighlightVisible, Is.True);
+    }
+
+    [Test]
+    public void NonFiniteOverlay_IsNull_WhenImageHasNoNonFiniteValues()
+    {
+        var vm = new ImageViewModel { RawData = new RawImageData<float>(2, 1, [0f, 1f], "FLT") };
+
+        Assert.That(vm.NonFiniteOverlay, Is.Null);
+    }
+
+    [Test]
+    public void NonFiniteOverlay_MatchesImageSize_WhenImageHasNonFiniteValues()
+    {
+        var vm = new ImageViewModel { RawData = new RawImageData<float>(3, 2, [0f, float.NaN, 1f, 2f, 3f, float.PositiveInfinity], "FLT") };
+
+        Assert.That(vm.NonFiniteOverlay, Is.Not.Null);
+        Assert.That(vm.NonFiniteOverlay!.PixelWidth, Is.EqualTo(3));
+        Assert.That(vm.NonFiniteOverlay.PixelHeight, Is.EqualTo(2));
+
+        var pixels = new byte[6];
+        vm.NonFiniteOverlay.CopyPixels(pixels, 3, 0);
+        Assert.That(pixels, Is.EqualTo(new byte[] { 0, 1, 0, 0, 0, 1 }));
+        Assert.That(vm.NonFiniteOverlay.Palette.Colors[OverlayPalette.NonFiniteIndex], Is.EqualTo(OverlayPalette.NonFiniteColor));
+        Assert.That(vm.NonFiniteOverlay.Palette.Colors[OverlayPalette.TransparentIndex].A, Is.Zero);
+    }
+
+    [Test]
+    public void ToggleNonFiniteHighlightCommand_HidesAndShowsOverlay()
+    {
+        var vm = new ImageViewModel { RawData = new RawImageData<float>(2, 1, [float.NaN, 1f], "FLT") };
+        var changed = new List<string?>();
+        vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        vm.ToggleNonFiniteHighlightCommand.Execute(null);
+        Assert.That(vm.IsNonFiniteHighlightVisible, Is.False);
+        Assert.That(vm.NonFiniteOverlay, Is.Null);
+        Assert.That(changed, Does.Contain(nameof(ImageViewModel.NonFiniteOverlay)));
+
+        vm.ToggleNonFiniteHighlightCommand.Execute(null);
+        Assert.That(vm.IsNonFiniteHighlightVisible, Is.True);
+        Assert.That(vm.NonFiniteOverlay, Is.Not.Null);
+    }
+
+    [Test]
+    public void NonFiniteOverlay_IsCleared_WhenNewImageHasNoNonFiniteValues()
+    {
+        var vm = new ImageViewModel { RawData = new RawImageData<float>(1, 1, [float.NaN], "FLT") };
+
+        vm.RawData = new RawImageData<float>(1, 1, [1f], "FLT");
+
+        Assert.That(vm.NonFiniteOverlay, Is.Null);
+    }
+
     private sealed class SpyDialogService : IDialogService
     {
         public bool ShutdownRequested { get; private set; }

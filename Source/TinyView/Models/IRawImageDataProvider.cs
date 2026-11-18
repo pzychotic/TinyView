@@ -9,6 +9,15 @@ public interface IRawImageDataProvider
     ValueRange Range { get; }
 
     byte[] IndexedData { get; }
+
+    /// <summary>
+    /// Per-pixel mask of non-finite raw values (NaN, +Infinity, -Infinity): each byte is
+    /// <see cref="OverlayPalette.NonFiniteIndex"/> for a non-finite pixel and
+    /// <see cref="OverlayPalette.TransparentIndex"/> otherwise, so it can be used directly as
+    /// <see cref="OverlayPalette"/>-indexed pixel data. Null when every value is finite.
+    /// </summary>
+    byte[]? NonFiniteMask { get; }
+
     string DataFormat { get; }
     string GetValueString(int x, int y);
 
