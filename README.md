@@ -14,7 +14,7 @@ A specialized viewer for 16/32-bit single channel images.
 If you ever found yourself wondering why your images only show up in black or white in other image viewers, you've come to the right place.
 
 The pixel value range of the image, from minimum to maximum, will be scaled to the 0-255 range for screen display.
-This allows data encoded in images (e.g. heightmaps) to be visualized, which normal image viewers usually can't display.
+This allows data encoded in images (e.g. heightmaps) or scientific and medical images to be visualized, which normal image viewers usually can't display.
 In addition to the grayscale display, there are different color maps available that also work for common types of color blindness.
 Hovering over an area will display the raw pixel value under the cursor in the status bar.
 

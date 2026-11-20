@@ -7,6 +7,34 @@ title: Changelog
 
 All notable changes to TinyView are documented in this file.
 
+## v1.6.0 - 2026-11-20
+
+### User-Visible Changes
+
+- Added histogram window (View > Histogram, `H`)
+  - draggable black/white points
+  - log/linear count axis
+  - palette strip with current mapping
+  - synced to region selection
+  - NaN and Infinity pixel counts
+- Added highlighting of NaN and Infinity pixels in magenta (View > Highlight Non-finite Values, `N`)
+- Fixed non-finite pixels breaking auto-scaling
+- Fixed selection border misaligned with image pixels at non-100% display scaling
+- Fixed "drop allowed" cursor shown when dragging non-file data onto the window
+- Updated README
+
+### Internal Changes
+
+- Introduced `ValueRange` for min/max value pairs
+- Aligned `DropBehavior` with `TinyIcon`
+- Added more tests
+
+### Dependency Updates
+
+- Bumped Magick.NET-Q16-AnyCPU from 15.0.0 to 15.1.0
+- Bumped Microsoft.NET.Test.Sdk from 18.11.0 to 18.12.0
+- Bumped TinyEXR.NET from 1.2.0 to 1.3.0
+
 ## v1.5.1 - 2026-11-01
 
 ### User-Visible Changes
